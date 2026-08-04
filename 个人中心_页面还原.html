@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7ff">
+  <title>个人中心</title>
+  <style>
+    :root {
+      --blue: #2e6df6;
+      --green: #43c579;
+      --orange: #ff8b32;
+      --violet: #8159ed;
+      --ink: #17191f;
+      --muted: #8b8e95;
+      --page: #f3f6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-height: 100%; background: #e9edf6; }
+
+    body {
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { padding: 0; border: 0; color: inherit; font: inherit; background: none; cursor: pointer; }
+
+    .app {
+      position: relative;
+      width: min(100%, 430px);
+      min-height: 100svh;
+      margin: 0 auto;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 10% 4%, rgba(255,255,255,.85), transparent 24%),
+        linear-gradient(155deg, #f7f9ff 0%, var(--page) 42%, #edf3ff 100%);
+      box-shadow: 0 0 32px rgba(43, 60, 91, .11);
+    }
+
+    .scroll { padding: 0 16px calc(92px + env(safe-area-inset-bottom)); }
+
+    .statusbar {
+      height: 45px;
+      padding: 13px 29px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .status-icons { display: flex; align-items: center; gap: 8px; }
+    .signal { display: flex; gap: 2px; align-items: flex-end; height: 14px; }
+    .signal i { display: block; width: 3px; border-radius: 1px; background: #111; }
+    .signal i:nth-child(1) { height: 5px; }
+    .signal i:nth-child(2) { height: 8px; }
+    .signal i:nth-child(3) { height: 11px; }
+    .signal i:nth-child(4) { height: 14px; opacity: .25; }
+    .wifi { width: 18px; height: 14px; position: relative; overflow: hidden; }
+    .wifi::before, .wifi::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border: 2px solid #111; border-color: #111 transparent transparent; border-radius: 50%; }
+    .wifi::before { top: 1px; width: 20px; height: 16px; }
+    .wifi::after { top: 6px; width: 10px; height: 8px; }
+    .battery { min-width: 28px; height: 15px; border-radius: 4px; padding: 0 4px; color: #fff; background: #111; font-size: 11px; line-height: 15px; text-align: center; }
+
+    .nav-head { position: relative; height: 57px; display: grid; place-items: center; }
+    .nav-head h1 { margin: 1px 0 0; font-size: 21px; font-weight: 500; letter-spacing: 0; }
+    .mini-actions { position: absolute; right: -10px; top: 7px; width: 84px; height: 32px; border: 1px solid rgba(0,0,0,.04); border-radius: 18px; background: rgba(255,255,255,.84); display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+    .mini-actions::after { content: ""; position: absolute; left: 42px; top: 6px; width: 1px; height: 20px; background: #ececf0; }
+    .dots { font-size: 20px; font-weight: 800; line-height: 1; transform: translateY(-3px); letter-spacing: 1px; }
+    .round-menu { width: 16px; height: 16px; margin: auto; border: 3px solid #14171d; border-radius: 50%; position: relative; }
+    .round-menu::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #14171d; }
+
+    .card { border-radius: 8px; background: rgba(255,255,255,.96); box-shadow: 0 5px 14px rgba(73, 101, 152, .06); }
+
+    .profile {
+      min-height: 104px;
+      margin-top: 4px;
+      padding: 21px 21px;
+      display: grid;
+      grid-template-columns: 66px minmax(0,1fr) auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .avatar { width: 66px; height: 66px; border: 3px solid #fff; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 7px rgba(42,49,66,.16); }
+    .profile-name { font-size: 20px; font-weight: 700; white-space: nowrap; }
+    .role-switch { height: 29px; padding: 0 12px; border-radius: 15px; color: #4978db; background: #f7f9ff; font-size: 14px; white-space: nowrap; }
+    .role-switch span { margin-right: 4px; font-size: 20px; vertical-align: -2px; }
+
+    .membership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 13px; }
+    .membership {
+      position: relative;
+      height: 128px;
+      padding: 15px 14px 12px;
+      overflow: hidden;
+      border-radius: 7px;
+      box-shadow: 0 5px 7px rgba(45, 60, 90, .13);
+      text-align: left;
+    }
+    .membership::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(120deg, transparent 0 16px, rgba(255,255,255,.22) 17px, transparent 18px 31px); opacity: .55; pointer-events: none; }
+    .membership.silver { color: #222a3a; background: linear-gradient(145deg, #d8efff 0%, #f4f8ff 52%, #cdd7ff 100%); }
+    .membership.gold { color: #39240b; background: linear-gradient(145deg, #fff4d3 0%, #fffdf4 50%, #ffd8bf 100%); }
+    .member-title { position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; }
+    .tiny-crown { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px 6px 8px 8px; color: #ffe7a1; background: #5b3a00; font-size: 12px; }
+    .member-price { position: relative; z-index: 1; display: block; margin-top: 12px; font-size: 28px; line-height: 1; white-space: nowrap; }
+    .member-price small { font-size: 14px; }
+    .member-desc { position: relative; z-index: 1; display: block; width: 100%; margin-top: 11px; font-size: 12px; line-height: 1.55; opacity: .75; }
+    .gem { position: absolute; z-index: 0; right: 7px; top: 22px; width: 72px; height: 57px; filter: drop-shadow(0 6px 5px rgba(83,99,130,.17)); }
+    .gem::before { content: "◇"; position: absolute; inset: 0; font-size: 79px; line-height: 55px; font-family: Georgia, serif; transform: scaleX(1.25); }
+    .gem::after { content: "V"; position: absolute; left: 23px; top: 17px; font-size: 27px; font-weight: 800; }
+    .silver .gem { color: #9aa9c0; text-shadow: 0 0 8px white; }
+    .gold .gem { color: #e6a33e; text-shadow: 0 0 9px white; }
+
+    .action-strip { margin-top: 19px; min-height: 105px; padding: 18px 9px 14px; display: grid; grid-template-columns: repeat(4, 1fr); }
+    .action-item { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 14px; white-space: nowrap; }
+    .icon-bubble { width: 47px; height: 47px; border-radius: 50%; display: grid; place-items: center; font-size: 27px; font-weight: 700; }
+    .green { color: var(--green); background: #f0fcf6; }
+    .blue { color: #3979ea; background: #f0f5ff; }
+    .orange { color: #f59a34; background: #fff8ed; }
+    .purple { color: var(--violet); background: #f6f1ff; }
+    .symbol { font-family: Arial, sans-serif; font-size: 23px; line-height: 1; }
+
+    .section { margin-top: 14px; padding: 20px 14px 18px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section h2 { margin: 0; font-size: 19px; line-height: 1; }
+    .more-link { color: #aaaeb5; font-size: 14px; }
+    .more-link span { padding-left: 4px; font-size: 22px; vertical-align: -2px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .stat { display: flex; flex-direction: column; align-items: center; }
+    .stat .icon-bubble { width: 50px; height: 50px; font-size: 25px; }
+    .stat-value { margin-top: 7px; font-size: 20px; line-height: 1; }
+    .stat:nth-child(1) .stat-value { color: #3479ec; }
+    .stat:nth-child(2) .stat-value { color: #43c579; }
+    .stat:nth-child(3) .stat-value { color: #f17928; }
+    .stat-value small { margin-left: 2px; font-size: 13px; }
+    .stat-label { margin-top: 8px; font-size: 14px; }
+
+    .services { margin-top: 14px; padding: 20px 15px 14px; }
+    .services h2 { margin: 0 0 20px; font-size: 19px; }
+    .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 23px; }
+    .service { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; white-space: nowrap; }
+    .service-icon { font-size: 20px; line-height: 1; }
+    .service:nth-child(1) .service-icon { color: #5b91ed; }
+    .service:nth-child(2) .service-icon { color: #f6b33e; }
+    .service:nth-child(3) .service-icon { color: #55a4ef; }
+    .service:nth-child(4) .service-icon { color: #8b64ec; }
+    .service:nth-child(5) .service-icon { color: #22a89a; }
+    .service:nth-child(4) { grid-column: 1; }
+
+    .placeholder { height: 108px; margin-top: 14px; }
+
+    .invite-modal {
+      position: fixed;
+      z-index: 40;
+      inset: 0 auto 0 50%;
+      width: min(100%, 430px);
+      padding: 20px;
+      transform: translateX(-50%);
+      display: grid;
+      place-items: center;
+      background: rgba(20, 25, 35, .46);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .2s ease, visibility .2s ease;
+    }
+    .invite-modal.show { opacity: 1; visibility: visible; }
+    .invite-dialog {
+      position: relative;
+      width: min(100%, 318px);
+      padding: 26px 24px 22px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(22, 31, 48, .22);
+      text-align: center;
+      transform: translateY(10px) scale(.98);
+      transition: transform .2s ease;
+    }
+    .invite-modal.show .invite-dialog { transform: translateY(0) scale(1); }
+    .invite-dialog h2 { margin: 0 0 18px; font-size: 20px; }
+    .close-modal { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; color: #7c818a; font-size: 27px; line-height: 34px; }
+    .invite-code { display: block; width: 100%; aspect-ratio: 324 / 310; object-fit: contain; border-radius: 4px; }
+    .save-code { width: 100%; height: 44px; margin-top: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #fff; background: #2e6df6; font-size: 15px; font-weight: 600; text-decoration: none; }
+    .save-code:active { background: #245ed7; }
+    .save-code i { font-size: 20px; font-style: normal; }
+
+    .tabbar {
+      position: fixed;
+      z-index: 20;
+      left: 50%;
+      bottom: 0;
+      width: min(100%, 430px);
+      height: calc(72px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: rgba(255,255,255,.97);
+      border-top: 1px solid #e7e8ec;
+      box-shadow: 0 -3px 9px rgba(41,55,82,.04);
+    }
+    .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #9a9ca2; font-size: 12px; }
+    .tab-icon { width: 26px; height: 24px; display: grid; place-items: center; font-size: 23px; line-height: 1; filter: grayscale(1); }
+    .tab.active { color: #2464e9; }
+    .tab.active .tab-icon { color: #2464e9; filter: none; }
+
+    .toast { position: fixed; z-index: 30; left: 50%; bottom: 92px; max-width: 300px; padding: 9px 15px; transform: translate(-50%, 14px); border-radius: 5px; color: #fff; background: rgba(20,23,29,.86); font-size: 13px; opacity: 0; pointer-events: none; transition: .22s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (min-width: 431px) { body { padding: 18px 0; } .app { min-height: calc(100vh - 36px); border-radius: 18px; } .tabbar { bottom: 18px; border-radius: 0 0 18px 18px; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="scroll">
+      <header>
+        <div class="statusbar">
+          <span>14:55</span>
+          <div class="status-icons" aria-label="手机状态">
+            <span class="signal"><i></i><i></i><i></i><i></i></span>
+            <span class="wifi"></span>
+            <span class="battery">63</span>
+          </div>
+        </div>
+        <div class="nav-head">
+          <h1>个人中心</h1>
+          <div class="mini-actions">
+            <button class="dots" data-action="更多">•••</button>
+            <button class="round-menu" data-action="小程序菜单" aria-label="小程序菜单"></button>
+          </div>
+        </div>
+      </header>
+
+      <section class="profile card">
+        <img class="avatar" src="maker-avatar.jpg" alt="芦笛头像">
+        <strong class="profile-name">芦笛</strong>
+        <button class="role-switch" data-action="切换至家长身份"><span>⇄</span>家长</button>
+      </section>
+
+      <section class="membership-grid" aria-label="会员方案">
+        <button class="membership silver" data-action="普通会员">
+          <span class="member-title"><i class="tiny-crown">♛</i>普通会员</span>
+          <span class="member-price">0.01<small>元/年</small></span>
+          <span class="member-desc">可享受会员价购买精品AI课程 20小时/单科</span>
+          <i class="gem"></i>
+        </button>
+        <button class="membership gold" data-action="卓越会员">
+          <span class="member-title"><i class="tiny-crown">♛</i>卓越会员</span>
+          <span class="member-price">0.02<small>元/年</small></span>
+          <span class="member-desc">可在一年内无限次享受会员价，购买精品AI课程</span>
+          <i class="gem"></i>
+        </button>
+      </section>
+
+      <section class="action-strip card" aria-label="合作与邀请">
+        <button class="action-item" data-action="申请加盟"><i class="icon-bubble green">▣</i><span>申请加盟</span></button>
+        <button class="action-item" data-action="招募合伙人"><i class="icon-bubble blue symbol">♟<sup>+</sup></i><span>招募合伙人</span></button>
+        <button class="action-item" data-action="邀请老师入驻"><i class="icon-bubble orange symbol">▣</i><span>邀请老师入驻</span></button>
+        <button class="action-item" data-action="邀请家长报名"><i class="icon-bubble purple symbol">♟♡</i><span>邀请家长报名</span></button>
+      </section>
+
+      <section class="section card">
+        <div class="section-head">
+          <h2>创客中心</h2>
+          <button class="more-link" data-action="创客中心详情">查看更多 <span>›</span></button>
+        </div>
+        <div class="stats">
+          <button class="stat" data-action="一星团队"><i class="icon-bubble blue">♟♟</i><span class="stat-value">0<small>人</small></span><span class="stat-label">一星团队</span></button>
+          <button class="stat" data-action="二星团队"><i class="icon-bubble green">♟♟</i><span class="stat-value">0<small>人</small></span><span class="stat-label">二星团队</span></button>
+          <button class="stat" data-action="累计奖金"><i class="icon-bubble orange">🎁</i><span class="stat-value">0<small>元</small></span><span class="stat-label">累计奖金</span></button>
+        </div>
+      </section>
+
+      <section class="services card">
+        <h2>我的服务</h2>
+        <div class="service-grid">
+          <button class="service" data-action="我的订单"><i class="service-icon">▤</i><span>我的订单</span></button>
+          <button class="service" data-action="我的收藏"><i class="service-icon">★</i><span>我的收藏</span></button>
+          <button class="service" data-action="我的课程"><i class="service-icon">▣</i><span>我的课程</span></button>
+          <button class="service" data-action="专属客服"><i class="service-icon">◉</i><span>专属客服</span></button>
+          <button class="service" data-modal-open><i class="service-icon">▦</i><span>邀请码</span></button>
+        </div>
+      </section>
+      <div class="placeholder card" aria-hidden="true"></div>
+    </div>
+
+    <nav class="tabbar" aria-label="底部导航">
+      <button class="tab" data-tab="首页"><i class="tab-icon">⌂</i><span>首页</span></button>
+      <button class="tab" data-tab="全部教员"><i class="tab-icon">▯</i><span>全部教员</span></button>
+      <button class="tab" data-tab="成为会员"><i class="tab-icon">♛</i><span>成为会员</span></button>
+      <button class="tab" data-tab="消息"><i class="tab-icon">▣</i><span>消息</span></button>
+      <button class="tab active" data-tab="我的"><i class="tab-icon">♟</i><span>我的</span></button>
+    </nav>
+    <div class="invite-modal" aria-hidden="true">
+      <section class="invite-dialog" role="dialog" aria-modal="true" aria-labelledby="invite-title">
+        <button class="close-modal" data-modal-close aria-label="关闭">×</button>
+        <h2 id="invite-title">我的邀请二维码</h2>
+        <img class="invite-code" src="用户邀请小程序码-白底.png" alt="优坐标邀请小程序码">
+        <a class="save-code" href="用户邀请小程序码-白底.png" download="优坐标-我的邀请二维码.png"><i>⇩</i>保存图片</a>
+      </section>
+    </div>
+    <div class="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    const toast = document.querySelector('.toast');
+    const inviteModal = document.querySelector('.invite-modal');
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
+    }
+
+    function setInviteModal(open) {
+      inviteModal.classList.toggle('show', open);
+      inviteModal.setAttribute('aria-hidden', String(!open));
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) document.querySelector('.close-modal').focus();
+      window.parent.postMessage({ channel: 'personal-center-restored', page: open ? 'invite' : 'profile' }, '*');
+    }
+
+    document.addEventListener('click', event => {
+      if (event.target.closest('[data-modal-open]')) {
+        setInviteModal(true);
+        return;
+      }
+      if (event.target.closest('[data-modal-close]') || event.target === inviteModal) {
+        setInviteModal(false);
+        return;
+      }
+
+      const action = event.target.closest('[data-action]');
+      if (action) showToast(action.dataset.action);
+
+      const tab = event.target.closest('[data-tab]');
+      if (!tab) return;
+      document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab));
+      showToast(`已切换到${tab.dataset.tab}`);
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && inviteModal.classList.contains('show')) setInviteModal(false);
+    });
+
+    window.parent.postMessage({ channel: 'personal-center-restored', page: 'profile' }, '*');
+  </script>
+</body>
+</html>
