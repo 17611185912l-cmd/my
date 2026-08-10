@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f4f6">
+  <title>授课中心</title>
+  <style>
+    :root { --device-scale: 1; --ink: #24262b; --muted: #777a82; --line: #e5ebf2; --blue: #3f72ad; --paper: #fff; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { min-height: 100svh; padding: 16px; display: grid; place-items: center; overflow: hidden; color: var(--ink); background: #e7eaee; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; -webkit-font-smoothing: antialiased; }
+    button, a { padding: 0; border: 0; color: inherit; font: inherit; background: none; text-decoration: none; }
+    button, a { cursor: pointer; }
+    .phone-shell { position: relative; isolation: isolate; width: 464px; height: 980px; padding: 11px; border: 1px solid #777d84; border-radius: 66px; background: linear-gradient(135deg,#bfc3c7 0%,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e 100%); box-shadow: 0 34px 70px rgba(32,38,45,.28),0 10px 22px rgba(32,38,45,.18),inset 0 0 0 1px rgba(255,255,255,.75),inset 0 0 0 3px rgba(33,36,40,.68); transform: scale(var(--device-scale)); transform-origin: center; }
+    .dynamic-island { position: absolute; z-index: 30; top: 22px; left: 50%; width: 126px; height: 34px; transform: translateX(-50%); border-radius: 20px; background: #050505; pointer-events: none; }
+    .dynamic-island::after { content: ""; position: absolute; right: 12px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: #111a25; box-shadow: inset 0 0 0 2px #080b10,0 0 2px #1a4d79; }
+    .app { position: relative; width: 440px; height: 956px; overflow: hidden; border-radius: 54px; background: #f5f4f6; box-shadow: inset 0 0 0 1px rgba(0,0,0,.52); }
+    .page { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; background: linear-gradient(to bottom,rgba(245,244,246,0) 188px,#f5f4f6 250px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
+    .page::-webkit-scrollbar { display: none; }
+    header { position: sticky; z-index: 10; top: 0; color: #294966; background: linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
+    .statusbar { height: 36px; padding: 17px 36px 0; display: flex; align-items: flex-start; justify-content: space-between; color: #050505; font-size: 15px; line-height: 1; font-weight: 700; }
+    .device-status { display: flex; align-items: center; gap: 8px; }
+    .signal { width: 18px; height: 12px; display: flex; align-items: flex-end; gap: 2px; }
+    .signal i { width: 3px; border-radius: 2px 2px 0 0; background: #050505; }
+    .signal i:nth-child(1) { height: 4px; } .signal i:nth-child(2) { height: 7px; } .signal i:nth-child(3) { height: 10px; } .signal i:nth-child(4) { height: 12px; }
+    .wifi { position: relative; width: 18px; height: 13px; overflow: hidden; }
+    .wifi::before,.wifi::after { content: ""; position: absolute; left: 50%; border: 2px solid #050505; border-color: #050505 transparent transparent; border-radius: 50%; transform: translateX(-50%); }
+    .wifi::before { top: 0; width: 19px; height: 17px; } .wifi::after { top: 5px; width: 10px; height: 9px; }
+    .wifi i { position: absolute; left: 8px; bottom: 0; width: 3px; height: 3px; border-radius: 50%; background: #050505; }
+    .battery { position: relative; width: 23px; height: 11px; padding: 2px; border: 1.5px solid #919191; border-radius: 3px; }
+    .battery::before { content: ""; display: block; width: 100%; height: 100%; border-radius: 1px; background: #050505; }
+    .battery::after { content: ""; position: absolute; top: 3px; right: -3px; width: 2px; height: 5px; border-radius: 0 2px 2px 0; background: #b4b4b4; }
+    .titlebar { position: relative; height: 57px; display: flex; align-items: center; padding: 0 12px; }
+    .titlebar h1 { width: 100%; margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; text-align: center; }
+    .back-button { position: absolute; z-index: 4; left: 20px; top: 8px; width: 40px; height: 40px; }
+    .back-button::before { content: ""; position: absolute; left: 12px; top: 13px; width: 10px; height: 10px; border: solid #294966; border-width: 0 0 2px 2px; transform: rotate(45deg); }
+    .capsule { position: absolute; z-index: 3; right: 17px; top: 13px; width: 84px; height: 30px; border: 1px solid rgba(61,105,151,.18); border-radius: 16px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; background: rgba(255,255,255,.9); }
+    .dots { height: 100%; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .dots i { width: 4px; height: 4px; border-radius: 50%; background: #15171b; }
+    .mini-ring { position: relative; width: 15px; height: 15px; margin: auto; border: 1.8px solid #111318; border-radius: 50%; }
+    .mini-ring::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #111318; }
+    .content { padding: 8px 12px 30px; }
+    .card { border-radius: 8px; background: var(--paper); box-shadow: 0 2px 10px rgba(47,75,106,.05); }
+    .profile-entry { min-height: 78px; padding: 12px 14px; display: flex; align-items: center; }
+    .teacher-avatar { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; background: #eee; }
+    .profile-copy { min-width: 0; margin-left: 11px; }
+    .teacher-title { display: flex; align-items: center; gap: 7px; }
+    .profile-copy strong { display: block; font-size: 16px; line-height: 23px; }
+    .profile-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 14px; line-height: 20px; }
+    .profile-copy .teacher-title { margin-top: 0; display: flex; align-items: center; gap: 7px; color: inherit; }
+    .profile-copy .review-status { margin-top: 0; padding: 2px 6px; border-radius: 4px; font-size: 14px; line-height: 19px; white-space: nowrap; }
+    .review-status[data-state="approved"] { color: #34705a; background: #eaf7f1; }
+    .review-status[data-state="pending"] { color: #9d5d13; background: #fff4df; }
+    .review-status[data-state="rejected"] { color: #9d4a41; background: #fff0ee; }
+    .entry-label { margin-left: auto; color: var(--blue); font-size: 14px; white-space: nowrap; }
+    .chevron { width: 8px; height: 8px; margin-left: 9px; border: solid #a9a3a0; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+    .section { margin-top: 8px; padding: 14px; }
+    .section-title { margin: 0; font-size: 16px; line-height: 24px; font-weight: 650; }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; }
+    .month-total { color: #356da9; font-size: 14px; line-height: 22px; }
+    .stats { margin-top: 12px; display: grid; grid-template-columns: repeat(3,1fr); }
+    .teaching-data { padding: 10px 14px; }
+    .teaching-data .stats { margin-top: 0; }
+    .stat { position: relative; min-width: 0; text-align: center; }
+    .stat + .stat::before { content: ""; position: absolute; left: 0; top: 5px; width: 1px; height: 43px; background: var(--line); }
+    .stat strong { display: block; color: #356da9; font-size: 24px; line-height: 28px; font-weight: 650; }
+    .stat span { display: block; margin-top: 4px; color: #666a72; font-size: 14px; line-height: 20px; }
+    .calendar-head { margin-top: 11px; display: flex; align-items: center; justify-content: space-between; }
+    .month-switch { width: 32px; height: 32px; border-radius: 50%; color: #547492; font-size: 20px; }
+    .month-label { font-size: 15px; font-weight: 600; }
+    .week,.days { display: grid; grid-template-columns: repeat(7,1fr); text-align: center; }
+    .week { margin-top: 8px; color: #99969a; font-size: 14px; line-height: 24px; }
+    .day { position: relative; width: 36px; height: 36px; justify-self: center; display: grid; place-items: center; border-radius: 50%; color: #4e5158; font-size: 14px; }
+    .day.muted { color: #c9c6c8; }
+    .day.has-course::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #5b8fc6; }
+    .day.selected { color: #fff; background: #4b7fb8; }
+    .day.selected::after { background: #fff; }
+    .course-head { display: flex; align-items: center; justify-content: space-between; }
+    .course-date { color: var(--muted); font-size: 14px; }
+    .course-list { margin-top: 10px; }
+    .course { padding: 11px 0; display: grid; grid-template-columns: 56px minmax(0,1fr) auto; align-items: center; gap: 10px; }
+    .course + .course { border-top: 1px solid var(--line); }
+    .course-time { color: #356da9; font-size: 15px; font-weight: 650; }
+    .course-name { min-width: 0; }
+    .course-name strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; line-height: 21px; }
+    .course-name span { display: block; margin-top: 3px; color: var(--muted); font-size: 14px; line-height: 19px; }
+    .status { padding: 3px 7px; border-radius: 4px; color: #356da9; background: #edf4ff; font-size: 14px; white-space: nowrap; }
+    .empty { padding: 20px 0 12px; color: #99969a; font-size: 14px; text-align: center; }
+    @media (max-width: 520px) { body { padding: 0; background: #f5f4f6; } .phone-shell { border-color: transparent; box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <main class="phone-shell" aria-label="授课中心页面">
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <div class="app">
+      <div class="page">
+        <header>
+          <div class="statusbar"><span>23:58</span><div class="device-status" aria-label="手机状态"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div>
+          <div class="titlebar"><button class="back-button" type="button" aria-label="返回个人中心"></button><h1>授课中心</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="mini-ring"></span></div></div>
+        </header>
+        <div class="content">
+          <a class="profile-entry card" href="教员资料编辑_页面还原.html">
+            <img class="teacher-avatar" src="assets/user-avatar.png" alt="张三头像">
+            <span class="profile-copy"><span class="teacher-title"><strong>张三</strong><span class="review-status" id="reviewStatus" data-state="approved">审核通过</span></span><span>高中数学·教员资料已完善</span></span>
+            <span class="entry-label">资料管理</span><i class="chevron" aria-hidden="true"></i>
+          </a>
+
+          <section class="section card teaching-data" aria-label="教学数据">
+            <div class="stats">
+              <a class="stat" href="授课记录_页面还原.html?filter=all"><strong>128</strong><span>累计授课</span></a>
+              <a class="stat" href="授课记录_页面还原.html?filter=waiting"><strong>2</strong><span>待上课</span></a>
+              <a class="stat" href="授课记录_页面还原.html?filter=feedback"><strong>1</strong><span>待反馈</span></a>
+            </div>
+          </section>
+
+          <section class="section card">
+            <div class="section-heading"><h2 class="section-title">本月排课</h2><span class="month-total">本月已排 12课时</span></div>
+            <div class="calendar-head"><button class="month-switch" data-step="-1" aria-label="上个月">‹</button><span class="month-label">2026年8月</span><button class="month-switch" data-step="1" aria-label="下个月">›</button></div>
+            <div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+            <div class="days" aria-label="2026年8月日历">
+              <button class="day muted">27</button><button class="day muted">28</button><button class="day muted">29</button><button class="day muted">30</button><button class="day muted">31</button>
+              <button class="day">1</button><button class="day">2</button><button class="day">3</button><button class="day">4</button><button class="day">5</button><button class="day">6</button><button class="day">7</button><button class="day">8</button><button class="day">9</button>
+              <button class="day selected has-course" data-date="8月10日">10</button><button class="day has-course" data-date="8月11日">11</button><button class="day">12</button><button class="day has-course" data-date="8月13日">13</button><button class="day">14</button><button class="day has-course" data-date="8月15日">15</button><button class="day">16</button>
+              <button class="day">17</button><button class="day">18</button><button class="day">19</button><button class="day">20</button><button class="day">21</button><button class="day">22</button><button class="day">23</button>
+              <button class="day">24</button><button class="day">25</button><button class="day">26</button><button class="day">27</button><button class="day">28</button><button class="day">29</button><button class="day">30</button><button class="day">31</button>
+            </div>
+          </section>
+
+          <section class="section card">
+            <div class="course-head"><h2 class="section-title">已排课程</h2><span class="course-date">8月10日</span></div>
+            <div class="course-list">
+              <article class="course"><span class="course-time">10:00</span><span class="course-name"><strong>高一数学·函数基础</strong><span>王子涵·人教A版·陕西省</span><span>优坐标西安中心·60分钟</span></span><span class="status">待上课</span></article>
+              <article class="course"><span class="course-time">15:30</span><span class="course-name"><strong>高二数学·数列专题</strong><span>李沐辰·人教A版·陕西省</span><span>优坐标西安中心·60分钟</span></span><span class="status">待上课</span></article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const page = document.querySelector('.page');
+    const reviewStates = { approved: '审核通过', pending: '待审核', rejected: '已驳回' };
+    const requestedReviewState = new URLSearchParams(location.search).get('review');
+    const reviewState = reviewStates[requestedReviewState] ? requestedReviewState : 'approved';
+    if (reviewStates[requestedReviewState]) { try { history.replaceState(null, '', location.href.split('?')[0]); } catch {} }
+    const reviewStatus = document.querySelector('#reviewStatus');
+    reviewStatus.dataset.state = reviewState;
+    reviewStatus.textContent = reviewStates[reviewState];
+    document.querySelector('.back-button').addEventListener('click', () => { window.location.href = '个人中心_页面还原.html'; });
+    document.querySelectorAll('.day:not(.muted)').forEach(day => day.addEventListener('click', () => {
+      document.querySelector('.day.selected')?.classList.remove('selected');
+      day.classList.add('selected');
+      document.querySelector('.course-date').textContent = day.dataset.date || `8月${day.textContent}日`;
+      document.querySelector('.course-list').innerHTML = day.classList.contains('has-course') ? `<article class="course"><span class="course-time">${day.textContent === '10' ? '10:00' : '19:00'}</span><span class="course-name"><strong>高中数学·专题辅导</strong><span>人教A版·陕西省</span><span>优坐标西安中心·60分钟</span></span><span class="status">待上课</span></article>` : '<div class="empty">当日暂无排课</div>';
+    }));
+    document.querySelectorAll('.month-switch').forEach(button => button.addEventListener('click', () => {
+      const nextMonth = button.dataset.step === '1';
+      document.querySelector('.month-label').textContent = nextMonth ? '2026年9月' : '2026年7月';
+      document.querySelector('.month-total').textContent = nextMonth ? '9月已排 8课时' : '7月已排 10课时';
+    }));
+    function fitFrame() { const scale = Math.min((innerWidth - 32) / 464,(innerHeight - 32) / 980,1); document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2)); }
+    fitFrame(); addEventListener('resize',fitFrame,{ passive:true });
+  </script>
+</body>
+</html>

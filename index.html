@@ -3,73 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>邀请码功能 - 原型说明</title>
-  <style>
-    :root { --ink:#17191f; --muted:#747983; --line:#dfe3e9; --blue:#2e6df6; --blue-soft:#edf3ff; --surface:#fff; --page:#f3f5f8; }
-    * { box-sizing:border-box; }
-    body { margin:0; color:var(--ink); background:var(--page); font:14px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
-    .layout { width:min(100%,1180px); min-height:100vh; margin:auto; padding:30px; display:grid; grid-template-columns:minmax(0,1fr) 452px; gap:42px; align-items:start; }
-    .eyebrow { margin-bottom:8px; color:var(--blue); font-size:13px; font-weight:700; }
-    h1 { margin:0; font-size:30px; line-height:1.25; }
-    .lead { margin:10px 0 22px; color:var(--muted); font-size:15px; }
-    .summary { padding:16px 18px; border-left:3px solid var(--blue); background:var(--blue-soft); }
-    .summary strong { display:block; margin-bottom:4px; font-size:16px; }
-    .summary p { margin:0; color:#515b6d; }
-    .note-band { margin-top:12px; padding:18px 20px; border:1px solid var(--line); background:var(--surface); }
-    .note-band h2 { margin:0 0 10px; font-size:17px; }
-    .note-band ul { margin:0; padding-left:20px; }
-    .note-band li + li { margin-top:6px; }
-    .preview { position:sticky; top:22px; }
-    .preview-label { margin:0 0 9px; color:var(--muted); font-size:12px; text-align:center; }
-    .phone { width:430px; max-width:100%; margin:auto; padding:10px; border:1px solid #c9ced6; border-radius:22px; background:#e9edf5; box-shadow:0 18px 50px rgba(40,51,72,.15); }
-    iframe { display:block; width:100%; height:min(852px,calc(100vh - 78px)); min-height:640px; border:0; border-radius:14px; background:#f3f6ff; }
-    @media (max-width:900px) { .layout { grid-template-columns:1fr; padding:22px 16px; } .preview { position:static; grid-row:1; } iframe { height:760px; } }
-  </style>
+  <meta http-equiv="refresh" content="0; url=个人中心_页面还原.html">
+  <title>优坐标个人中心</title>
 </head>
 <body>
-  <main class="layout">
-    <section>
-      <div class="eyebrow">本次功能增补</div>
-      <h1>我的服务 / 邀请码</h1>
-      <p class="lead">本说明仅覆盖“我的服务”新增的邀请码入口及邀请二维码弹窗。</p>
-
-      <section class="summary">
-        <strong>功能目标</strong>
-        <p>用户可查看并保存与本人绑定的小程序邀请二维码，用于邀请传播和用户归因。</p>
-      </section>
-
-      <section class="note-band">
-        <h2>页面展示</h2>
-        <ul>
-          <li>“我的服务”新增入口“邀请码”。</li>
-          <li>点击后弹窗展示标题“我的邀请二维码”和白底小程序码。</li>
-          <li>弹窗底部提供“保存图片”按钮。</li>
-        </ul>
-      </section>
-
-      <section class="note-band">
-        <h2>交互规则</h2>
-        <ul>
-          <li>点击“邀请码”打开弹窗，不离开个人中心。</li>
-          <li>点击关闭按钮、遮罩区域或按 Esc 关闭弹窗。</li>
-          <li>点击“保存图片”仅保存小程序码图片，不包含弹窗其他内容。</li>
-        </ul>
-      </section>
-
-      <section class="note-band">
-        <h2>数据要求</h2>
-        <ul>
-          <li>正式版本由服务端按当前用户生成小程序码。</li>
-          <li>小程序码场景值包含邀请人标识，用于后续注册或报名归因。</li>
-          <li>当前原型使用固定示例码，仅用于确认样式和保存操作。</li>
-        </ul>
-      </section>
-    </section>
-
-    <aside class="preview">
-      <p class="preview-label">可操作原型 · 点击“邀请码”查看弹窗</p>
-      <div class="phone"><iframe src="个人中心_页面还原.html" title="个人中心可操作原型"></iframe></div>
-    </aside>
-  </main>
+  <p><a href="个人中心_页面还原.html">进入个人中心原型</a></p>
 </body>
 </html>

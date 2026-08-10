@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>教员资料</title>
+  <style>
+    :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --bg:#f3f4f6; --brand:#111827; --soft:#f9fafb; --error:#b91c1c; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#e5e7eb; color:var(--ink); font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button,input,textarea { font:inherit; }
+    .phone { width:min(100%,430px); min-height:100vh; margin:0 auto; background:#fff; }
+    .top { height:54px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--line); font-size:17px; font-weight:600; position:sticky; top:0; z-index:2; background:#fff; }
+    .back { position:absolute; left:16px; font-size:22px; font-weight:400; color:#374151; }
+    .progress { padding:16px 16px 10px; border-bottom:1px solid #e5e7eb; }
+    .progress-line { height:4px; background:#e5e7eb; margin-bottom:8px; }
+    .progress-line i { display:block; height:100%; background:var(--brand); width:50%; transition:.2s; }
+    .progress-text { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; }
+    form { padding:6px 16px 92px; }
+    .step { display:none; } .step.active { display:block; }
+    .section-title { margin:18px 0 2px; font-size:16px; font-weight:700; }
+    .section-note { margin:0 0 10px; color:var(--muted); font-size:12px; }
+    .field { padding:14px 0; border-bottom:1px solid #e5e7eb; }
+    .field.hidden { display:none; }
+    .label { display:flex; gap:4px; margin-bottom:8px; font-weight:600; }
+    .required { color:var(--error); }
+    .hint { color:var(--muted); font-weight:400; font-size:12px; }
+    input,textarea { width:100%; border:1px solid var(--line); border-radius:3px; padding:10px 11px; outline:none; color:var(--ink); background:#fff; }
+    input:focus,textarea:focus { border-color:#4b5563; }
+    textarea { min-height:88px; resize:vertical; }
+    .options { display:flex; flex-wrap:wrap; gap:8px; }
+    .option { border:1px solid var(--line); background:#fff; border-radius:3px; min-height:34px; padding:6px 12px; cursor:pointer; color:#374151; }
+    .option.selected { border-color:var(--brand); background:var(--brand); color:#fff; }
+    .option.disabled { color:#9ca3af; background:#f3f4f6; cursor:not-allowed; }
+    .school-results { margin-top:8px; border:1px solid var(--line); border-radius:3px; overflow:hidden; }
+    .school-result { width:100%; text-align:left; padding:9px 10px; border:0; border-bottom:1px solid #e5e7eb; background:#fff; color:var(--ink); }
+    .school-result:last-child { border-bottom:0; }.school-result.selected { background:#f3f4f6; font-weight:600; }
+    .template { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; text-align:left; border:1px dashed #9ca3af; background:var(--soft); border-radius:3px; padding:9px 10px; color:#374151; }
+    .template.selected { border-style:solid; border-color:var(--brand); background:#f3f4f6; }
+    .upload-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .upload-box { display:flex; min-height:78px; align-items:center; justify-content:center; border:1px dashed #9ca3af; border-radius:3px; background:var(--soft); color:#4b5563; text-align:center; cursor:pointer; }
+    .upload-box input { position:absolute; width:1px; height:1px; opacity:0; }
+    .upload-box.has-file { border-style:solid; border-color:var(--brand); background:#f3f4f6; color:var(--ink); }
+    .portrait-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .ai-button { min-height:78px; border:1px solid var(--line); border-radius:3px; background:#fff; color:#374151; cursor:pointer; }
+    .ai-status { margin-top:8px; padding:8px 10px; border:1px solid #9ca3af; border-radius:3px; background:var(--soft); color:#374151; font-size:12px; display:none; }
+    .ai-status.ready { display:block; border-color:var(--brand); }
+    .actions { position:fixed; z-index:3; bottom:0; left:50%; transform:translateX(-50%); width:min(100%,430px); padding:12px 16px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#fff; display:flex; gap:10px; }
+    .actions button { height:42px; border:1px solid var(--brand); border-radius:3px; cursor:pointer; font-weight:600; }
+    #prev { width:34%; background:#fff; color:var(--ink); } #next { flex:1; background:var(--brand); color:#fff; }
+    .error { margin-top:6px; color:var(--error); font-size:12px; display:none; }.invalid input,.invalid textarea { border-color:var(--error); }.invalid .error { display:block; }
+    .toast { position:fixed; z-index:5; top:70px; left:50%; transform:translateX(-50%); width:min(360px,calc(100% - 32px)); padding:10px 12px; background:#111827; color:#fff; border-radius:3px; text-align:center; display:none; }
+    .success { display:none; padding:76px 28px; text-align:center; }.success h2{ margin:0 0 10px; font-size:20px; }.success p{ color:var(--muted); margin:0; }
+    @media (min-width:431px) { .phone { min-height:calc(100vh - 32px); margin:16px auto; box-shadow:0 0 0 1px #cbd5e1; } .actions { bottom:16px; } }
+
+    :root { --device-scale:1; --brand:#4b7fb8; --line:#d8e1eb; --bg:#f5f4f6; --soft:#f7faff; }
+    body { min-height:100svh; padding:16px; display:grid; place-items:center; overflow:hidden; background:#e7eaee; }
+    .phone-shell { position:relative; isolation:isolate; width:464px; height:980px; padding:11px; border:1px solid #777d84; border-radius:66px; background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e); box-shadow:0 34px 70px rgba(32,38,45,.28),inset 0 0 0 3px rgba(33,36,40,.68); transform:scale(var(--device-scale)); transform-origin:center; }
+    .dynamic-island { position:absolute; z-index:30; top:22px; left:50%; width:126px; height:34px; transform:translateX(-50%); border-radius:20px; background:#050505; }
+    .dynamic-island::after { content:""; position:absolute; right:12px; top:11px; width:8px; height:8px; border-radius:50%; background:#111a25; }
+    .app { position:relative; width:440px; height:956px; overflow:hidden; border-radius:54px; background:#f5f4f6; box-shadow:inset 0 0 0 1px rgba(0,0,0,.52); }
+    .page { width:100%; height:100%; overflow-y:auto; scrollbar-width:none; background:linear-gradient(to bottom,rgba(245,244,246,0) 150px,#f5f4f6 220px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
+    .page::-webkit-scrollbar { display:none; }
+    .chrome { position:sticky; z-index:10; top:0; color:#294966; background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
+    .statusbar { height:36px; padding:17px 36px 0; display:flex; align-items:flex-start; justify-content:space-between; color:#050505; font-size:15px; line-height:1; font-weight:700; }
+    .device-status { display:flex; align-items:center; gap:8px; }
+    .signal { width:18px; height:12px; display:flex; align-items:flex-end; gap:2px; }.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}
+    .wifi { position:relative; width:18px; height:13px; overflow:hidden; }.wifi::before,.wifi::after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi::before{top:0;width:19px;height:17px}.wifi::after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}
+    .battery { position:relative; width:23px; height:11px; padding:2px; border:1.5px solid #919191; border-radius:3px; }.battery::before{content:"";display:block;width:100%;height:100%;background:#050505}.battery::after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;background:#b4b4b4}
+    .titlebar { position:relative; height:57px; display:flex; align-items:center; }.titlebar h1{width:100%;margin:0;font-size:18px;text-align:center}.back-button{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px;border:0;background:none}.back-button::before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #294966;border-width:0 0 2px 2px;transform:rotate(45deg)}
+    .capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(61,105,151,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{display:flex;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring::after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}
+    .progress { position:sticky; z-index:9; top:93px; padding:12px 16px 9px; background:rgba(255,255,255,.96); }
+    .progress-line i { background:#4b7fb8; }
+    form { padding:6px 16px 108px; }
+    .section-title { font-size:17px; }.section-note,.progress-text,.hint,.error,.ai-status { font-size:14px; }
+    .field { padding:13px 0; }.label,.option,input,textarea,.template,.upload-box,.ai-button { font-size:14px; }
+    .option { border-radius:5px; }.option.selected { border-color:#4b7fb8; background:#edf4ff; color:#356da9; font-weight:600; }
+    input,textarea { border-radius:5px; } input:focus,textarea:focus { border-color:#4b7fb8; box-shadow:0 0 0 2px rgba(75,127,184,.1); }
+    .upload-box,.ai-button,.template { border-radius:5px; }
+    .actions { position:absolute; z-index:20; bottom:0; left:0; transform:none; width:100%; padding:11px 16px 24px; border-top:1px solid #dfe5ec; background:rgba(255,255,255,.97); }
+    .actions button { height:44px; border-color:#4b7fb8; border-radius:6px; }.actions #next{background:#4b7fb8}.actions #prev{color:#356da9;background:#fff}
+    .toast { position:absolute; top:104px; }
+    .success { padding:90px 28px 150px; }
+    .progress { display:none; }
+    .form-section { display:block; }
+    .form-section + .form-section { margin-top:10px; padding-top:2px; border-top:8px solid #f5f4f6; }
+    .profile-view { padding:8px 12px 108px; }
+    .view-card { margin-bottom:8px; padding:14px; border-radius:8px; background:#fff; }
+    .view-profile { display:flex; align-items:center; }
+    .view-avatar { width:54px; height:54px; border-radius:50%; object-fit:cover; }
+    .view-profile-copy { margin-left:11px; }
+    .view-profile-copy strong { display:block; font-size:17px; line-height:23px; }
+    .view-profile-copy span { display:block; margin-top:4px; color:#6b7280; font-size:14px; }
+    .view-card h2 { margin:0 0 6px; font-size:16px; line-height:24px; }
+    .detail-row { min-height:42px; padding:10px 0; display:grid; grid-template-columns:105px minmax(0,1fr); gap:10px; border-bottom:1px solid #edf0f3; font-size:14px; line-height:22px; }
+    .detail-row:last-child { border-bottom:0; }
+    .detail-row dt { color:#777a82; }
+    .detail-row dd { margin:0; color:#25282e; text-align:right; word-break:break-word; }
+    .material-status { color:#356da9; }
+    form[hidden],.profile-view[hidden] { display:none; }
+    .actions #next { flex:1; }
+    @media (max-width:520px) { body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none} }
+  </style>
+</head>
+<body>
+  <main class="phone-shell" aria-label="教员资料页面">
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <div class="app">
+      <div class="page">
+    <header class="chrome"><div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div><div class="titlebar"><button class="back-button" type="button" aria-label="返回授课中心"></button><h1>教员资料</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div></header>
+    <section class="profile-view" id="profileView">
+      <section class="view-card"><h2>基本信息</h2><dl><div class="detail-row"><dt>姓名</dt><dd>张三</dd></div><div class="detail-row"><dt>手机号</dt><dd>13800138000</dd></div><div class="detail-row"><dt>老师类型</dt><dd>毕业生</dd></div><div class="detail-row"><dt>性别 / 年龄</dt><dd>男·35岁</dd></div><div class="detail-row"><dt>教龄</dt><dd>8年</dd></div></dl></section>
+      <section class="view-card"><h2>学历与证件</h2><dl><div class="detail-row"><dt>毕业院校</dt><dd>陕西师范大学</dd></div><div class="detail-row"><dt>学历</dt><dd>本科</dd></div><div class="detail-row"><dt>身份证号</dt><dd>110101********1234</dd></div><div class="detail-row"><dt>证件材料</dt><dd class="material-status">已上传3项</dd></div></dl></section>
+      <section class="view-card"><h2>教学信息</h2><dl><div class="detail-row"><dt>擅长年级</dt><dd>高一高二、高三</dd></div><div class="detail-row"><dt>擅长科目</dt><dd>数学</dd></div><div class="detail-row"><dt>授课方式</dt><dd>线下</dd></div><div class="detail-row"><dt>教学侧重</dt><dd>基础薄弱、高考冲刺、错题整理方法</dd></div><div class="detail-row"><dt>个人简介</dt><dd>重视学习基础与方法，根据学生情况制定阶段性目标。</dd></div></dl></section>
+    </section>
+    <section class="progress"><div class="progress-line"><i id="bar"></i></div><div class="progress-text"><span id="progressName">教员资料</span><span id="progressCount"></span></div></section>
+    <form id="form" novalidate hidden>
+      <section class="form-section">
+        <h1 class="section-title">基本信息</h1><p class="section-note">请按真实信息填写，带 * 的内容为必填项。</p>
+        <div class="field" data-required="name"><div class="label"><span class="required">*</span>姓名 <span class="hint">支持中文、英文、数字，最多 10 个中文字符</span></div><input name="name" maxlength="20" placeholder="请输入姓名"><div class="error"></div></div>
+        <div class="field" data-required="phone"><div class="label"><span class="required">*</span>手机号</div><input name="phone" inputmode="numeric" maxlength="11" placeholder="请输入 11 位手机号"><div class="error"></div></div>
+        <div class="field" data-required="gender"><div class="label"><span class="required">*</span>性别</div><div class="options" data-group="gender"><button type="button" class="option" data-value="男">男</button><button type="button" class="option" data-value="女">女</button></div><div class="error"></div></div>
+        <div class="field" data-required="age"><div class="label"><span class="required">*</span>年龄</div><input name="age" inputmode="numeric" maxlength="2" placeholder="请输入年龄"><div class="error"></div></div>
+        <div class="field" data-required="teachingExp"><div class="label"><span class="required">*</span>教龄</div><input name="teachingExp" inputmode="numeric" maxlength="2" placeholder="请输入教龄"><div class="error"></div></div>
+        <div class="field" data-required="teacherType"><div class="label"><span class="required">*</span>老师类型</div><div class="options" data-group="teacherType"><button type="button" class="option" data-value="在校生">在校生</button><button type="button" class="option" data-value="毕业生">毕业生</button></div><div class="error"></div></div>
+        <div class="field hidden" id="graduateSchool" data-required="graduateSchool"><div class="label"><span class="required">*</span>毕业院校</div><input placeholder="输入院校关键词"><div class="school-results" hidden></div><div class="error"></div></div>
+        <div class="field hidden" id="studentSchool" data-required="studentSchool"><div class="label"><span class="required">*</span>就读院校</div><input placeholder="输入院校关键词"><div class="school-results" hidden></div><div class="error"></div></div>
+        <div class="field" data-required="education"><div class="label"><span class="required">*</span>学历</div><div class="options" data-group="education"><button type="button" class="option" data-value="大专及以下">大专及以下</button><button type="button" class="option" data-value="本科">本科</button><button type="button" class="option" data-value="硕士">硕士</button><button type="button" class="option" data-value="博士">博士</button></div><div class="error"></div></div>
+      </section>
+      <section class="form-section">
+        <h1 class="section-title">教学信息</h1><p class="section-note">以下资料可跳过提交，之后可随时补充。</p>
+        <div class="field hidden" id="grades"><div class="label">擅长年级 <span class="hint">选填，可多选</span></div><div class="options" data-group="grades" data-multiple="true"></div></div>
+        <div class="field"><div class="label">擅长科目 <span class="hint" id="subjectHint">选填，可多选</span></div><div class="options" data-group="subjects" data-multiple="true"></div></div>
+        <div class="field"><div class="label">授课方式 <span class="hint">选填，可多选</span></div><div class="options" data-group="methods" data-multiple="true"></div></div>
+        <div class="field"><div class="label">个人形象照 <span class="hint">选填，上传或拍摄后可 AI 生成证件照</span></div><div class="portrait-actions"><label class="upload-box"><input type="file" name="portrait" accept="image/*" capture="user"><span>+ 上传照片 / 拍照</span></label><button type="button" class="ai-button" id="generatePortrait">AI 生成证件照</button></div><div class="ai-status" id="portraitStatus"></div></div>
+        <div class="field"><div class="label">身份证照片 <span class="hint">选填，上传正反面照片</span></div><div class="upload-grid"><label class="upload-box"><input type="file" name="idFront" accept="image/*"><span>+ 身份证正面</span></label><label class="upload-box"><input type="file" name="idBack" accept="image/*"><span>+ 身份证反面</span></label></div></div>
+        <div class="field hidden" id="idCardResult"><div class="label">身份证号 <span class="hint">已由身份证正面识别，可编辑</span></div><input name="idCard" maxlength="18" placeholder="身份证识别结果"><div class="ai-status" id="idRecognition"></div></div>
+        <div class="field"><div class="label">学历证明 <span class="hint">选填，可上传毕业证、学位证、教师资格证等</span></div><label class="upload-box"><input type="file" name="credentials" accept="image/*,.pdf,application/pdf" multiple><span>+ 上传学历证明</span></label></div>
+        <div class="field"><div class="label">个人简介 <span class="hint">选填，可选择模板后微调</span></div><button type="button" class="template" data-template="我是一名认真负责、耐心细致的老师，重视与学生及家长保持充分沟通。我会先了解孩子的学习基础和习惯，再制定阶段性学习目标，通过针对性练习帮助学生建立信心、稳步提升。"><span>认真负责型</span><span>选择</span></button><button type="button" class="template" data-template="我擅长梳理知识结构和学习方法，善于将抽象知识拆解为易理解、可练习的步骤。课堂中会结合例题、错题和即时反馈，帮助学生找到薄弱环节，形成自主复盘与迁移应用的能力。"><span>方法引导型</span><span>选择</span></button><button type="button" class="template" data-template="我注重营造轻松、专注的学习氛围，愿意倾听学生的困惑，并用鼓励和清晰的反馈陪伴成长。希望通过稳定的课堂节奏与持续陪练，让学生逐渐从“害怕学习”转变为“愿意主动尝试”。"><span>陪伴鼓励型</span><span>选择</span></button><button type="button" class="template" data-template="我会根据学生的学习目标制定个性化学习计划：基础阶段夯实知识与习惯，提升阶段强化题型与方法，冲刺阶段侧重真题、错题和时间管理。每节课后均会给出可执行的复习建议。"><span>目标规划型</span><span>选择</span></button><textarea name="intro" placeholder="请输入个人简介"></textarea></div>
+        <div class="field"><div class="label">教学侧重 <span class="hint">选填，可多选</span></div><div class="options" data-group="focus" data-multiple="true"></div></div>
+        <div class="field"><div class="label">教学成果 <span class="hint">选填，可组合后微调</span></div><button type="button" class="template" data-template="曾辅导一名基础较薄弱的学生，先从梳理课本概念和改正作业习惯开始，再进行专题巩固。经过一个学期的持续练习，数学成绩从 60 分提升至 85 分，学习主动性也明显增强。"><span>基础提升：60 分 → 85 分</span><span>选择</span></button><button type="button" class="template" data-template="曾帮助一名初三学生建立完整的错题复盘流程，针对薄弱题型进行分层训练，并在考前进行时间分配与答题策略训练。学生由班级第 30 名提升至前 10 名，顺利达到目标学校的录取要求。"><span>排名提升：30 名 → 前 10 名</span><span>选择</span></button><button type="button" class="template" data-template="曾陪伴一名英语基础薄弱的学生完成词汇、语法与阅读的阶段训练。通过每日词汇打卡、精读训练和错题归类，学生在期末考试中从及格边缘提升至 90 分以上，并能独立完成中等难度阅读。"><span>英语提升：及格边缘 → 90+ 分</span><span>选择</span></button><button type="button" class="template" data-template="曾为一名学习效率较低的学生制定周计划和课后复盘清单，逐步改善拖延与粗心问题。经过两个月的陪伴训练，学生能够按计划完成作业，单元测试稳定提升 15 至 20 分。"><span>习惯改善：单元提升 15-20 分</span><span>选择</span></button><textarea name="result" placeholder="可选择模板后修改"></textarea></div>
+      </section>
+    </form>
+    <section class="success" id="success"><h2>资料已保存</h2><p>教员资料更新成功，可随时返回继续修改。</p></section>
+      </div>
+      <div class="actions" id="actions"><button type="button" id="prev" hidden>取消</button><button type="button" id="next">编辑资料</button></div><div class="toast" id="toast"></div>
+    </div>
+  </main>
+  <script>
+    const values={ gender:'',teacherType:'',education:'',grades:[],subjects:[],methods:[],focus:[] }, form=document.querySelector('#form');
+    const sets={ grades:['小学','初一初二','初三','高一高二','高三'], subjects:['语文','数学','英语','物理','化学','生物','历史','地理','政治','编程','美术','音乐','奥数','英语单词'], methods:['线上','线下','上门'], focus:['基础薄弱','中考提分','高考冲刺','数学思维提升','阅读理解提升','英语词汇积累','学习习惯养成','作业效率提升','错题整理方法','竞赛启蒙'] };
+    function primaryOnly(){ return values.teacherType==='毕业生'&&values.grades.length>0&&values.grades.every(x=>x==='小学'); }
+    function syncSubjectRules(){ const hint=document.querySelector('#subjectHint'); if(values.teacherType==='在校生'){ values.subjects=['英语单词']; hint.textContent='在校生仅可选择英语单词，已默认勾选'; } else if(primaryOnly()){ values.subjects=values.subjects.filter(x=>['语文','数学','英语'].includes(x)); hint.textContent='小学仅可选择语文、数学、英语'; } else hint.textContent='选填，可多选'; renderOptions('subjects'); }
+    function renderOptions(group){ const box=document.querySelector(`[data-group="${group}"]`), studentLimit=group==='subjects'&&values.teacherType==='在校生', primaryLimit=group==='subjects'&&primaryOnly(); box.innerHTML=sets[group].map(x=>`<button type="button" class="option ${values[group].includes(x)?'selected':''} ${(studentLimit&&x!=='英语单词')||(primaryLimit&&!['语文','数学','英语'].includes(x))?'disabled':''}" data-value="${x}">${x}</button>`).join(''); }
+    ['grades','subjects','methods','focus'].forEach(renderOptions);
+    document.addEventListener('click',e=>{ const b=e.target.closest('.option'); if(b&&!b.classList.contains('disabled')) { const group=b.parentElement.dataset.group, multi=b.parentElement.dataset.multiple==='true', val=b.dataset.value; if(multi){ values[group]=values[group].includes(val)?values[group].filter(x=>x!==val):[...values[group],val]; renderOptions(group); if(group==='grades') syncSubjectRules(); } else { values[group]=val; b.parentElement.querySelectorAll('.option').forEach(x=>x.classList.toggle('selected',x===b)); if(group==='teacherType') switchTeacherType(); } clearError(b.closest('.field')); } });
+    function switchTeacherType(){ const student=values.teacherType==='在校生'; document.querySelector('#graduateSchool').classList.toggle('hidden',student); document.querySelector('#studentSchool').classList.toggle('hidden',!student); document.querySelector('#grades').classList.toggle('hidden',student); if(student) values.subjects=['英语单词']; else { values.subjects=[]; values.grades=[]; renderOptions('grades'); } syncSubjectRules(); }
+    function renderSchoolResults(field){ const input=field.querySelector('input'), result=field.querySelector('.school-results'), key=input.value.trim(); if(!key){ result.hidden=true; return; } const schools=key.includes('北京')?['北京大学','北京师范大学','北京理工大学']:[''+key+'大学',''+key+'师范大学',''+key+'学院']; result.hidden=false; result.innerHTML=schools.map(x=>`<button type="button" class="school-result">${x}</button>`).join(''); result.querySelectorAll('button').forEach(x=>x.onclick=()=>{ input.value=x.textContent; result.hidden=true; field.dataset.selected=x.textContent; clearError(field); }); }
+    document.querySelectorAll('#graduateSchool input,#studentSchool input').forEach(input=>input.addEventListener('input',()=>renderSchoolResults(input.closest('.field'))));
+    document.querySelectorAll('.template').forEach(btn=>btn.addEventListener('click',()=>{ const field=btn.closest('.field'), area=field.querySelector('textarea'); area.value=btn.dataset.template; field.querySelectorAll('.template').forEach(x=>x.classList.toggle('selected',x===btn)); clearError(field); }));
+    document.querySelectorAll('input[type="file"]').forEach(input=>input.addEventListener('change',()=>{ const box=input.closest('.upload-box'), file=input.files[0]; if(file){ box.classList.add('has-file'); box.querySelector('span').textContent=input.files.length>1?`已选择 ${input.files.length} 个文件`:file.name; clearError(input.closest('.field')); if(input.name==='portrait'){ const status=document.querySelector('#portraitStatus'); status.textContent='照片已就绪，可点击“AI 生成证件照”生成白底证件照。'; status.classList.add('ready'); } if(input.name==='idFront'){ const id=form.elements.idCard, status=document.querySelector('#idRecognition'); document.querySelector('#idCardResult').classList.remove('hidden'); id.value='110101199001011234'; status.textContent='已识别身份证号，可直接编辑修改。'; status.classList.add('ready'); } } }));
+    document.querySelector('#generatePortrait').onclick=()=>{ const input=form.elements.portrait, status=document.querySelector('#portraitStatus'); if(!input.files.length){ status.textContent='请先上传或拍摄一张照片，再生成证件照。'; status.classList.add('ready'); return; } status.textContent='AI 正在生成白底证件照...'; status.classList.add('ready'); setTimeout(()=>{status.textContent='AI 证件照已生成（线框演示），可用于提交。'; clearError(input.closest('.field'));},700); };
+    function clearError(field){ if(field) field.classList.remove('invalid'); }
+    function error(field,text){ field.classList.add('invalid'); field.querySelector('.error').textContent=text; }
+    function validField(field){ if(field.classList.contains('hidden')) return true; const k=field.dataset.required; let val=values[k]; if(['name','phone','age','teachingExp','idCard','intro'].includes(k)) val=form.elements[k].value.trim(); if(k==='graduateSchool'||k==='studentSchool') val=field.dataset.selected||''; if(k==='portrait') val=form.elements.portrait.files.length; if(k==='idPhotos') val=[...field.querySelectorAll('input[type="file"]')].every(x=>x.files.length); if(!val || Array.isArray(val)&&!val.length){ error(field,'请完成此项填写'); return false; } if(k==='name'&&!/^[\u4e00-\u9fa5A-Za-z0-9]{1,20}$/.test(val)){ error(field,'姓名仅支持中文、英文或数字'); return false; } if(k==='phone'&&!/^1\d{10}$/.test(val)){ error(field,'请输入正确的 11 位手机号'); return false; } if((k==='age'||k==='teachingExp')&&!/^\d{1,2}$/.test(val)){ error(field,'请输入 1 至 2 位数字'); return false; } if(k==='idCard'&&!/^\d{17}[\dXx]$/.test(val)){ error(field,'请输入正确的 18 位身份证号'); return false; } clearError(field); return true; }
+    function validateAll(){ let ok=true; document.querySelectorAll('#form [data-required]').forEach(field=>{if(!validField(field))ok=false}); return ok; }
+    function showPreview(){ document.querySelector('#profileView').hidden=false; form.hidden=true; document.querySelector('#prev').hidden=true; document.querySelector('#next').textContent='编辑资料'; document.querySelector('.page').scrollTop=0; }
+    function showEditor(){ document.querySelector('#profileView').hidden=true; form.hidden=false; document.querySelector('#prev').hidden=false; document.querySelector('#prev').textContent='取消'; document.querySelector('#next').textContent='修改并提交审核'; document.querySelector('.page').scrollTop=0; }
+    document.querySelector('#prev').onclick=showPreview;
+    document.querySelector('#next').onclick=()=>{ if(form.hidden){ showEditor(); return; } if(!validateAll()){ show('请完善标红的必填信息'); return; } showPreview(); show('资料已提交审核'); setTimeout(()=>location.href='授课中心_页面还原.html?review=pending',900); };
+    function show(t){const x=document.querySelector('#toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1800)}
+    function seedPresentation(type){ const student=type==='student', setSingle=(group,value)=>{ values[group]=value; document.querySelectorAll(`[data-group="${group}"] .option`).forEach(x=>x.classList.toggle('selected',x.dataset.value===value)); }; form.elements.name.value=student?'李晨曦':'王思远'; form.elements.phone.value=student?'13900139000':'13800138000'; form.elements.age.value=student?'22':'29'; form.elements.teachingExp.value=student?'1':'6'; setSingle('gender',student?'女':'男'); setSingle('teacherType',student?'在校生':'毕业生'); setSingle('education','本科'); switchTeacherType(); const schoolField=document.querySelector(student?'#studentSchool':'#graduateSchool'), schoolInput=schoolField.querySelector('input'); schoolInput.value='北京师范大学'; schoolField.dataset.selected='北京师范大学'; if(!student){ values.grades=['初一初二','初三']; values.subjects=['数学','英语','物理','化学']; } values.methods=['线上','线下']; values.focus=['基础薄弱','中考提分','错题整理方法']; renderOptions('grades'); syncSubjectRules(); renderOptions('methods'); renderOptions('focus'); form.elements.intro.value='我是一名认真负责、耐心细致的老师，重视与学生及家长保持充分沟通。我会先了解孩子的学习基础和习惯，再制定阶段性学习目标，通过针对性练习帮助学生建立信心、稳步提升。'; form.elements.result.value='曾辅导一名基础较薄弱的学生，先从梳理课本概念和改正作业习惯开始，再进行专题巩固。经过一个学期的持续练习，数学成绩从 60 分提升至 85 分，学习主动性也明显增强。'; document.querySelector('textarea[name=intro]').closest('.field').querySelector('.template').classList.add('selected'); document.querySelector('textarea[name=result]').closest('.field').querySelector('.template').classList.add('selected'); const markUpload=(name,label)=>{ const input=document.querySelector(`input[name="${name}"]`), box=input.closest('.upload-box'); box.classList.add('has-file'); box.querySelector('span').textContent=label; }; markUpload('portrait','个人形象照.jpg'); markUpload('idFront','身份证正面.jpg'); markUpload('idBack','身份证反面.jpg'); markUpload('credentials','毕业证、教师资格证.pdf'); document.querySelector('#idCardResult').classList.remove('hidden'); form.elements.idCard.value='110101199001011234'; const recognition=document.querySelector('#idRecognition'); recognition.textContent='已识别身份证号，可直接编辑修改。'; recognition.classList.add('ready'); const portraitStatus=document.querySelector('#portraitStatus'); portraitStatus.textContent='AI 证件照已生成（展示数据）。'; portraitStatus.classList.add('ready'); }
+    seedPresentation('graduate');
+    form.elements.name.value='张三';
+    form.elements.age.value='35';
+    form.elements.teachingExp.value='8';
+    const schoolField=document.querySelector('#graduateSchool');
+    schoolField.querySelector('input').value='陕西师范大学';
+    schoolField.dataset.selected='陕西师范大学';
+    values.grades=['高一高二','高三']; values.subjects=['数学']; values.methods=['线下'];
+    renderOptions('grades'); renderOptions('subjects'); renderOptions('methods');
+    showPreview();
+    document.querySelector('.back-button').onclick=()=>location.href='授课中心_页面还原.html';
+    function fitFrame(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2));}
+    fitFrame(); addEventListener('resize',fitFrame,{passive:true});
+  </script>
+</body>
+</html>

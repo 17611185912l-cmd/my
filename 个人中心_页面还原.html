@@ -3,309 +3,901 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4f7ff">
-  <title>个人中心</title>
+  <meta name="theme-color" content="#f5cf98">
+  <title>个人中心 v2.0</title>
   <style>
     :root {
-      --blue: #2e6df6;
-      --green: #43c579;
-      --orange: #ff8b32;
-      --violet: #8159ed;
-      --ink: #17191f;
-      --muted: #8b8e95;
-      --page: #f3f6ff;
+      --blue: #c87312;
+      --green: #09c978;
+      --orange: #ff6b0a;
+      --ink: #111318;
+      --muted: #6c7079;
+      --icon: #506076;
+      --page: #f5f5f7;
+      --bubble: #f0f4f8;
     }
 
     * { box-sizing: border-box; }
-
-    html, body { margin: 0; min-height: 100%; background: #e9edf6; }
-
+    html, body { margin: 0; min-height: 100%; }
     body {
+      min-height: 100svh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      background: #e7eaee;
       color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
       -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
     }
+    button { margin: 0; padding: 0; border: 0; color: inherit; font: inherit; background: none; cursor: pointer; }
+    svg { display: block; }
+    .icon { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
 
-    button { padding: 0; border: 0; color: inherit; font: inherit; background: none; cursor: pointer; }
+    .phone-shell {
+      position: relative;
+      isolation: isolate;
+      width: min(464px, calc(100vw - 32px), calc(47.347svh - 15.15px));
+      aspect-ratio: 464 / 980;
+      padding: 12px;
+      border: 1px solid #777d84;
+      border-radius: 66px;
+      background: linear-gradient(135deg, #bfc3c7 0%, #f4f5f6 20%, #8d9298 49%, #d9dcdf 72%, #73787e 100%);
+      box-shadow: 0 34px 70px rgba(32,38,45,.28), 0 10px 22px rgba(32,38,45,.18), inset 0 0 0 1px rgba(255,255,255,.75), inset 0 0 0 3px rgba(33,36,40,.68);
+    }
+    .phone-shell::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      left: -4px;
+      top: 173px;
+      width: 4px;
+      height: 61px;
+      border-radius: 3px 0 0 3px;
+      background: #737980;
+      box-shadow: 0 78px 0 #737980;
+    }
+    .phone-shell::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      right: -4px;
+      top: 222px;
+      width: 4px;
+      height: 94px;
+      border-radius: 0 3px 3px 0;
+      background: #737980;
+    }
+    .dynamic-island {
+      position: absolute;
+      z-index: 30;
+      top: 22px;
+      left: 50%;
+      width: 126px;
+      height: 34px;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #050505;
+      box-shadow: 0 1px 2px rgba(255,255,255,.12), inset 0 0 0 1px #000;
+      pointer-events: none;
+    }
+    .dynamic-island::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 11px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #111a25;
+      box-shadow: inset 0 0 0 2px #080b10, 0 0 2px #1a4d79;
+    }
 
     .app {
       position: relative;
-      width: min(100%, 430px);
-      min-height: 100svh;
-      margin: 0 auto;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
       overflow: hidden;
-      background:
-        radial-gradient(circle at 10% 4%, rgba(255,255,255,.85), transparent 24%),
-        linear-gradient(155deg, #f7f9ff 0%, var(--page) 42%, #edf3ff 100%);
-      box-shadow: 0 0 32px rgba(43, 60, 91, .11);
+      border-radius: 54px;
+      background: var(--page);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.52);
     }
-
-    .scroll { padding: 0 16px calc(92px + env(safe-area-inset-bottom)); }
+    .page {
+      width: 100%;
+      height: 100%;
+      padding: 0 12px 104px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    .page::-webkit-scrollbar { display: none; }
 
     .statusbar {
-      height: 45px;
-      padding: 13px 29px 0;
+      height: 32px;
+      padding: 11px 22px 0;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      font-size: 17px;
+      color: #050505;
+      font-size: 15px;
+      line-height: 1;
       font-weight: 700;
-      letter-spacing: .2px;
     }
+    .device-status { display: flex; align-items: center; gap: 8px; }
+    .signal { width: 18px; height: 12px; display: flex; align-items: flex-end; gap: 2px; }
+    .signal i { width: 3px; border-radius: 2px 2px 0 0; background: #050505; }
+    .signal i:nth-child(1) { height: 4px; }
+    .signal i:nth-child(2) { height: 7px; }
+    .signal i:nth-child(3) { height: 10px; }
+    .signal i:nth-child(4) { height: 12px; }
+    .wifi { position: relative; width: 18px; height: 13px; overflow: hidden; }
+    .wifi::before, .wifi::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      border: 2px solid #050505;
+      border-color: #050505 transparent transparent;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .wifi::before { top: 0; width: 19px; height: 17px; }
+    .wifi::after { top: 5px; width: 10px; height: 9px; }
+    .wifi i { position: absolute; left: 8px; bottom: 0; width: 3px; height: 3px; border-radius: 50%; background: #050505; }
+    .battery { position: relative; width: 23px; height: 11px; padding: 2px; border: 1.5px solid #919191; border-radius: 3px; }
+    .battery::before { content: ""; display: block; width: 100%; height: 100%; border-radius: 1px; background: #050505; }
+    .battery::after { content: ""; position: absolute; top: 3px; right: -3px; width: 2px; height: 5px; border-radius: 0 2px 2px 0; background: #b4b4b4; }
 
-    .status-icons { display: flex; align-items: center; gap: 8px; }
-    .signal { display: flex; gap: 2px; align-items: flex-end; height: 14px; }
-    .signal i { display: block; width: 3px; border-radius: 1px; background: #111; }
-    .signal i:nth-child(1) { height: 5px; }
-    .signal i:nth-child(2) { height: 8px; }
-    .signal i:nth-child(3) { height: 11px; }
-    .signal i:nth-child(4) { height: 14px; opacity: .25; }
-    .wifi { width: 18px; height: 14px; position: relative; overflow: hidden; }
-    .wifi::before, .wifi::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border: 2px solid #111; border-color: #111 transparent transparent; border-radius: 50%; }
-    .wifi::before { top: 1px; width: 20px; height: 16px; }
-    .wifi::after { top: 6px; width: 10px; height: 8px; }
-    .battery { min-width: 28px; height: 15px; border-radius: 4px; padding: 0 4px; color: #fff; background: #111; font-size: 11px; line-height: 15px; text-align: center; }
-
-    .nav-head { position: relative; height: 57px; display: grid; place-items: center; }
-    .nav-head h1 { margin: 1px 0 0; font-size: 21px; font-weight: 500; letter-spacing: 0; }
-    .mini-actions { position: absolute; right: -10px; top: 7px; width: 84px; height: 32px; border: 1px solid rgba(0,0,0,.04); border-radius: 18px; background: rgba(255,255,255,.84); display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
-    .mini-actions::after { content: ""; position: absolute; left: 42px; top: 6px; width: 1px; height: 20px; background: #ececf0; }
-    .dots { font-size: 20px; font-weight: 800; line-height: 1; transform: translateY(-3px); letter-spacing: 1px; }
-    .round-menu { width: 16px; height: 16px; margin: auto; border: 3px solid #14171d; border-radius: 50%; position: relative; }
-    .round-menu::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #14171d; }
-
-    .card { border-radius: 8px; background: rgba(255,255,255,.96); box-shadow: 0 5px 14px rgba(73, 101, 152, .06); }
-
-    .profile {
-      min-height: 104px;
-      margin-top: 4px;
-      padding: 21px 21px;
+    .titlebar { position: relative; height: 56px; display: flex; align-items: center; }
+    .titlebar h1 { width: 100%; margin: 0 0 1px; color: #303135; font-size: 20px; line-height: 1; font-weight: 600; letter-spacing: 0; text-align: center; }
+    .capsule {
+      position: absolute;
+      right: 5px;
+      top: 9px;
+      width: 80px;
+      height: 28px;
+      border: 1px solid #ebe8e6;
+      border-radius: 16px;
       display: grid;
-      grid-template-columns: 66px minmax(0,1fr) auto;
-      gap: 16px;
+      grid-template-columns: 1fr 1fr;
       align-items: center;
+      background: rgba(255,255,255,.9);
     }
+    .dots { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .dots i { width: 4px; height: 4px; border-radius: 50%; background: #15171b; }
+    .mini-ring { width: 15px; height: 15px; margin: auto; border: 1.8px solid #111318; border-radius: 50%; position: relative; }
+    .mini-ring::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #111318; }
 
-    .avatar { width: 66px; height: 66px; border: 3px solid #fff; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 7px rgba(42,49,66,.16); }
-    .profile-name { font-size: 20px; font-weight: 700; white-space: nowrap; }
-    .role-switch { height: 29px; padding: 0 12px; border-radius: 15px; color: #4978db; background: #f7f9ff; font-size: 14px; white-space: nowrap; }
-    .role-switch span { margin-right: 4px; font-size: 20px; vertical-align: -2px; }
-
-    .membership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 13px; }
-    .membership {
+    .card { background: #fff; border-radius: 11px; }
+    .profile {
       position: relative;
-      height: 128px;
-      padding: 15px 14px 12px;
+      height: 88px;
       overflow: hidden;
-      border-radius: 7px;
-      box-shadow: 0 5px 7px rgba(45, 60, 90, .13);
-      text-align: left;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      align-items: center;
+      padding: 9px 12px 8px 15px;
+      background: #fff;
     }
-    .membership::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(120deg, transparent 0 16px, rgba(255,255,255,.22) 17px, transparent 18px 31px); opacity: .55; pointer-events: none; }
-    .membership.silver { color: #222a3a; background: linear-gradient(145deg, #d8efff 0%, #f4f8ff 52%, #cdd7ff 100%); }
-    .membership.gold { color: #39240b; background: linear-gradient(145deg, #fff4d3 0%, #fffdf4 50%, #ffd8bf 100%); }
-    .member-title { position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; }
-    .tiny-crown { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px 6px 8px 8px; color: #ffe7a1; background: #5b3a00; font-size: 12px; }
-    .member-price { position: relative; z-index: 1; display: block; margin-top: 12px; font-size: 28px; line-height: 1; white-space: nowrap; }
-    .member-price small { font-size: 14px; }
-    .member-desc { position: relative; z-index: 1; display: block; width: 100%; margin-top: 11px; font-size: 12px; line-height: 1.55; opacity: .75; }
-    .gem { position: absolute; z-index: 0; right: 7px; top: 22px; width: 72px; height: 57px; filter: drop-shadow(0 6px 5px rgba(83,99,130,.17)); }
-    .gem::before { content: "◇"; position: absolute; inset: 0; font-size: 79px; line-height: 55px; font-family: Georgia, serif; transform: scaleX(1.25); }
-    .gem::after { content: "V"; position: absolute; left: 23px; top: 17px; font-size: 27px; font-weight: 800; }
-    .silver .gem { color: #9aa9c0; text-shadow: 0 0 8px white; }
-    .gold .gem { color: #e6a33e; text-shadow: 0 0 9px white; }
+    .profile-avatar { width: 62px; height: 62px; object-fit: cover; border-radius: 50%; }
+    .profile-copy { min-width: 0; padding-left: 7px; }
+    .name-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .name-row strong { overflow: hidden; text-overflow: ellipsis; font-size: 17px; line-height: 22px; }
+    .role-tag { padding: 2px 6px; border-radius: 4px; color: #535965; background: #f1f3f6; font-size: 14px; }
+    .membership { margin-top: 8px; display: flex; align-items: center; gap: 6px; color: #626572; font-size: 14px; white-space: nowrap; }
+    .membership b { color: #545b66; font-weight: 500; }
+    .membership-divider { width: 1px; height: 14px; background: #b77a3d; }
+    .section { margin-top: 12px; padding: 17px 15px 14px; }
+    .section-head { height: 23px; display: flex; align-items: center; justify-content: space-between; }
+    .section h2 { margin: 0; font-size: 18px; line-height: 23px; font-weight: 700; letter-spacing: 0; }
+    .more { display: flex; align-items: center; gap: 7px; color: #777a81; font-size: 14px; text-decoration: none; }
+    .more::after { content: ""; width: 7px; height: 7px; border: solid #9299a5; border-width: 1px 1px 0 0; transform: rotate(45deg); }
 
-    .action-strip { margin-top: 19px; min-height: 105px; padding: 18px 9px 14px; display: grid; grid-template-columns: repeat(4, 1fr); }
-    .action-item { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 14px; white-space: nowrap; }
-    .icon-bubble { width: 47px; height: 47px; border-radius: 50%; display: grid; place-items: center; font-size: 27px; font-weight: 700; }
-    .green { color: var(--green); background: #f0fcf6; }
-    .blue { color: #3979ea; background: #f0f5ff; }
-    .orange { color: #f59a34; background: #fff8ed; }
-    .purple { color: var(--violet); background: #f6f1ff; }
-    .symbol { font-family: Arial, sans-serif; font-size: 23px; line-height: 1; }
-
-    .section { margin-top: 14px; padding: 20px 14px 18px; }
-    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .section h2 { margin: 0; font-size: 19px; line-height: 1; }
-    .more-link { color: #aaaeb5; font-size: 14px; }
-    .more-link span { padding-left: 4px; font-size: 22px; vertical-align: -2px; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .maker { height: 154px; }
+    .maker-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); }
     .stat { display: flex; flex-direction: column; align-items: center; }
-    .stat .icon-bubble { width: 50px; height: 50px; font-size: 25px; }
-    .stat-value { margin-top: 7px; font-size: 20px; line-height: 1; }
-    .stat:nth-child(1) .stat-value { color: #3479ec; }
-    .stat:nth-child(2) .stat-value { color: #43c579; }
-    .stat:nth-child(3) .stat-value { color: #f17928; }
-    .stat-value small { margin-left: 2px; font-size: 13px; }
-    .stat-label { margin-top: 8px; font-size: 14px; }
+    .stat .bubble { width: 47px; height: 47px; }
+    .stat .icon { width: 30px; height: 30px; stroke-width: 0; }
+    .stat-value { margin-top: 3px; font-size: 16px; line-height: 20px; }
+    .stat:nth-child(1) .stat-value { color: #1675f6; }
+    .stat:nth-child(2) .stat-value { color: #13c878; }
+    .stat:nth-child(3) .stat-value { color: #f06c16; }
+    .stat-value small { font-size: 14px; }
+    .stat-label { margin-top: 1px; font-size: 14px; line-height: 18px; }
+    .bubble { border-radius: 50%; display: grid; place-items: center; color: var(--icon); background: var(--bubble); }
+    .stat:nth-child(1) .bubble { color: #2f83f5; background: #eef5ff; }
+    .stat:nth-child(2) .bubble { color: #04c86f; background: #ebf9f2; }
+    .stat:nth-child(3) .bubble { color: var(--orange); background: #fff3ec; }
 
-    .services { margin-top: 14px; padding: 20px 15px 14px; }
-    .services h2 { margin: 0 0 20px; font-size: 19px; }
-    .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 23px; }
-    .service { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; white-space: nowrap; }
-    .service-icon { font-size: 20px; line-height: 1; }
-    .service:nth-child(1) .service-icon { color: #5b91ed; }
-    .service:nth-child(2) .service-icon { color: #f6b33e; }
-    .service:nth-child(3) .service-icon { color: #55a4ef; }
-    .service:nth-child(4) .service-icon { color: #8b64ec; }
-    .service:nth-child(5) .service-icon { color: #22a89a; }
-    .service:nth-child(4) { grid-column: 1; }
+    .menu-section { height: 128px; margin-top: 13px; padding-top: 17px; }
+    .maker + .menu-section { height: 127px; }
+    .menu-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); }
+    .menu-item { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; color: inherit; font-size: 14px; text-decoration: none; white-space: nowrap; }
+    .menu-item .bubble { width: 39px; height: 39px; }
+    .menu-item .icon { width: 21px; height: 21px; stroke-width: 2; }
+    .service-section { height: 128px; }
+    .service-section .menu-grid { grid-template-columns: repeat(3, 1fr); }
+    .service-section .menu-item .bubble { width: 39px; height: 39px; }
 
-    .placeholder { height: 108px; margin-top: 14px; }
+    .quick-links { height: 82px; margin-top: 12px; padding: 11px 0 8px; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .quick-link { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; }
+    .quick-link + .quick-link::before { content: ""; position: absolute; left: 0; top: 8px; width: 1px; height: 34px; background: #e5e5e5; }
+    .quick-link .icon { width: 23px; height: 23px; color: var(--blue); stroke-width: 2; }
+
+    .info-card { height: 115px; margin-top: 12px; padding: 15px; }
+    .info-row { width: 100%; height: 41px; display: flex; align-items: center; gap: 11px; text-align: left; font-size: 14px; }
+    .info-row + .info-row { border-top: 1px solid #e5e5e5; }
+    .info-row .icon { width: 18px; height: 18px; color: var(--icon); stroke-width: 2; }
+    .info-row::after { content: ""; width: 7px; height: 7px; margin-left: auto; border: solid #9098a5; border-width: 2px 2px 0 0; transform: rotate(45deg); }
+    .logout-action {
+      width: 100%;
+      height: 48px;
+      margin-top: 6px;
+      border-radius: 11px;
+      color: #df4b4b;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .logout-action:active { background: #fff5f5; }
 
     .invite-modal {
-      position: fixed;
-      z-index: 40;
-      inset: 0 auto 0 50%;
-      width: min(100%, 430px);
-      padding: 20px;
-      transform: translateX(-50%);
+      position: absolute;
+      z-index: 50;
+      inset: 0;
+      padding: 24px;
       display: grid;
       place-items: center;
-      background: rgba(20, 25, 35, .46);
+      background: rgba(24, 29, 36, .5);
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
       transition: opacity .2s ease, visibility .2s ease;
     }
-    .invite-modal.show { opacity: 1; visibility: visible; }
-    .invite-dialog {
+    .invite-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
+    .invite-panel {
       position: relative;
-      width: min(100%, 318px);
-      padding: 26px 24px 22px;
-      border-radius: 8px;
+      width: min(330px, 100%);
+      padding: 22px 22px 20px;
+      border-radius: 12px;
       background: #fff;
-      box-shadow: 0 18px 50px rgba(22, 31, 48, .22);
+      box-shadow: 0 18px 42px rgba(24, 29, 36, .2);
       text-align: center;
-      transform: translateY(10px) scale(.98);
+      transform: translateY(10px);
       transition: transform .2s ease;
     }
-    .invite-modal.show .invite-dialog { transform: translateY(0) scale(1); }
-    .invite-dialog h2 { margin: 0 0 18px; font-size: 20px; }
-    .close-modal { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; color: #7c818a; font-size: 27px; line-height: 34px; }
-    .invite-code { display: block; width: 100%; aspect-ratio: 324 / 310; object-fit: contain; border-radius: 4px; }
-    .save-code { width: 100%; height: 44px; margin-top: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #fff; background: #2e6df6; font-size: 15px; font-weight: 600; text-decoration: none; }
-    .save-code:active { background: #245ed7; }
-    .save-code i { font-size: 20px; font-style: normal; }
+    .invite-modal.open .invite-panel { transform: translateY(0); }
+    .invite-panel h2 { margin: 0; font-size: 18px; line-height: 26px; font-weight: 650; }
+    .invite-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      color: #7b828c;
+      background: #f3f5f7;
+      font-size: 22px;
+      line-height: 28px;
+    }
+    .invite-qr {
+      display: block;
+      width: 220px;
+      height: 220px;
+      margin: 18px auto 8px;
+      object-fit: contain;
+    }
+    .invite-note { margin: 0; color: #737985; font-size: 14px; line-height: 21px; }
+    .invite-save {
+      height: 46px;
+      margin-top: 18px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #4b7fb8;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+    }
 
     .tabbar {
-      position: fixed;
+      position: absolute;
       z-index: 20;
-      left: 50%;
+      left: 0;
       bottom: 0;
-      width: min(100%, 430px);
-      height: calc(72px + env(safe-area-inset-bottom));
-      padding-bottom: env(safe-area-inset-bottom);
-      transform: translateX(-50%);
+      width: 100%;
+      height: calc(88px + env(safe-area-inset-bottom));
+      padding: 4px 0 env(safe-area-inset-bottom);
+      transform: none;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      background: rgba(255,255,255,.97);
-      border-top: 1px solid #e7e8ec;
-      box-shadow: 0 -3px 9px rgba(41,55,82,.04);
+      background: rgba(255,255,255,.98);
+      box-shadow: 0 -6px 14px rgba(45,52,67,.08);
     }
-    .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #9a9ca2; font-size: 12px; }
-    .tab-icon { width: 26px; height: 24px; display: grid; place-items: center; font-size: 23px; line-height: 1; filter: grayscale(1); }
-    .tab.active { color: #2464e9; }
-    .tab.active .tab-icon { color: #2464e9; filter: none; }
+    .tab { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #999b9d; font-size: 14px; white-space: nowrap; }
+    .tab .icon { width: 22px; height: 22px; stroke-width: 2; }
+    .tab.active { color: #c87312; font-weight: 700; }
+    .tab.crown .icon { fill: currentColor; stroke: none; }
+    .tab.message .icon { fill: currentColor; stroke: none; }
+    .tab.mine .icon { fill: currentColor; stroke: none; }
 
-    .toast { position: fixed; z-index: 30; left: 50%; bottom: 92px; max-width: 300px; padding: 9px 15px; transform: translate(-50%, 14px); border-radius: 5px; color: #fff; background: rgba(20,23,29,.86); font-size: 13px; opacity: 0; pointer-events: none; transition: .22s ease; }
+    .toast {
+      position: absolute;
+      z-index: 40;
+      left: 50%;
+      bottom: 92px;
+      max-width: 280px;
+      padding: 8px 14px;
+      transform: translate(-50%, 10px);
+      border-radius: 5px;
+      color: #fff;
+      background: rgba(20,22,27,.86);
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s ease;
+    }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .home-indicator {
+      position: absolute;
+      z-index: 25;
+      left: 50%;
+      bottom: 6px;
+      width: 126px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 4px;
+      background: #111;
+      pointer-events: none;
+    }
+    .clickable { transition: transform .12s ease, opacity .12s ease; }
+    .clickable:active { transform: scale(.96); opacity: .72; }
 
-    @media (min-width: 431px) { body { padding: 18px 0; } .app { min-height: calc(100vh - 36px); border-radius: 18px; } .tabbar { bottom: 18px; border-radius: 0 0 18px 18px; } }
+    @media (max-width: 370px) {
+      .page { padding-inline: 9px; }
+      .profile { grid-template-columns: 61px minmax(0, 1fr); padding-inline: 11px 8px; }
+      .profile-copy { padding-left: 5px; }
+      .name-row strong { font-size: 16px; }
+      .menu-item { font-size: 14px; }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 16px; }
+      .phone-shell { width: min(464px, calc(100vw - 24px), calc(47.347svh - 11.36px)); }
+    }
+
+    /* Reference canvas: 464 x 1090, with a 440px mini-program viewport. */
+    body {
+      min-height: 100svh;
+      padding: 0;
+      display: block;
+      position: relative;
+      overflow-x: hidden;
+      background: #050505;
+    }
+    .phone-shell {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 464px;
+      height: 1090px;
+      aspect-ratio: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #050505;
+      box-shadow: none;
+      transform: translateX(-50%) scale(var(--page-scale, 1));
+      transform-origin: top center;
+    }
+    .phone-shell::before,
+    .phone-shell::after,
+    .dynamic-island,
+    .home-indicator { display: none; }
+    .app {
+      position: absolute;
+      left: 12px;
+      top: 0;
+      width: 440px;
+      height: 1082px;
+      border-radius: 0;
+      background: #f5f4f6;
+      box-shadow: none;
+    }
+    .page {
+      height: 1002px;
+      padding: 0 12px;
+      overflow: hidden;
+    }
+    .statusbar {
+      height: 36px;
+      padding: 17px 24px 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .device-status { gap: 8px; }
+    .titlebar {
+      height: 44px;
+      align-items: flex-start;
+    }
+    .titlebar h1 {
+      margin: 12px 0 0;
+      padding: 0;
+      font-size: 18px;
+      line-height: 26px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .capsule {
+      right: 5px;
+      top: 13px;
+      width: 84px;
+      height: 30px;
+      border-radius: 16px;
+    }
+    .card { border-radius: 14px; }
+    .profile {
+      z-index: 2;
+      height: 80px;
+      width: calc(100% + 8px);
+      margin: -30px 0 0 -8px;
+      grid-template-columns: 90px minmax(0, 1fr);
+      padding: 0 16px 0 10px;
+      overflow: visible;
+      border-radius: 0;
+      background: transparent;
+    }
+    .profile::after {
+      display: none;
+    }
+    .avatar-wrap {
+      position: relative;
+      z-index: 1;
+      width: 90px;
+      height: 90px;
+      transform: translateX(-2px);
+      overflow: hidden;
+      border-radius: 50%;
+      background: transparent;
+    }
+    .profile-avatar {
+      position: absolute;
+      inset: 0;
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 50%;
+    }
+    .profile-copy { position: relative; z-index: 1; padding-left: 2px; }
+    .name-row { gap: 8px; }
+    .avatar-wrap,
+    .profile-name-link { color: inherit; text-decoration: none; }
+    .profile-name-link { display: inline-flex; }
+    .name-row strong { color: #592d0b; font-size: 18px; line-height: 24px; }
+    .role-tag { padding: 2px 6px; color: var(--ink); background: #fff; font-size: 14px; }
+    .membership { margin-top: 7px; gap: 7px; color: #755d4b; font-size: 14px; }
+    .membership b { color: #a45b08; }
+    .membership-date { color: var(--ink); }
+    .renew-action { margin-left: 2px; padding: 2px 7px; border: 1px solid rgba(164,91,8,.28); border-radius: 4px; color: #a45b08; background: rgba(255,255,255,.78); font-size: 14px; line-height: 20px; white-space: nowrap; }
+    .section { padding: 17px 15px 14px; }
+    .section h2 { font-size: 14px; }
+    .maker {
+      position: relative;
+      height: 132px;
+      margin: 4px 2px 0;
+      padding: 10px 14px 8px;
+      border-radius: 14px;
+      box-shadow: 0 5px 16px rgba(130,74,16,.11);
+    }
+    .maker .section-head {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 12px;
+      width: auto;
+      height: 24px;
+      padding-top: 4px;
+      justify-content: center;
+      border-top: 0;
+    }
+    .maker .section-head::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -4px;
+      height: 1px;
+      background: #f0ebe4;
+    }
+    .maker .more {
+      width: auto;
+      height: auto;
+      gap: 7px;
+      overflow: visible;
+      border-radius: 0;
+      color: var(--ink);
+      background: none;
+      font-size: 14px;
+    }
+    .maker .more::after {
+      width: 5px;
+      height: 5px;
+      margin-left: 0;
+      border-color: #9299a5;
+    }
+    .maker-grid {
+      height: 78px;
+      margin-top: 0;
+      align-items: center;
+    }
+    .maker .stat {
+      position: relative;
+      min-height: 44px;
+      justify-content: center;
+    }
+    .maker .stat + .stat::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 1px;
+      height: 30px;
+      background: #eee6dc;
+    }
+    .maker .stat .bubble { display: none; }
+    .maker .stat-value {
+      margin-top: 0;
+      font-size: 22px;
+      line-height: 26px;
+      font-weight: 650;
+    }
+    .maker .stat-value small { font-size: 14px; }
+    .maker .stat-label {
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 16px;
+    }
+    .center-shortcuts {
+      margin: 10px 2px 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .center-card {
+      position: relative;
+      height: 78px;
+      min-width: 0;
+      padding: 12px 11px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 7px;
+      align-items: center;
+      gap: 9px;
+      overflow: hidden;
+      color: #28445f;
+      text-decoration: none;
+      box-shadow: 0 3px 10px rgba(54,88,118,.07);
+    }
+    .center-card.teaching { border-color: #dbeafa; background: #eef6ff; }
+    .center-card.learning { border-color: #dcefe6; background: #eef9f4; }
+    .center-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.9);
+    }
+    .center-card.teaching .center-icon { color: #3f72ad; }
+    .center-card.learning .center-icon { color: #34765d; }
+    .center-icon .icon { width: 21px; height: 21px; stroke-width: 2; }
+    .center-copy { min-width: 0; }
+    .center-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; line-height: 21px; font-weight: 650; }
+    .center-copy small { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #718091; font-size: 14px; line-height: 18px; }
+    .center-card.learning .center-copy small { color: #71847a; }
+    .center-arrow { width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; opacity: .55; transform: rotate(45deg); }
+    .menu-section,
+    .maker + .menu-section,
+    .service-section {
+      height: 122px;
+      margin-top: 10px;
+      padding: 13px 15px 8px;
+    }
+    .menu-grid { margin-top: 10px; }
+    .menu-section .menu-grid { margin-top: 5px; }
+    .menu-item { gap: 5px; font-size: 14px; }
+    .menu-item .bubble,
+    .service-section .menu-item .bubble { width: 42px; height: 42px; }
+    .quick-links {
+      height: 82px;
+      margin-top: 6px;
+      padding: 11px 0 8px;
+    }
+    .info-card {
+      height: auto;
+      margin-top: 10px;
+      padding: 14px 16px;
+    }
+    .info-row { height: 48px; }
+    .logout-action { height: 50px; margin-top: 10px; }
+    .tabbar {
+      bottom: 0;
+      height: 92px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 -8px 18px rgba(45,52,67,.09);
+    }
+    .tab-art-set {
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      pointer-events: none;
+    }
+    .tab-art-piece {
+      position: absolute;
+      top: 0;
+      width: 80px;
+      height: 66px;
+      overflow: hidden;
+    }
+    .tab-art-piece:nth-child(1) { left: 20px; }
+    .tab-art-piece:nth-child(2) { left: 100px; }
+    .tab-art-piece:nth-child(3) { left: 180px; }
+    .tab-art-piece:nth-child(4) { left: 260px; }
+    .tab-art-piece:nth-child(5) { left: 340px; }
+    .tab-art-piece img {
+      position: absolute;
+      top: 0;
+      width: 484px;
+      max-width: none;
+      height: auto;
+    }
+    .tab-art-piece:nth-child(1) img { left: -14px; }
+    .tab-art-piece:nth-child(2) img { left: -107px; }
+    .tab-art-piece:nth-child(3) img { left: -201px; }
+    .tab-art-piece:nth-child(4) img { left: -295px; }
+    .tab-art-piece:nth-child(5) img { left: -389px; }
+    .tab-art-piece .active-art { opacity: 0; }
+    .tabbar[data-active-tab="0"] .tab-art-piece:nth-child(1) .active-art,
+    .tabbar[data-active-tab="1"] .tab-art-piece:nth-child(2) .active-art,
+    .tabbar[data-active-tab="2"] .tab-art-piece:nth-child(3) .active-art,
+    .tabbar[data-active-tab="3"] .tab-art-piece:nth-child(4) .active-art,
+    .tabbar[data-active-tab="4"] .tab-art-piece:nth-child(5) .active-art { opacity: 1; }
+    .tab {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      color: transparent;
+      font-size: 0;
+    }
+    .tab .icon,
+    .tab span { display: none; }
+    .toast { bottom: 100px; }
+
+    @media (max-width: 463px) {
+      body { background: #f5f4f6; }
+    }
+
+    /* iPhone 17 Pro Max frame: 440 x 956 logical screen inside a 464 x 980 shell. */
+    body {
+      height: 100svh;
+      min-height: 100svh;
+      padding: 16px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #e7eaee;
+    }
+    .phone-shell {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 464px;
+      height: 980px;
+      padding: 11px;
+      border: 1px solid #777d84;
+      border-radius: 66px;
+      background: linear-gradient(135deg, #bfc3c7 0%, #f4f5f6 20%, #8d9298 49%, #d9dcdf 72%, #73787e 100%);
+      box-shadow: 0 34px 70px rgba(32,38,45,.28), 0 10px 22px rgba(32,38,45,.18), inset 0 0 0 1px rgba(255,255,255,.75), inset 0 0 0 3px rgba(33,36,40,.68);
+      transform: scale(var(--device-scale, 1));
+      transform-origin: center;
+    }
+    .phone-shell::before {
+      display: block;
+      left: -4px;
+      top: 173px;
+      width: 4px;
+      height: 61px;
+      border-radius: 3px 0 0 3px;
+      background: #737980;
+      box-shadow: 0 78px 0 #737980;
+    }
+    .phone-shell::after {
+      display: block;
+      right: -4px;
+      top: 222px;
+      width: 4px;
+      height: 94px;
+      border-radius: 0 3px 3px 0;
+      background: #737980;
+    }
+    .dynamic-island {
+      display: block;
+      top: 22px;
+    }
+    .app {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 440px;
+      height: 956px;
+      overflow: hidden;
+      border-radius: 54px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.52);
+    }
+    .page {
+      width: 100%;
+      height: 100%;
+      padding: 0 12px 106px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background:
+        linear-gradient(to bottom, rgba(245,244,246,0) 235px, #f5f4f6 285px),
+        linear-gradient(105deg, transparent 16%, rgba(255,255,255,.3) 35%, transparent 54%),
+        radial-gradient(ellipse 210px 125px at 18% 24px, rgba(255,255,255,.56), transparent 72%),
+        linear-gradient(118deg, #fff0d2 0%, #f5cf98 50%, #e9ad62 100%);
+      background-attachment: local;
+    }
+    .titlebar h1 { color: #63320b; }
+    .capsule { border-color: rgba(153,89,20,.18); }
+    .tabbar { height: 80px; }
   </style>
 </head>
 <body>
-  <main class="app">
-    <div class="scroll">
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+    <symbol id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0L11 11.4a1 1 0 0 1-3-3l2.4-2.4a4 4 0 0 1 5.6 0l.5.5"/><path d="m18 8 1-1 4 4-5 5M6 8 5 7l-4 4 5 5M8 16l-1 1a1 1 0 0 0 3 3l1-1"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.5 4A2.5 2.5 0 0 0 7 6.5v.4a3 3 0 0 0-2 4.6 3 3 0 0 0 2.5 4.5H9"/><path d="M14.5 4A2.5 2.5 0 0 1 17 6.5v.4a3 3 0 0 1 2 4.6 3 3 0 0 1-2.5 4.5H15"/><path d="M12 3v18M8 9a3 3 0 0 0 4-3M16 9a3 3 0 0 1-4-3M8 15a3 3 0 0 1 4 3M16 15a3 3 0 0 0-4 3"/></symbol>
+    <symbol id="i-graduation" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5M22 10v6"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.5a1.5 1.5 0 0 0 1.1-2.5l-.5-.5a1.5 1.5 0 0 1 1.1-2.5H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3Z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/><circle cx="17" cy="11" r="1"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V4h8v3M8 20V10M16 20V10"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1M10 21v-3h4v3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+    <symbol id="i-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M16 11l2 2 4-4"/></symbol>
+    <symbol id="i-notebook" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z"/><path d="M8 7h8M8 10h6M8 13h5M4 7H2M4 11H2M4 15H2"/></symbol>
+    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 18v3"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v18a3 3 0 0 0-3-3H2Z"/><path d="M22 4a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v18a3 3 0 0 1 3-3h7Z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2.5 3 6 6.6 1-4.8 4.6 1.1 6.5-5.9-3.1-5.9 3.1 1.1-6.5-4.8-4.6 6.6-1Z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1.1.9-1.1 1.7M12 17h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9H3Z"/><path d="M8 20v-5h8v5"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 6 4 5 5-8 5 8 4-5-2 14H5Z"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><circle cx="8" cy="11" r="1" fill="#fff"/><circle cx="12" cy="11" r="1" fill="#fff"/><circle cx="16" cy="11" r="1" fill="#fff"/></symbol>
+    <symbol id="i-user-solid" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22a8 8 0 0 1 16 0Z"/></symbol>
+    <symbol id="i-people-solid" viewBox="0 0 64 64"><circle cx="25" cy="20" r="12" fill="currentColor"/><circle cx="43" cy="25" r="9" fill="currentColor" opacity=".86"/><path d="M5 55c0-13 8-21 20-21s20 8 20 21Z" fill="currentColor"/><path d="M39 38c11 0 18 6 18 16H44c0-7-2-12-5-16Z" fill="currentColor" opacity=".86"/></symbol>
+    <symbol id="i-gift-solid" viewBox="0 0 64 64"><path d="M8 26h48v11H8ZM13 39h38v20H13ZM28 24H12c-5-12 8-15 16 0ZM36 24h16c5-12-8-15-16 0ZM28 24h8v35h-8Z" fill="currentColor"/></symbol>
+  </svg>
+
+  <div class="phone-shell" aria-label="iPhone 17 Pro Max 手机模型">
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <main class="app">
+      <div class="page">
       <header>
         <div class="statusbar">
-          <span>14:55</span>
-          <div class="status-icons" aria-label="手机状态">
+          <span>23:58</span>
+          <div class="device-status" aria-label="手机状态">
             <span class="signal"><i></i><i></i><i></i><i></i></span>
-            <span class="wifi"></span>
-            <span class="battery">63</span>
+            <span class="wifi"><i></i></span>
+            <span class="battery"></span>
           </div>
         </div>
-        <div class="nav-head">
-          <h1>个人中心</h1>
-          <div class="mini-actions">
-            <button class="dots" data-action="更多">•••</button>
-            <button class="round-menu" data-action="小程序菜单" aria-label="小程序菜单"></button>
+        <div class="titlebar">
+          <div class="capsule" aria-label="小程序菜单">
+            <button class="dots clickable" data-action="更多"><i></i><i></i><i></i></button>
+            <button class="mini-ring clickable" data-action="小程序菜单" aria-label="小程序菜单"></button>
           </div>
         </div>
       </header>
 
       <section class="profile card">
-        <img class="avatar" src="maker-avatar.jpg" alt="芦笛头像">
-        <strong class="profile-name">芦笛</strong>
-        <button class="role-switch" data-action="切换至家长身份"><span>⇄</span>家长</button>
-      </section>
-
-      <section class="membership-grid" aria-label="会员方案">
-        <button class="membership silver" data-action="普通会员">
-          <span class="member-title"><i class="tiny-crown">♛</i>普通会员</span>
-          <span class="member-price">0.01<small>元/年</small></span>
-          <span class="member-desc">可享受会员价购买精品AI课程 20小时/单科</span>
-          <i class="gem"></i>
-        </button>
-        <button class="membership gold" data-action="卓越会员">
-          <span class="member-title"><i class="tiny-crown">♛</i>卓越会员</span>
-          <span class="member-price">0.02<small>元/年</small></span>
-          <span class="member-desc">可在一年内无限次享受会员价，购买精品AI课程</span>
-          <i class="gem"></i>
-        </button>
-      </section>
-
-      <section class="action-strip card" aria-label="合作与邀请">
-        <button class="action-item" data-action="申请加盟"><i class="icon-bubble green">▣</i><span>申请加盟</span></button>
-        <button class="action-item" data-action="招募合伙人"><i class="icon-bubble blue symbol">♟<sup>+</sup></i><span>招募合伙人</span></button>
-        <button class="action-item" data-action="邀请老师入驻"><i class="icon-bubble orange symbol">▣</i><span>邀请老师入驻</span></button>
-        <button class="action-item" data-action="邀请家长报名"><i class="icon-bubble purple symbol">♟♡</i><span>邀请家长报名</span></button>
-      </section>
-
-      <section class="section card">
-        <div class="section-head">
-          <h2>创客中心</h2>
-          <button class="more-link" data-action="创客中心详情">查看更多 <span>›</span></button>
-        </div>
-        <div class="stats">
-          <button class="stat" data-action="一星团队"><i class="icon-bubble blue">♟♟</i><span class="stat-value">0<small>人</small></span><span class="stat-label">一星团队</span></button>
-          <button class="stat" data-action="二星团队"><i class="icon-bubble green">♟♟</i><span class="stat-value">0<small>人</small></span><span class="stat-label">二星团队</span></button>
-          <button class="stat" data-action="累计奖金"><i class="icon-bubble orange">🎁</i><span class="stat-value">0<small>元</small></span><span class="stat-label">累计奖金</span></button>
+        <a class="avatar-wrap clickable" href="个人资料_页面还原.html" aria-label="查看个人资料"><img class="profile-avatar" src="assets/user-avatar.png" alt="优坐标"></a>
+        <div class="profile-copy">
+          <div class="name-row"><a class="profile-name-link clickable" href="个人资料_页面还原.html"><strong>张三</strong></a><span class="role-tag">合伙人</span><span class="role-tag">老师</span><span class="role-tag">家长</span></div>
+          <div class="membership"><b>卓越会员</b><span class="membership-divider" aria-hidden="true"></span><span class="membership-date">2027.05.05到期</span><button class="renew-action clickable" type="button" data-action="会员续费">会员续费</button></div>
         </div>
       </section>
 
-      <section class="services card">
-        <h2>我的服务</h2>
-        <div class="service-grid">
-          <button class="service" data-action="我的订单"><i class="service-icon">▤</i><span>我的订单</span></button>
-          <button class="service" data-action="我的收藏"><i class="service-icon">★</i><span>我的收藏</span></button>
-          <button class="service" data-action="我的课程"><i class="service-icon">▣</i><span>我的课程</span></button>
-          <button class="service" data-action="专属客服"><i class="service-icon">◉</i><span>专属客服</span></button>
-          <button class="service" data-modal-open><i class="service-icon">▦</i><span>邀请码</span></button>
+      <section class="section maker card">
+        <div class="section-head"><button class="more clickable" data-action="进入创客中心">进入创客中心</button></div>
+        <div class="maker-grid">
+          <button class="stat clickable" data-action="一星团队"><span class="bubble"><svg class="icon"><use href="#i-people-solid"/></svg></span><span class="stat-value">20<small>人</small></span><span class="stat-label">一星团队</span></button>
+          <button class="stat clickable" data-action="二星团队"><span class="bubble"><svg class="icon"><use href="#i-people-solid"/></svg></span><span class="stat-value">10<small>人</small></span><span class="stat-label">二星团队</span></button>
+          <button class="stat clickable" data-action="累计奖金"><span class="bubble"><svg class="icon"><use href="#i-gift-solid"/></svg></span><span class="stat-value">¥123<small>元</small></span><span class="stat-label">累计奖金</span></button>
         </div>
       </section>
-      <div class="placeholder card" aria-hidden="true"></div>
-    </div>
 
-    <nav class="tabbar" aria-label="底部导航">
-      <button class="tab" data-tab="首页"><i class="tab-icon">⌂</i><span>首页</span></button>
-      <button class="tab" data-tab="全部教员"><i class="tab-icon">▯</i><span>全部教员</span></button>
-      <button class="tab" data-tab="成为会员"><i class="tab-icon">♛</i><span>成为会员</span></button>
-      <button class="tab" data-tab="消息"><i class="tab-icon">▣</i><span>消息</span></button>
-      <button class="tab active" data-tab="我的"><i class="tab-icon">♟</i><span>我的</span></button>
-    </nav>
-    <div class="invite-modal" aria-hidden="true">
-      <section class="invite-dialog" role="dialog" aria-modal="true" aria-labelledby="invite-title">
-        <button class="close-modal" data-modal-close aria-label="关闭">×</button>
-        <h2 id="invite-title">我的邀请二维码</h2>
-        <img class="invite-code" src="用户邀请小程序码-白底.png" alt="优坐标邀请小程序码">
-        <a class="save-code" href="用户邀请小程序码-白底.png" download="优坐标-我的邀请二维码.png"><i>⇩</i>保存图片</a>
+      <nav class="center-shortcuts" aria-label="中心入口">
+        <a class="center-card teaching clickable" href="授课中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-tablet"/></svg></span><span class="center-copy"><strong>授课中心</strong><small>排课与教学</small></span><i class="center-arrow" aria-hidden="true"></i></a>
+        <a class="center-card learning clickable" href="学习中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-graduation"/></svg></span><span class="center-copy"><strong>学习中心</strong><small>课程与学习</small></span><i class="center-arrow" aria-hidden="true"></i></a>
+      </nav>
+
+      <section class="section menu-section card">
+        <div class="section-head"><h2>我要推广</h2></div>
+        <div class="menu-grid">
+          <button class="menu-item clickable" data-action="招募合伙人"><span class="bubble"><svg class="icon"><use href="#i-briefcase"/></svg></span><span>招募合伙人</span></button>
+          <button class="menu-item clickable" data-action="邀请机构"><span class="bubble"><svg class="icon"><use href="#i-building"/></svg></span><span>邀请机构</span></button>
+          <button class="menu-item clickable" data-action="邀请家长"><span class="bubble"><svg class="icon"><use href="#i-users"/></svg></span><span>邀请家长</span></button>
+          <button class="menu-item clickable" data-action="邀请老师"><span class="bubble"><svg class="icon"><use href="#i-user-check"/></svg></span><span>邀请老师</span></button>
+        </div>
       </section>
-    </div>
-    <div class="toast" role="status" aria-live="polite"></div>
-  </main>
+
+      <section class="section menu-section card">
+        <div class="section-head"><h2>我要合作</h2></div>
+        <div class="menu-grid">
+          <button class="menu-item clickable" data-action="申请合伙人"><span class="bubble"><svg class="icon"><use href="#i-handshake"/></svg></span><span>申请合伙人</span></button>
+          <button class="menu-item clickable" data-action="心理加盟"><span class="bubble"><svg class="icon"><use href="#i-brain"/></svg></span><span>心理加盟</span></button>
+          <button class="menu-item clickable" data-action="升学加盟"><span class="bubble"><svg class="icon"><use href="#i-graduation"/></svg></span><span>升学加盟</span></button>
+          <button class="menu-item clickable" data-action="艺术加盟"><span class="bubble"><svg class="icon"><use href="#i-palette"/></svg></span><span>艺术加盟</span></button>
+        </div>
+      </section>
+
+      <section class="info-card card">
+        <button class="info-row clickable" data-action="我的订单"><svg class="icon"><use href="#i-file"/></svg><span>我的订单</span></button>
+        <button class="info-row clickable" data-action="我的邀请码"><svg class="icon"><use href="#i-qr"/></svg><span>我的邀请码</span></button>
+        <button class="info-row clickable" data-action="我的收藏"><svg class="icon"><use href="#i-star"/></svg><span>我的收藏</span></button>
+        <button class="info-row clickable" data-action="帮助中心"><svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span></button>
+        <button class="info-row clickable" data-action="关于我们"><svg class="icon"><use href="#i-info"/></svg><span>关于我们</span></button>
+      </section>
+      <button class="logout-action clickable" type="button" data-action="退出登录">退出登录</button>
+      </div>
+
+      <nav class="tabbar" data-active-tab="4" aria-label="底部导航">
+        <div class="tab-art-set" aria-hidden="true">
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+        </div>
+        <button class="tab clickable" data-tab="首页" aria-label="首页"></button>
+        <button class="tab clickable" data-tab="教员" aria-label="教员"></button>
+        <button class="tab clickable" data-tab="会员" aria-label="会员"></button>
+        <button class="tab clickable" data-tab="消息" aria-label="消息"></button>
+        <button class="tab active clickable" data-tab="我的" aria-label="我的"></button>
+      </nav>
+      <div class="home-indicator" aria-hidden="true"></div>
+      <div class="toast" role="status" aria-live="polite"></div>
+      <div class="invite-modal" aria-hidden="true">
+        <section class="invite-panel" role="dialog" aria-modal="true" aria-labelledby="inviteTitle">
+          <button class="invite-close clickable" type="button" aria-label="关闭邀请码弹窗">×</button>
+          <h2 id="inviteTitle">我的邀请二维码</h2>
+          <img class="invite-qr" src="assets/用户邀请小程序码-白底.png" alt="我的专属邀请小程序码">
+          <p class="invite-note">好友扫码后将自动绑定邀请关系</p>
+          <a class="invite-save clickable" href="assets/用户邀请小程序码-白底.png" download="优坐标-我的邀请码.png">保存图片</a>
+        </section>
+      </div>
+    </main>
+  </div>
 
   <script>
+    try {
+      const savedProfile = JSON.parse(window.name || '{}');
+      if (savedProfile.scope === 'youzuobiao-profile') {
+        if (savedProfile.name) document.querySelector('.name-row strong').textContent = savedProfile.name;
+        if (savedProfile.avatar) document.querySelector('.profile-avatar').src = savedProfile.avatar;
+      }
+    } catch {}
     const toast = document.querySelector('.toast');
     const inviteModal = document.querySelector('.invite-modal');
     let toastTimer;
@@ -314,39 +906,49 @@
       toast.textContent = message;
       toast.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
-    }
-
-    function setInviteModal(open) {
-      inviteModal.classList.toggle('show', open);
-      inviteModal.setAttribute('aria-hidden', String(!open));
-      document.body.style.overflow = open ? 'hidden' : '';
-      if (open) document.querySelector('.close-modal').focus();
-      window.parent.postMessage({ channel: 'personal-center-restored', page: open ? 'invite' : 'profile' }, '*');
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1300);
     }
 
     document.addEventListener('click', event => {
-      if (event.target.closest('[data-modal-open]')) {
-        setInviteModal(true);
-        return;
-      }
-      if (event.target.closest('[data-modal-close]') || event.target === inviteModal) {
-        setInviteModal(false);
-        return;
-      }
-
       const action = event.target.closest('[data-action]');
+      if (action?.dataset.action === '我的邀请码') {
+        inviteModal.classList.add('open');
+        inviteModal.setAttribute('aria-hidden', 'false');
+        return;
+      }
       if (action) showToast(action.dataset.action);
 
       const tab = event.target.closest('[data-tab]');
       if (!tab) return;
-      document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab));
+      const tabs = [...document.querySelectorAll('.tab')];
+      tabs.forEach(item => item.classList.toggle('active', item === tab));
+      tab.closest('.tabbar').dataset.activeTab = tabs.indexOf(tab);
       showToast(`已切换到${tab.dataset.tab}`);
     });
 
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && inviteModal.classList.contains('show')) setInviteModal(false);
+    function closeInviteModal() {
+      inviteModal.classList.remove('open');
+      inviteModal.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelector('.invite-close').addEventListener('click', closeInviteModal);
+    inviteModal.addEventListener('click', event => {
+      if (event.target === inviteModal) closeInviteModal();
     });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && inviteModal.classList.contains('open')) closeInviteModal();
+    });
+
+    function fitReferenceCanvas() {
+      const horizontalScale = (window.innerWidth - 32) / 464;
+      const verticalScale = (window.innerHeight - 32) / 980;
+      const scale = Math.min(horizontalScale, verticalScale, 1);
+      document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2));
+      document.body.style.minHeight = '100svh';
+    }
+
+    fitReferenceCanvas();
+    window.addEventListener('resize', fitReferenceCanvas, { passive: true });
 
     window.parent.postMessage({ channel: 'personal-center-restored', page: 'profile' }, '*');
   </script>
