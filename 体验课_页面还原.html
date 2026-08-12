@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf4ff">
+  <title>优AI甄选体验课</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --design-width: 375;
+      --design-height: 951;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow-x: hidden;
+      background: #dfe5ec;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .stage {
+      display: grid;
+      min-height: 100svh;
+      place-items: start center;
+    }
+
+    .page {
+      position: relative;
+      width: min(100vw, 440px);
+      aspect-ratio: 375 / 951;
+      container-type: inline-size;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(26, 39, 56, .18);
+    }
+
+    .artwork {
+      display: block;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+      margin: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      cursor: pointer;
+      color: transparent;
+      font-size: 0;
+    }
+
+    .hotspot::after {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: rgba(61, 136, 255, 0);
+      content: "";
+      transition: background .14s ease;
+    }
+
+    .hotspot:hover::after { background: rgba(61, 136, 255, .08); }
+    .hotspot:active::after { background: rgba(61, 136, 255, .17); }
+    .hotspot:focus-visible { outline: 2px solid #3d88ff; outline-offset: 2px; }
+
+    .back { top: 6.4%; left: 3.8%; width: 12%; height: 5.2%; }
+    .menu { top: 6.4%; right: 3.7%; width: 20%; height: 5.2%; }
+
+    .category-strip {
+      position: absolute;
+      z-index: 2;
+      top: 8.41%;
+      right: 0;
+      left: 0;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 12.62%;
+      padding: 0 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      scroll-snap-type: x proximity;
+    }
+
+    /* The supplied full-page artwork already contains an older category row.
+       Mask it before placing the reordered interactive row above it. */
+    .category-backdrop {
+      position: absolute;
+      z-index: 1;
+      top: 8.41%;
+      right: 0;
+      left: 0;
+      height: 12.62%;
+      background: linear-gradient(118deg, #fff 0%, #d2e6fd 49%, #f3f7ff 100%);
+      pointer-events: none;
+    }
+
+    .category-strip::-webkit-scrollbar { display: none; }
+
+    .category-selection-base {
+      position: absolute;
+      z-index: 2;
+      top: 14.93%;
+      left: var(--selected-center, 12.27%);
+      width: 30.93%;
+      height: 6.20%;
+      aspect-ratio: 116 / 59;
+      background: url("体验课页面素材/Frame 2449.svg") center / 100% 100% no-repeat;
+      pointer-events: none;
+      transform: translateX(-50%);
+      transition: left .18s ease;
+    }
+
+    .category {
+      position: relative;
+      flex: 0 0 18.2%;
+      height: 83.33%;
+      padding: 0;
+      border-radius: 10px;
+      scroll-snap-align: start;
+    }
+
+    .category.is-selected {
+      z-index: 3;
+    }
+
+    .category.is-selected img {
+      position: relative;
+      z-index: 1;
+      transform: scale(1.2);
+    }
+
+    .category img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      transform-origin: center bottom;
+      transition: transform .18s ease;
+    }
+
+    .course {
+      width: 44.4%;
+      height: 30.5%;
+      border-radius: 8px;
+    }
+
+    .course-left { left: 4%; }
+    .course-right { right: 4%; }
+    .course-row-1 { top: 22.9%; }
+    .course-row-2 { top: 54%; }
+    .course-row-3 { top: 85%; }
+
+    .duration {
+      position: absolute;
+      z-index: 2;
+      width: 21%;
+      height: 1.8%;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      box-shadow: 0 -10px 0 #fff, 0 4px 0 #fff;
+      color: #99a1af;
+      font-size: clamp(12px, 3.2vw, 14px);
+      line-height: 16px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .duration::before {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 12px;
+      border: 1.5px solid #99a1af;
+      border-radius: 50%;
+      background:
+        linear-gradient(#99a1af, #99a1af) 50% 27% / 1px 4px no-repeat,
+        linear-gradient(35deg, transparent 45%, #99a1af 46% 54%, transparent 55%) 57% 59% / 5px 5px no-repeat;
+      content: "";
+    }
+
+    .duration-left { left: 6.4%; }
+    .duration-right { left: 53.9%; }
+    .duration-row-1 { top: 47.32%; }
+    .duration-row-2 { top: 79.07%; }
+
+    .price-correction {
+      position: absolute;
+      z-index: 2;
+      width: 31%;
+      height: 3.2%;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: #fff;
+      color: #fb0000;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .price-correction::before {
+      position: absolute;
+      inset: -3px 0;
+      z-index: -1;
+      background: #fff;
+      content: "";
+    }
+
+    .price-label {
+      font-size: 3.2cqi;
+      font-weight: 400;
+    }
+
+    .price-value {
+      font-size: 5.33cqi;
+      font-weight: 700;
+    }
+
+    .price-left { left: 6.4%; }
+    .price-right { left: 53.9%; }
+    .price-row-1 { top: 44.25%; }
+    .price-row-2 { top: 76.00%; }
+
+    .toast {
+      position: fixed;
+      z-index: 10;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      max-width: calc(100vw - 40px);
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: rgba(20, 25, 32, .88);
+      color: #fff;
+      font-size: 14px;
+      line-height: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: opacity .18s ease, transform .18s ease;
+      white-space: nowrap;
+    }
+
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 440px) {
+      body { background: #fff; }
+      .page { width: 100vw; box-shadow: none; }
+    }
+
+    @media (min-width: 441px) {
+      .stage { padding: 24px 0; }
+      .page { border-radius: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hotspot::after,
+      .toast { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="page" aria-label="优AI甄选体验课列表">
+      <img class="artwork" src="体验课页面素材/体验课.svg" alt="优AI甄选体验课课程列表">
+
+      <button class="hotspot back" type="button" aria-label="返回" data-action="back"></button>
+      <button class="hotspot menu" type="button" aria-label="更多" data-message="更多功能"></button>
+
+      <div class="category-backdrop" aria-hidden="true"></div>
+      <div class="category-selection-base" aria-hidden="true"></div>
+      <nav class="category-strip" aria-label="课程分类">
+        <button class="hotspot category" type="button" aria-label="AI单词速记" aria-pressed="false" data-message="已切换到AI单词速记"><img src="体验课页面素材/课程分类/Frame 2492.svg" alt="AI单词速记"></button>
+        <button class="hotspot category" type="button" aria-label="数学思维" aria-pressed="false" data-message="已切换到数学思维"><img src="体验课页面素材/课程分类/Frame 2491.svg" alt="数学思维"></button>
+        <button class="hotspot category is-selected" type="button" aria-label="语文素养" aria-pressed="true" data-message="已切换到语文素养"><img src="体验课页面素材/课程分类/Frame 2490.svg" alt="语文素养"></button>
+        <button class="hotspot category" type="button" aria-label="英语应用" aria-pressed="false" data-message="已切换到英语应用"><img src="体验课页面素材/课程分类/Frame 2493.svg" alt="英语应用"></button>
+        <button class="hotspot category" type="button" aria-label="理综科学" aria-pressed="false" data-message="已切换到理综科学"><img src="体验课页面素材/课程分类/Frame 2494.svg" alt="理综科学"></button>
+        <button class="hotspot category" type="button" aria-label="文综通识" aria-pressed="false" data-message="已切换到文综通识"><img src="体验课页面素材/课程分类/Frame 2495.svg" alt="文综通识"></button>
+      </nav>
+
+      <button class="hotspot course course-left course-row-1" type="button" aria-label="抢购初高中语文体验课，39.9元" data-message="已选择初高中语文体验课"></button>
+      <button class="hotspot course course-right course-row-1" type="button" aria-label="抢购初高中文综体验课，29.9元" data-message="已选择初高中文综体验课"></button>
+      <button class="hotspot course course-left course-row-2" type="button" aria-label="抢购初高中语文体验课，39.9元" data-message="已选择初高中语文体验课"></button>
+      <button class="hotspot course course-right course-row-2" type="button" aria-label="抢购初高中文综体验课，29.9元" data-message="已选择初高中文综体验课"></button>
+      <button class="hotspot course course-left course-row-3" type="button" aria-label="查看初高中语文体验课" data-message="已选择初高中语文体验课"></button>
+      <button class="hotspot course course-right course-row-3" type="button" aria-label="查看初高中文综体验课" data-message="已选择初高中文综体验课"></button>
+
+      <span class="duration duration-left duration-row-1">45分钟</span>
+      <span class="duration duration-right duration-row-1">45分钟</span>
+      <span class="duration duration-left duration-row-2">45分钟</span>
+      <span class="duration duration-right duration-row-2">45分钟</span>
+      <span class="price-correction price-left price-row-1"><span class="price-label">体验价￥</span><span class="price-value">39.9</span></span>
+      <span class="price-correction price-right price-row-1"><span class="price-label">体验价￥</span><span class="price-value">39.9</span></span>
+      <span class="price-correction price-left price-row-2"><span class="price-label">体验价￥</span><span class="price-value">39.9</span></span>
+      <span class="price-correction price-right price-row-2"><span class="price-label">体验价￥</span><span class="price-value">39.9</span></span>
+    </section>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const toast = document.querySelector('.toast');
+    const page = document.querySelector('.page');
+    const categoryStrip = document.querySelector('.category-strip');
+    let toastTimer;
+
+    function positionSelectionBase(category) {
+      const pageRect = page.getBoundingClientRect();
+      const categoryRect = category.getBoundingClientRect();
+      const center = categoryRect.left + categoryRect.width / 2 - pageRect.left;
+      page.style.setProperty('--selected-center', `${center / pageRect.width * 100}%`);
+    }
+
+    positionSelectionBase(document.querySelector('.category.is-selected'));
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add('visible');
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 1600);
+    }
+
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('.hotspot');
+      if (!target) return;
+
+      if (target.dataset.action === 'back') {
+        if (history.length > 1) history.back();
+        else showToast('已返回');
+        return;
+      }
+
+      if (target.classList.contains('category')) {
+        document.querySelectorAll('.category').forEach((item) => {
+          item.classList.toggle('is-selected', item === target);
+          item.setAttribute('aria-pressed', item === target ? 'true' : 'false');
+        });
+        positionSelectionBase(target);
+      }
+
+      showToast(target.dataset.message || target.getAttribute('aria-label'));
+    });
+
+    categoryStrip.addEventListener('scroll', () => {
+      positionSelectionBase(document.querySelector('.category.is-selected'));
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      positionSelectionBase(document.querySelector('.category.is-selected'));
+    });
+  </script>
+</body>
+</html>
