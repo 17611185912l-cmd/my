@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="2480" viewBox="0 0 750 2480">
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#e5e7eb" stroke-width="1"/></pattern>
+    <style>.h{font:700 34px -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#1f2937}.sh{font:700 24px -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#1f2937}.p{font:400 20px -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#6b7280}.sm{font:400 17px -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#6b7280}.num{font:700 42px -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;fill:#e1251b}.line{stroke:#d1d5db;stroke-width:2;fill:none}.dash{stroke:#9ca3af;stroke-width:2;stroke-dasharray:8 8;fill:#f9fafb}</style>
+  </defs>
+  <rect width="750" height="2480" fill="#fff"/>
+  <rect width="750" height="480" fill="url(#grid)"/>
+  <rect x="54" y="54" width="642" height="372" rx="6" class="dash"/>
+  <text x="375" y="142" text-anchor="middle" class="p">课程详情长图 · 首屏卖点区</text>
+  <text x="375" y="220" text-anchor="middle" class="h">小学数学思维进阶</text>
+  <text x="375" y="266" text-anchor="middle" class="sh">从基础巩固到综合应用</text>
+  <line x1="220" y1="305" x2="530" y2="305" class="line"/>
+  <text x="375" y="350" text-anchor="middle" class="p">体系化课程 · 一对一直播 · 阶段测评</text>
+
+  <text x="375" y="555" text-anchor="middle" class="h">课程能解决什么问题</text>
+  <text x="375" y="592" text-anchor="middle" class="p">围绕常见学习难点，建立稳定解题路径</text>
+  <g transform="translate(44 640)"><rect width="206" height="230" rx="6" class="dash"/><circle cx="103" cy="70" r="36" class="line"/><path d="M85 70h36M103 52v36" class="line"/><text x="103" y="140" text-anchor="middle" class="sh">基础不牢</text><text x="103" y="178" text-anchor="middle" class="sm">梳理核心概念</text><text x="103" y="204" text-anchor="middle" class="sm">补齐知识漏洞</text></g>
+  <g transform="translate(272 640)"><rect width="206" height="230" rx="6" class="dash"/><circle cx="103" cy="70" r="36" class="line"/><path d="M81 82l18-20 14 12 15-21" class="line"/><text x="103" y="140" text-anchor="middle" class="sh">方法零散</text><text x="103" y="178" text-anchor="middle" class="sm">总结通用模型</text><text x="103" y="204" text-anchor="middle" class="sm">形成解题步骤</text></g>
+  <g transform="translate(500 640)"><rect width="206" height="230" rx="6" class="dash"/><circle cx="103" cy="70" r="36" class="line"/><path d="M80 72h46M111 56l16 16-16 16" class="line"/><text x="103" y="140" text-anchor="middle" class="sh">不会迁移</text><text x="103" y="178" text-anchor="middle" class="sm">强化综合应用</text><text x="103" y="204" text-anchor="middle" class="sm">提升举一反三</text></g>
+
+  <rect x="0" y="930" width="750" height="610" fill="#f7f8fa"/>
+  <text x="375" y="1010" text-anchor="middle" class="h">四阶课程体系</text>
+  <text x="375" y="1047" text-anchor="middle" class="p">循序渐进，每一步都有明确学习目标</text>
+  <g transform="translate(62 1110)"><circle cx="55" cy="55" r="55" fill="#fff" stroke="#e1251b" stroke-width="2"/><text x="55" y="70" text-anchor="middle" class="num">01</text><text x="145" y="46" class="sh">概念理解</text><text x="145" y="82" class="p">用例题建立直观认识，理解知识本质</text></g>
+  <line x1="117" y1="1223" x2="117" y2="1273" class="line"/>
+  <g transform="translate(62 1280)"><circle cx="55" cy="55" r="55" fill="#fff" stroke="#e1251b" stroke-width="2"/><text x="55" y="70" text-anchor="middle" class="num">02</text><text x="145" y="46" class="sh">方法掌握</text><text x="145" y="82" class="p">归纳解题模型，掌握标准操作步骤</text></g>
+  <line x1="117" y1="1393" x2="117" y2="1443" class="line"/>
+  <g transform="translate(62 1450)"><circle cx="55" cy="55" r="55" fill="#fff" stroke="#e1251b" stroke-width="2"/><text x="55" y="70" text-anchor="middle" class="num">03</text><text x="145" y="46" class="sh">专项训练</text><text x="145" y="82" class="p">针对薄弱环节训练，及时纠正错因</text></g>
+
+  <text x="375" y="1635" text-anchor="middle" class="h">一节课如何进行</text>
+  <text x="375" y="1672" text-anchor="middle" class="p">课前、课中、课后形成完整学习闭环</text>
+  <g transform="translate(55 1730)"><rect width="640" height="300" rx="6" class="dash"/><line x1="110" y1="84" x2="530" y2="84" class="line"/><circle cx="110" cy="84" r="24" fill="#fff" stroke="#e1251b" stroke-width="2"/><circle cx="320" cy="84" r="24" fill="#fff" stroke="#e1251b" stroke-width="2"/><circle cx="530" cy="84" r="24" fill="#fff" stroke="#e1251b" stroke-width="2"/><text x="110" y="92" text-anchor="middle" class="sm">1</text><text x="320" y="92" text-anchor="middle" class="sm">2</text><text x="530" y="92" text-anchor="middle" class="sm">3</text><text x="110" y="150" text-anchor="middle" class="sh">课前诊断</text><text x="320" y="150" text-anchor="middle" class="sh">直播授课</text><text x="530" y="150" text-anchor="middle" class="sh">课后巩固</text><text x="110" y="190" text-anchor="middle" class="sm">了解学情</text><text x="320" y="190" text-anchor="middle" class="sm">讲练结合</text><text x="530" y="190" text-anchor="middle" class="sm">练习反馈</text><text x="320" y="250" text-anchor="middle" class="p">每课时 50 分钟 · 支持回放与资料查看</text></g>
+
+  <rect x="0" y="2090" width="750" height="390" fill="#f7f8fa"/>
+  <text x="375" y="2170" text-anchor="middle" class="h">购买须知</text>
+  <g transform="translate(55 2220)"><rect width="640" height="170" rx="6" class="dash"/><text x="34" y="48" class="p">01 课程购买后，有效期为 12 个月</text><text x="34" y="88" class="p">02 最低 20 课时起售，具体方案以订单页为准</text><text x="34" y="128" class="p">03 课程安排、退改与售后规则请咨询课程顾问</text></g>
+  <text x="375" y="2440" text-anchor="middle" class="sm">— 课程详情长图结束 —</text>
+</svg>

@@ -99,7 +99,7 @@
     .course-meta span:nth-child(1) { order:2; }
     .course-meta span:nth-child(2) { order:3; }
     .course-meta span:nth-child(4) { order:4; }
-    .course-meta span:nth-child(n+5) { display:none; }
+    .course-meta span:nth-child(5) { order:5; flex:0 0 100%; }
     .empty { padding: 20px 0 12px; color: #99969a; font-size: 14px; text-align: center; }
     @media (max-width: 520px) { body { padding: 0; background: #f5f4f6; } .phone-shell { border-color: transparent; box-shadow: none; } }
   </style>
@@ -182,7 +182,7 @@
       updateCalendarView();
       document.querySelector('.course-date').textContent = day.dataset.date || `8月${day.textContent}日`;
       const courseDate = day.dataset.date || `8月${day.textContent}日`;
-      document.querySelector('.course-list').innerHTML = day.classList.contains('has-course') ? `<article class="course" role="link" tabindex="0" data-mode="${day.textContent === '10' ? 'offline' : 'online'}" data-detail="${day.textContent === '10' ? 'function-0810' : 'tutorial'}"><div class="course-top"><strong>高中数学·专题辅导</strong><span class="status">待上课</span></div><div class="course-meta"><span>王子涵</span><span>${courseDate} ${day.textContent === '10' ? '10:00' : '19:00'}</span><span>陕西省·人教A版</span><span>60分钟</span><span>西安小寨交付中心</span></div></article>` : '<div class="empty">当日暂无排课</div>';
+      document.querySelector('.course-list').innerHTML = day.classList.contains('has-course') ? `<article class="course" role="link" tabindex="0" data-mode="${day.textContent === '10' ? 'offline' : 'online'}" data-detail="${day.textContent === '10' ? 'function-0810' : 'tutorial'}"><div class="course-top"><strong>高中数学·专题辅导</strong><span class="status">待上课</span></div><div class="course-meta"><span>王子涵</span><span>${courseDate} ${day.textContent === '10' ? '10:00' : '19:00'}</span><span>陕西省·人教A版</span><span>60分钟</span><span>${day.textContent === '10' ? '西安小寨校区' : '西安小寨交付中心'}</span></div></article>` : '<div class="empty">当日暂无排课</div>';
     }));
     document.querySelector('.course-list').addEventListener('click', event => { const course = event.target.closest('.course[data-detail]'); if (course) location.href = `课程详情_页面还原.html?role=teacher&course=${course.dataset.detail}`; });
     document.querySelector('.course-list').addEventListener('keydown', event => { const course = event.target.closest('.course[data-detail]'); if (course && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); course.click(); } });

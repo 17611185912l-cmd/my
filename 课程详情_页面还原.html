@@ -20,12 +20,12 @@
     'sequence-0810':{name:'高二数学·数列专题',student:'李沐辰',teacher:'张三老师',time:'8月10日 15:30',place:'西安小寨交付中心',status:'待上课',content:''},
     'sequence-0815':{name:'高一数学·数列专题',student:'王子涵',teacher:'李明老师',time:'8月15日 19:00',place:'西安小寨交付中心',status:'待上课',content:''},
     'tutorial':{name:'高中数学·专题辅导',student:'王子涵',teacher:'张三老师',time:'8月13日 19:00',place:'西安小寨交付中心',status:'待上课',content:''},
-    'derivative-0809':{name:'高三数学·导数应用',student:'陈思语',teacher:'张三老师',time:'8月9日 19:00',place:'',status:'待反馈',content:''},
+    'derivative-0809':{name:'高三数学·导数应用',student:'陈思语',teacher:'张三老师',time:'8月9日 19:00',place:'上门',status:'待反馈',content:''},
     'trigonometry-0808':{name:'高一数学·三角函数',student:'周子轩',teacher:'张三老师',time:'8月8日 16:00',place:'西安小寨校区',status:'已完成',content:'任意角三角函数的定义\n同角三角函数基本关系与诱导公式',feedback:'本节课知识点掌握较好，能够独立完成基础题。诱导公式的符号判断还需加强，建议结合单位圆继续巩固。',requirement:'完成教材第 32 页练习 1-6 题，并整理诱导公式中容易混淆的符号变化。'},
     'function-0803':{name:'高一数学·函数基础',student:'王子涵',teacher:'王静老师',time:'8月3日 14:00',place:'西安小寨交付中心',status:'已完成',content:'函数定义域和值域的求法\n函数图像与性质的综合应用',feedback:'课堂参与度高，基础概念理解准确。复合函数定义域还需要增加练习。',requirement:'完成 8 道定义域专项题，并标注每题的限制条件。'},
     'geometry-0724':{name:'高一数学·立体几何',student:'林子谦',teacher:'李明老师',time:'7月24日 18:30',place:'西安小寨校区',status:'已完成',content:'空间点、线、面的位置关系\n线面平行的判定与性质',feedback:'能够正确识别空间位置关系，证明题的步骤书写还需更规范。',requirement:'完成讲义第 2 章第 5-10 题，证明过程需写明所用定理。'},
     'probability-0718':{name:'高一数学·概率基础',student:'赵欣怡',teacher:'王静老师',time:'7月18日 16:00',place:'西安小寨交付中心',status:'已完成',content:'随机事件与概率的基本概念\n古典概型及其概率计算',feedback:'对古典概型掌握较好，能够准确列举基本事件。复杂情境下需要注意分类讨论。',requirement:'完成讲义第 18-24 题，写出基本事件总数和目标事件数。'},
-    'analytic-0626':{name:'高三数学·解析几何',student:'孙若溪',teacher:'张三老师',time:'6月26日 19:00',place:'',status:'已完成',content:'直线与圆锥曲线的位置关系\n弦长、中点弦与定点问题',feedback:'计算过程较熟练，联立方程后的化简速度有所提升。需要继续训练参数范围的检查。',requirement:'完成综合练习第 3、5、7 题，订正课堂例题中的计算错误。'}
+    'analytic-0626':{name:'高三数学·解析几何',student:'孙若溪',teacher:'张三老师',time:'6月26日 19:00',place:'上门',status:'已完成',content:'直线与圆锥曲线的位置关系\n弦长、中点弦与定点问题',feedback:'计算过程较熟练，联立方程后的化简速度有所提升。需要继续训练参数范围的检查。',requirement:'完成综合练习第 3、5、7 题，订正课堂例题中的计算错误。'}
   };
   const params=new URLSearchParams(location.search),role=params.get('role')==='parent'?'parent':'teacher',courseId=params.get('course')||'function-0810',course={...(courses[courseId]||courses['function-0810'])},courseModes={'function-0810':'线下','sequence-0810':'线上','sequence-0815':'线上','tutorial':'线上','derivative-0809':'上门','trigonometry-0808':'线下','function-0803':'线上','geometry-0724':'线下','probability-0718':'线上','analytic-0626':'上门'};
   const parentStatuses={'trigonometry-0808':'待评价','function-0803':'待评价','geometry-0724':'已评价','probability-0718':'已评价','analytic-0626':'已评价'};
