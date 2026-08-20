@@ -873,7 +873,7 @@
       </section>
 
       <section class="section promotion-section card">
-        <button class="promotion-entry clickable" type="button" data-action="进入推广中心">
+        <button class="promotion-entry clickable" type="button" data-route="推广中心_页面还原.html" aria-label="进入推广中心">
           <span class="bubble"><svg class="icon"><use href="#i-megaphone"/></svg></span>
           <span class="promotion-copy"><strong>推广中心</strong><small>精选海报、图文与推广文案</small></span>
           <i class="promotion-arrow" aria-hidden="true"></i>
@@ -938,6 +938,11 @@
     }
 
     document.addEventListener('click', event => {
+      const route = event.target.closest('[data-route]');
+      if (route) {
+        window.location.href = route.dataset.route;
+        return;
+      }
       const action = event.target.closest('[data-action]');
       if (action?.dataset.action === '我的邀请码') {
         inviteModal.classList.add('open');

@@ -119,7 +119,6 @@
             <span class="profile-copy"><span class="teacher-title"><strong>张三</strong><span class="review-status" id="reviewStatus" data-state="approved">审核通过</span></span><span>高中数学·教员资料已完善</span></span>
             <span class="entry-label">资料管理</span><i class="chevron" aria-hidden="true"></i>
           </a>
-
           <section class="section card teaching-data" aria-label="教学数据">
             <div class="stats">
               <a class="stat" href="授课记录_页面还原.html?filter=all"><strong>128</strong><span>累计授课</span></a>
@@ -158,10 +157,13 @@
     const reviewStates = { approved: '审核通过', pending: '待审核', rejected: '已驳回' };
     const requestedReviewState = new URLSearchParams(location.search).get('review');
     const reviewState = reviewStates[requestedReviewState] ? requestedReviewState : 'approved';
-    if (reviewStates[requestedReviewState]) { try { history.replaceState(null, '', location.href.split('?')[0]); } catch {} }
     const reviewStatus = document.querySelector('#reviewStatus');
     reviewStatus.dataset.state = reviewState;
     reviewStatus.textContent = reviewStates[reviewState];
+    const profileEntry = document.querySelector('.profile-entry');
+    if (reviewState === 'rejected') {
+      profileEntry.href = '教员资料编辑_页面还原.html?review=rejected';
+    }
     const calendarDays = document.querySelector('.days');
     const calendarToggle = document.querySelector('.calendar-toggle');
     let calendarExpanded = false;

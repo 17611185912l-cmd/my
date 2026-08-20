@@ -85,6 +85,17 @@
     .form-section { display:block; }
     .form-section + .form-section { margin-top:10px; padding-top:2px; border-top:8px solid #f5f4f6; }
     .profile-view { padding:8px 12px 108px; }
+    .review-banner { display:none; margin:8px 12px 0; padding:14px; border:1px solid #efc3be; border-radius:8px; background:linear-gradient(145deg,#fff9f8,#fff0ee); color:#782f29; }
+    .review-banner.show { display:block; }
+    .review-banner-head { display:flex; align-items:flex-start; gap:10px; }
+    .review-banner-icon { flex:0 0 auto; width:32px; height:32px; display:grid; place-items:center; border-radius:50%; background:#f7d8d4; color:#a43e34; font-size:18px; font-weight:700; }
+    .review-banner-copy { min-width:0; flex:1; }
+    .review-banner-copy h2 { margin:0; font-size:16px; line-height:23px; }
+    .review-banner-copy p { margin:3px 0 0; color:#a15a52; font-size:13px; line-height:19px; }
+    .review-time { margin-top:10px; padding-top:9px; border-top:1px solid #f1d2ce; color:#a56b65; font-size:12px; }
+    .review-reasons { margin:10px 0 0; padding:0; list-style:none; }
+    .review-reasons li { position:relative; margin-top:7px; padding-left:17px; color:#703933; font-size:13px; line-height:20px; }
+    .review-reasons li::before { content:""; position:absolute; left:2px; top:8px; width:5px; height:5px; border-radius:50%; background:#bd554b; }
     .view-card { margin-bottom:8px; padding:14px; border-radius:8px; background:#fff; }
     .view-profile { display:flex; align-items:center; }
     .view-avatar { width:54px; height:54px; border-radius:50%; object-fit:cover; }
@@ -108,6 +119,11 @@
     <div class="app">
       <div class="page">
     <header class="chrome"><div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div><div class="titlebar"><button class="back-button" type="button" aria-label="返回授课中心"></button><h1>教师端 · 教员资料</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div></header>
+    <section class="review-banner" id="reviewBanner" aria-label="教员资料驳回说明">
+      <div class="review-banner-head"><span class="review-banner-icon">!</span><div class="review-banner-copy"><h2>教员资料审核未通过</h2><p>请按以下原因修改后重新提交审核</p></div></div>
+      <div class="review-time">审核时间：2026年8月20日 10:26</div>
+      <ul class="review-reasons"><li>个人形象照背景杂乱，请上传正面、清晰的半身照</li><li>学历证明图片模糊，证书编号无法识别</li></ul>
+    </section>
     <section class="profile-view" id="profileView">
       <section class="view-card"><h2>基本信息</h2><dl><div class="detail-row"><dt>姓名</dt><dd>张三</dd></div><div class="detail-row"><dt>手机号</dt><dd>13800138000</dd></div><div class="detail-row"><dt>老师类型</dt><dd>毕业生</dd></div><div class="detail-row"><dt>性别 / 年龄</dt><dd>男·35岁</dd></div><div class="detail-row"><dt>教龄</dt><dd>8年</dd></div></dl></section>
       <section class="view-card"><h2>学历与证件</h2><dl><div class="detail-row"><dt>毕业院校</dt><dd>陕西师范大学</dd></div><div class="detail-row"><dt>学历</dt><dd>本科</dd></div><div class="detail-row"><dt>身份证号</dt><dd>110101********1234</dd></div><div class="detail-row"><dt>证件材料</dt><dd class="material-status">已上传3项</dd></div></dl></section>
@@ -147,6 +163,9 @@
   </main>
   <script>
     const values={ gender:'',teacherType:'',education:'',grades:[],subjects:[],methods:[],focus:[] }, form=document.querySelector('#form');
+    const requestedReviewState=new URLSearchParams(location.search).get('review');
+    const isRejected=requestedReviewState==='rejected';
+    const reviewBanner=document.querySelector('#reviewBanner');
     const sets={ grades:['小学','初一初二','初三','高一高二','高三'], subjects:['语文','数学','英语','物理','化学','生物','历史','地理','政治','编程','美术','音乐','奥数','英语单词'], methods:['线上','线下','上门'], focus:['基础薄弱','中考提分','高考冲刺','数学思维提升','阅读理解提升','英语词汇积累','学习习惯养成','作业效率提升','错题整理方法','竞赛启蒙'] };
     function primaryOnly(){ return values.teacherType==='毕业生'&&values.grades.length>0&&values.grades.every(x=>x==='小学'); }
     function syncSubjectRules(){ const hint=document.querySelector('#subjectHint'); if(values.teacherType==='在校生'){ values.subjects=['英语单词']; hint.textContent='在校生仅可选择英语单词，已默认勾选'; } else if(primaryOnly()){ values.subjects=values.subjects.filter(x=>['语文','数学','英语'].includes(x)); hint.textContent='小学仅可选择语文、数学、英语'; } else hint.textContent='选填，可多选'; renderOptions('subjects'); }
@@ -164,7 +183,7 @@
     function validField(field){ if(field.classList.contains('hidden')) return true; const k=field.dataset.required; let val=values[k]; if(['name','phone','age','teachingExp','idCard','intro'].includes(k)) val=form.elements[k].value.trim(); if(k==='graduateSchool'||k==='studentSchool') val=field.dataset.selected||''; if(k==='portrait') val=form.elements.portrait.files.length; if(k==='idPhotos') val=[...field.querySelectorAll('input[type="file"]')].every(x=>x.files.length); if(!val || Array.isArray(val)&&!val.length){ error(field,'请完成此项填写'); return false; } if(k==='name'&&!/^[\u4e00-\u9fa5A-Za-z0-9]{1,20}$/.test(val)){ error(field,'姓名仅支持中文、英文或数字'); return false; } if(k==='phone'&&!/^1\d{10}$/.test(val)){ error(field,'请输入正确的 11 位手机号'); return false; } if((k==='age'||k==='teachingExp')&&!/^\d{1,2}$/.test(val)){ error(field,'请输入 1 至 2 位数字'); return false; } if(k==='idCard'&&!/^\d{17}[\dXx]$/.test(val)){ error(field,'请输入正确的 18 位身份证号'); return false; } clearError(field); return true; }
     function validateAll(){ let ok=true; document.querySelectorAll('#form [data-required]').forEach(field=>{if(!validField(field))ok=false}); return ok; }
     function showPreview(){ document.querySelector('#profileView').hidden=false; form.hidden=true; document.querySelector('#prev').hidden=true; document.querySelector('#next').textContent='编辑资料'; document.querySelector('.page').scrollTop=0; }
-    function showEditor(){ document.querySelector('#profileView').hidden=true; form.hidden=false; document.querySelector('#prev').hidden=false; document.querySelector('#prev').textContent='取消'; document.querySelector('#next').textContent='修改并提交审核'; document.querySelector('.page').scrollTop=0; }
+    function showEditor(){ document.querySelector('#profileView').hidden=true; form.hidden=false; document.querySelector('#prev').hidden=false; document.querySelector('#prev').textContent='取消'; document.querySelector('#next').textContent=isRejected?'修改并重新提交':'修改并提交审核'; document.querySelector('.page').scrollTop=0; }
     document.querySelector('#prev').onclick=showPreview;
     document.querySelector('#next').onclick=()=>{ if(form.hidden){ showEditor(); return; } if(!validateAll()){ show('请完善标红的必填信息'); return; } showPreview(); show('资料已提交审核'); setTimeout(()=>location.href='授课中心_页面还原.html?review=pending',900); };
     function show(t){const x=document.querySelector('#toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1800)}
@@ -179,7 +198,10 @@
     values.grades=['高一高二','高三']; values.subjects=['数学']; values.methods=['线下'];
     renderOptions('grades'); renderOptions('subjects'); renderOptions('methods');
     showPreview();
-    document.querySelector('.back-button').onclick=()=>location.href='授课中心_页面还原.html';
+    if(isRejected){
+      reviewBanner.classList.add('show');
+    }
+    document.querySelector('.back-button').onclick=()=>location.href=isRejected?'授课中心_页面还原.html?review=rejected':'授课中心_页面还原.html';
     function fitFrame(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2));}
     fitFrame(); addEventListener('resize',fitFrame,{passive:true});
   </script>
