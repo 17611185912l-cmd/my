@@ -101,10 +101,15 @@
     .course-meta span:nth-child(4) { order:4; }
     .course-meta span:nth-child(5) { order:5; flex:0 0 100%; }
     .empty { padding: 20px 0 12px; color: #99969a; font-size: 14px; text-align: center; }
-    @media (max-width: 520px) { body { padding: 0; background: #f5f4f6; } .phone-shell { border-color: transparent; box-shadow: none; } }
+    .review-simulator { position: fixed; z-index: 40; left: calc(50% - 366px); top: calc(50% - 455px); min-width: 96px; height: 38px; padding: 0 14px; border: 1px solid #d9e5f2; border-radius: 8px; color: #356da9; background: rgba(255,255,255,.96); box-shadow: 0 6px 18px rgba(47,75,106,.12); font-size: 14px; font-weight: 600; }
+    .review-simulator:hover { border-color: #9dbadb; background: #f7faff; }
+    .review-simulator[data-active="true"] { border-color: #efc8c3; color: #a64d43; background: #fff4f2; }
+    @media (max-width: 760px) { .review-simulator { left: 12px; top: 12px; min-width: 82px; height: 34px; padding: 0 10px; font-size: 13px; } }
+    @media (max-width: 520px) { body { padding: 0; background: #f5f4f6; } .phone-shell { border-color: transparent; box-shadow: none; } .review-simulator { display: none; } }
   </style>
 </head>
 <body>
+  <button class="review-simulator" id="reviewSimulator" type="button">模拟驳回</button>
   <main class="phone-shell" aria-label="授课中心页面">
     <div class="dynamic-island" aria-hidden="true"></div>
     <div class="app">
@@ -155,15 +160,27 @@
   <script>
     const page = document.querySelector('.page');
     const reviewStates = { approved: '审核通过', pending: '待审核', rejected: '已驳回' };
-    const requestedReviewState = new URLSearchParams(location.search).get('review');
-    const reviewState = reviewStates[requestedReviewState] ? requestedReviewState : 'approved';
     const reviewStatus = document.querySelector('#reviewStatus');
-    reviewStatus.dataset.state = reviewState;
-    reviewStatus.textContent = reviewStates[reviewState];
     const profileEntry = document.querySelector('.profile-entry');
-    if (reviewState === 'rejected') {
-      profileEntry.href = '教员资料编辑_页面还原.html?review=rejected';
+    const reviewSimulator = document.querySelector('#reviewSimulator');
+    function applyReviewState(state) {
+      const reviewState = reviewStates[state] ? state : 'approved';
+      reviewStatus.dataset.state = reviewState;
+      reviewStatus.textContent = reviewStates[reviewState];
+      profileEntry.href = reviewState === 'rejected' ? '教员资料编辑_页面还原.html?review=rejected' : '教员资料编辑_页面还原.html';
+      reviewSimulator.dataset.active = String(reviewState === 'rejected');
+      reviewSimulator.textContent = reviewState === 'rejected' ? '恢复通过' : '模拟驳回';
     }
+    const requestedReviewState = new URLSearchParams(location.search).get('review');
+    applyReviewState(requestedReviewState);
+    reviewSimulator.addEventListener('click', () => {
+      const nextState = reviewStatus.dataset.state === 'rejected' ? 'approved' : 'rejected';
+      const nextUrl = new URL(location.href);
+      if (nextState === 'rejected') nextUrl.searchParams.set('review', 'rejected');
+      else nextUrl.searchParams.delete('review');
+      history.replaceState(null, '', nextUrl);
+      applyReviewState(nextState);
+    });
     const calendarDays = document.querySelector('.days');
     const calendarToggle = document.querySelector('.calendar-toggle');
     let calendarExpanded = false;
