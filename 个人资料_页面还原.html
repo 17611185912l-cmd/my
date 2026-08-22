@@ -19,4 +19,4 @@
     document.querySelector('.submit').onclick=()=>{const name=document.querySelector('#userName').value.trim(),toast=document.querySelector('.toast');if(!name){toast.textContent='请填写用户名称';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1300);return}window.name=JSON.stringify({scope:'youzuobiao-profile',name,avatar:selectedAvatar});toast.textContent='个人资料已保存';toast.classList.add('show');setTimeout(()=>location.href='个人中心_页面还原.html',900)};
     function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
   </script>
-</body></html>
+<script src="原型开发说明.js"></script></body></html>

@@ -23,4 +23,4 @@
     document.querySelector('.submit').onclick=()=>{const toast=document.querySelector('.toast');if(!selectedScore){toast.textContent='请选择课程评分'}else if(!selectedTeacherScore){toast.textContent='请选择老师评分'}else if(!reviewText.value.trim()){toast.textContent='请填写课程评价'}else{toast.textContent='评价已提交'}toast.classList.add('show');if(!selectedScore||!selectedTeacherScore||!reviewText.value.trim()){setTimeout(()=>toast.classList.remove('show'),1300);return}setTimeout(()=>location.href='上课记录_页面还原.html?filter=review',900)};
     function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
   </script>
-</body></html>
+<script src="原型开发说明.js"></script></body></html>

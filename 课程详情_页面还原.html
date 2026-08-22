@@ -46,4 +46,4 @@
   if(role==='teacher'&&course.status==='已完成'&&course.feedback){shareEntry.hidden=false;shareEntry.onclick=copyShareText;document.querySelector('.content').classList.add('with-action')}
   document.querySelector('.back').onclick=()=>{if(history.length>1)history.back();else location.href=role==='parent'?'上课记录_页面还原.html':'授课记录_页面还原.html'};
   function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
-</script></body></html>
+</script><script src="原型开发说明.js"></script></body></html>

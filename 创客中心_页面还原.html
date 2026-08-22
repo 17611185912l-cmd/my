@@ -106,5 +106,6 @@
     confirmTransfer.addEventListener('click',()=>{if(!activeTransferCard)return;const phone=targetPhone.value;if(!/^1\d{10}$/.test(phone)){verifyResult.textContent='该用户不存在';verifyResult.className='verify-result error';targetPhone.classList.add('invalid');targetPhone.focus();return}activeTransferCard.classList.add('transferred');closeTransfer();note('转移成功')});
     document.querySelector('#closeTransfer').addEventListener('click',closeTransfer);document.querySelector('#cancelTransfer').addEventListener('click',closeTransfer);transferModal.addEventListener('click',event=>{if(event.target===transferModal)closeTransfer()});
   </script>
+<script src="原型开发说明.js"></script>
 </body>
 </html>

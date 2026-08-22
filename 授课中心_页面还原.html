@@ -55,6 +55,19 @@
     .review-status[data-state="rejected"] { color: #9d4a41; background: #fff0ee; }
     .entry-label { margin-left: auto; color: var(--blue); font-size: 14px; white-space: nowrap; }
     .chevron { width: 8px; height: 8px; margin-left: 9px; border: solid #a9a3a0; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+    .teacher-shortcuts { margin-top: 8px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+    .teacher-shortcut { min-width: 0; height: 62px; padding: 0 11px; display: grid; grid-template-columns: 34px minmax(0,1fr) 7px; align-items: center; gap: 8px; border: 1px solid #e1eaf4; transition: border-color .16s ease,background .16s ease,transform .12s ease; }
+    .teacher-shortcut:hover { border-color: #b9cee4; background: #f9fbfe; }
+    .teacher-shortcut:focus-visible { outline: 2px solid rgba(63,114,173,.38); outline-offset: 2px; }
+    .teacher-shortcut:active { transform: scale(.98); }
+    .shortcut-icon { position: relative; width: 34px; height: 34px; border-radius: 9px; color: #3f72ad; background: #edf4ff; }
+    .shortcut-icon::before,.shortcut-icon::after { content: ""; position: absolute; }
+    .shortcut-icon.recruit::before { left: 9px; top: 7px; width: 8px; height: 8px; border: 2px solid currentColor; border-radius: 50%; }
+    .shortcut-icon.recruit::after { left: 6px; bottom: 6px; width: 15px; height: 8px; border: 2px solid currentColor; border-bottom: 0; border-radius: 9px 9px 0 0; box-shadow: 9px -6px 0 -4px #edf4ff,10px -6px 0 -2px currentColor; }
+    .shortcut-icon.manage::before { left: 8px; top: 8px; width: 16px; height: 17px; border: 2px solid currentColor; border-radius: 3px; }
+    .shortcut-icon.manage::after { left: 12px; top: 13px; width: 8px; height: 2px; background: currentColor; box-shadow: 0 5px 0 currentColor; }
+    .shortcut-label { overflow: hidden; font-size: 15px; line-height: 22px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .shortcut-arrow { width: 7px; height: 7px; border: solid #8fa4b9; border-width: 1px 1px 0 0; transform: rotate(45deg); }
     .section { margin-top: 8px; padding: 14px; }
     .section-title { margin: 0; font-size: 16px; line-height: 24px; font-weight: 650; }
     .section-heading { display: flex; align-items: center; justify-content: space-between; }
@@ -104,12 +117,17 @@
     .review-simulator { position: fixed; z-index: 40; left: calc(50% - 366px); top: calc(50% - 455px); min-width: 96px; height: 38px; padding: 0 14px; border: 1px solid #d9e5f2; border-radius: 8px; color: #356da9; background: rgba(255,255,255,.96); box-shadow: 0 6px 18px rgba(47,75,106,.12); font-size: 14px; font-weight: 600; }
     .review-simulator:hover { border-color: #9dbadb; background: #f7faff; }
     .review-simulator[data-active="true"] { border-color: #efc8c3; color: #a64d43; background: #fff4f2; }
+    .dev-note { position: fixed; z-index: 35; left: calc(50% + 250px); top: calc(50% - 455px); width: 250px; padding: 14px 15px; border: 1px solid #d9e5f2; border-radius: 10px; color: #52677c; background: rgba(255,255,255,.96); box-shadow: 0 8px 22px rgba(47,75,106,.12); font-size: 12px; line-height: 19px; }
+    .dev-note strong { display: block; margin-bottom: 5px; color: #294966; font-size: 13px; }
+    .dev-note p { margin: 0; }
+    @media (max-width: 900px) { .dev-note { display: none; } }
     @media (max-width: 760px) { .review-simulator { left: 12px; top: 12px; min-width: 82px; height: 34px; padding: 0 10px; font-size: 13px; } }
     @media (max-width: 520px) { body { padding: 0; background: #f5f4f6; } .phone-shell { border-color: transparent; box-shadow: none; } .review-simulator { display: none; } }
   </style>
 </head>
 <body>
   <button class="review-simulator" id="reviewSimulator" type="button">模拟驳回</button>
+  <aside class="dev-note" aria-label="开发说明"><strong>开发说明 · 授课中心</strong><p id="devNoteText">当前页展示教员信息、教师工作入口、教学数据、排课日历和已排课程。点击入口进入对应预留页面。</p></aside>
   <main class="phone-shell" aria-label="授课中心页面">
     <div class="dynamic-island" aria-hidden="true"></div>
     <div class="app">
@@ -124,6 +142,10 @@
             <span class="profile-copy"><span class="teacher-title"><strong>张三</strong><span class="review-status" id="reviewStatus" data-state="approved">审核通过</span></span><span>高中数学·教员资料已完善</span></span>
             <span class="entry-label">资料管理</span><i class="chevron" aria-hidden="true"></i>
           </a>
+          <nav class="teacher-shortcuts" aria-label="教师工作入口">
+            <a class="teacher-shortcut card" href="招募大厅_页面还原.html?from=teacher-center"><span class="shortcut-icon recruit" aria-hidden="true"></span><span class="shortcut-label">招募大厅</span><i class="shortcut-arrow" aria-hidden="true"></i></a>
+            <a class="teacher-shortcut card" href="授课管理_页面还原.html?from=teacher-center"><span class="shortcut-icon manage" aria-hidden="true"></span><span class="shortcut-label">授课管理</span><i class="shortcut-arrow" aria-hidden="true"></i></a>
+          </nav>
           <section class="section card teaching-data" aria-label="教学数据">
             <div class="stats">
               <a class="stat" href="授课记录_页面还原.html?filter=all"><strong>128</strong><span>累计授课</span></a>
@@ -214,5 +236,6 @@
     function fitFrame() { const scale = Math.min((innerWidth - 32) / 464,(innerHeight - 32) / 980,1); document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2)); }
     fitFrame(); addEventListener('resize',fitFrame,{ passive:true });
   </script>
+<script src="原型开发说明.js"></script>
 </body>
 </html>

@@ -27,4 +27,4 @@
     document.querySelector('.submit').onclick=()=>{const toast=document.querySelector('.toast'),detail={content:document.querySelector('#courseContent').value.trim(),feedback:document.querySelector('#feedbackText').value.trim(),homework:document.querySelector('#homeworkRequirement').value.trim()};try{localStorage.setItem(`course-detail:${courseId}`,JSON.stringify(detail))}catch{}toast.textContent='反馈已提交';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');location.href=`课程详情_页面还原.html?role=teacher&course=${courseId}`},900)};
     function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
   </script>
-</body></html>
+<script src="原型开发说明.js"></script></body></html>

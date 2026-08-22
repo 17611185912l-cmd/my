@@ -21,4 +21,4 @@
     document.querySelector('.submit').onclick=()=>{const toast=document.querySelector('.toast'),name=document.querySelector('#studentName').value.trim(),school=document.querySelector('#studentSchool').value.trim();if(!name||!school){toast.textContent='请填写学员姓名和就读学校';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1300);return}toast.textContent='学员资料已提交审核';toast.classList.add('show');setTimeout(()=>location.href='学习中心_页面还原.html',900)};
     function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
   </script>
-</body></html>
+<script src="原型开发说明.js"></script></body></html>

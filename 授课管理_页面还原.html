@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#edf4ff">
+  <title>教师端 · 授课管理</title>
+  <style>
+    :root { --device-scale:1; --ink:#294966; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; }
+    body { min-height:100svh; padding:16px; display:grid; place-items:center; overflow:hidden; background:#e7eaee; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; }
+    button { margin:0; padding:0; border:0; color:inherit; font:inherit; background:none; cursor:pointer; }
+    .phone-shell { position:relative; isolation:isolate; width:464px; height:980px; padding:11px; border:1px solid #777d84; border-radius:66px; background:linear-gradient(135deg,#bfc3c7 0%,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e 100%); box-shadow:0 34px 70px rgba(32,38,45,.28),0 10px 22px rgba(32,38,45,.18),inset 0 0 0 1px rgba(255,255,255,.75),inset 0 0 0 3px rgba(33,36,40,.68); transform:scale(var(--device-scale)); transform-origin:center; }
+    .dynamic-island { position:absolute; z-index:30; top:22px; left:50%; width:126px; height:34px; transform:translateX(-50%); border-radius:20px; background:#050505; pointer-events:none; }
+    .dynamic-island::after { content:""; position:absolute; right:12px; top:11px; width:8px; height:8px; border-radius:50%; background:#111a25; box-shadow:inset 0 0 0 2px #080b10,0 0 2px #1a4d79; }
+    .app { position:relative; width:440px; height:956px; overflow:hidden; border-radius:54px; background:#f5f4f6; box-shadow:inset 0 0 0 1px rgba(0,0,0,.52); }
+    .page { width:100%; height:100%; background:linear-gradient(to bottom,rgba(245,244,246,0) 188px,#f5f4f6 250px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
+    header { color:var(--ink); }
+    .statusbar { height:36px; padding:17px 36px 0; display:flex; align-items:flex-start; justify-content:space-between; color:#050505; font-size:15px; line-height:1; font-weight:700; }
+    .device-status { display:flex; align-items:center; gap:8px; }
+    .signal { width:18px; height:12px; display:flex; align-items:flex-end; gap:2px; }.signal i { width:3px; border-radius:2px 2px 0 0; background:#050505; }.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}
+    .wifi { position:relative; width:18px; height:13px; overflow:hidden; }.wifi::before,.wifi::after { content:""; position:absolute; left:50%; border:2px solid #050505; border-color:#050505 transparent transparent; border-radius:50%; transform:translateX(-50%); }.wifi::before { top:0; width:19px; height:17px; }.wifi::after { top:5px; width:10px; height:9px; }.wifi i { position:absolute; left:8px; bottom:0; width:3px; height:3px; border-radius:50%; background:#050505; }
+    .battery { position:relative; width:23px; height:11px; padding:2px; border:1.5px solid #919191; border-radius:3px; }.battery::before { content:""; display:block; width:100%; height:100%; border-radius:1px; background:#050505; }.battery::after { content:""; position:absolute; top:3px; right:-3px; width:2px; height:5px; border-radius:0 2px 2px 0; background:#b4b4b4; }
+    .titlebar { position:relative; height:57px; display:flex; align-items:center; padding:0 12px; }.titlebar h1 { width:100%; margin:0; font-size:18px; line-height:26px; font-weight:600; text-align:center; }
+    .back-button { position:absolute; z-index:4; left:20px; top:8px; width:40px; height:40px; }.back-button::before { content:""; position:absolute; left:12px; top:13px; width:10px; height:10px; border:solid var(--ink); border-width:0 0 2px 2px; transform:rotate(45deg); }.back-button:focus-visible { outline:2px solid rgba(63,114,173,.42); outline-offset:0; border-radius:50%; }
+    .capsule { position:absolute; z-index:3; right:17px; top:13px; width:84px; height:30px; border:1px solid rgba(61,105,151,.18); border-radius:16px; display:grid; grid-template-columns:1fr 1fr; align-items:center; background:rgba(255,255,255,.9); }.dots { height:100%; display:flex; align-items:center; justify-content:center; gap:3px; }.dots i { width:4px; height:4px; border-radius:50%; background:#15171b; }.mini-ring { position:relative; width:15px; height:15px; margin:auto; border:1.8px solid #111318; border-radius:50%; }.mini-ring::after { content:""; position:absolute; inset:4px; border-radius:50%; background:#111318; }
+    .dev-note { position: fixed; z-index: 35; left: calc(50% + 250px); top: calc(50% - 455px); width: 250px; padding: 14px 15px; border: 1px solid #d9e5f2; border-radius: 10px; color: #52677c; background: rgba(255,255,255,.96); box-shadow: 0 8px 22px rgba(47,75,106,.12); font-size: 12px; line-height: 19px; }
+    .dev-note strong { display:block; margin-bottom:5px; color:#294966; font-size:13px; }.dev-note p { margin:0; }
+    @media (max-width:900px){.dev-note{display:none}}
+    @media (max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
+  </style>
+</head>
+<body>
+  <aside class="dev-note" aria-label="开发说明"><strong>开发说明 · 授课管理</strong><p id="devNoteText">当前为授课管理预留空白页。后续可承载授课能力、可接课程、授课设置或教学配置。</p></aside>
+  <main class="phone-shell" aria-label="授课管理页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header><div class="statusbar"><span>23:58</span><div class="device-status" aria-label="手机状态"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div><div class="titlebar"><button class="back-button" type="button" aria-label="返回授课中心"></button><h1>教师端 · 授课管理</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="mini-ring"></span></div></div></header></div></div></main>
+  <script>const from=new URLSearchParams(location.search).get('from');if(from==='teacher-center')document.querySelector('#devNoteText').textContent='已从授课中心进入授课管理。当前仅保留页面壳，后续需明确是教师个人授课设置还是教务排课管理。';document.querySelector('.back-button').addEventListener('click',()=>location.href='授课中心_页面还原.html');function fitFrame(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fitFrame();addEventListener('resize',fitFrame,{passive:true});</script>
+<script src="原型开发说明.js"></script>
+</body>
+</html>
