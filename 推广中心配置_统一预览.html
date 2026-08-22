@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>推广中心 · 小程序与配置后台</title>
+  <style>
+    :root { --nav:#17243a; --nav-muted:#9eacc0; --active:#1976ef; --line:#e1e6ed; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; height:100%; color:#30343b; background:#eef1f5; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button { border:0; font:inherit; cursor:pointer; }
+    .preview-shell { min-width:1180px; height:100%; display:grid; grid-template-columns:236px minmax(0,1fr); }
+    .sidebar { padding:0 12px 18px; display:flex; flex-direction:column; color:#fff; background:var(--nav); }
+    .brand { height:68px; padding:0 10px; display:flex; align-items:center; gap:11px; border-bottom:1px solid rgba(255,255,255,.09); }
+    .brand-mark { width:34px; height:30px; border-radius:8px; background:linear-gradient(125deg,#a95bf3 0 42%,#46baf2 43% 100%); transform:skewX(-12deg); }
+    .brand strong { font-size:17px; }
+    .nav-label { margin:22px 12px 9px; color:#7889a2; font-size:12px; letter-spacing:.6px; }
+    .nav-item { width:100%; height:48px; margin-bottom:6px; padding:0 14px; display:flex; align-items:center; gap:12px; border-radius:8px; color:var(--nav-muted); background:transparent; text-align:left; }
+    .nav-item:hover { color:#fff; background:rgba(255,255,255,.07); }
+    .nav-item.active { color:#fff; background:var(--active); box-shadow:0 7px 18px rgba(25,118,239,.25); }
+    .nav-icon { width:25px; height:25px; display:grid; place-items:center; border:1px solid currentColor; border-radius:7px; font-size:12px; }
+    .nav-copy strong,.nav-copy small { display:block; }
+    .nav-copy strong { font-size:14px; }
+    .nav-copy small { margin-top:3px; color:inherit; opacity:.72; font-size:11px; }
+    .sidebar-note { margin-top:auto; padding:13px 14px; border:1px solid rgba(255,255,255,.09); border-radius:8px; color:#8fa0b7; font-size:11px; line-height:1.65; }
+    .workspace { min-width:0; display:grid; grid-template-rows:60px minmax(0,1fr); }
+    .topbar { padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); background:#fff; }
+    .topbar strong { font-size:17px; }
+    .topbar span { color:#7c8795; font-size:13px; }
+    .frame-wrap { min-height:0; position:relative; }
+    iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#eef1f5; }
+    .mini-frame { background:#e7eaee; }
+    @media(max-width:760px){.preview-shell{min-width:0;grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.sidebar{padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.brand,.nav-label,.sidebar-note{display:none}.nav-item{margin:0}.workspace{min-height:0}.topbar{display:none}}
+  </style>
+</head>
+<body>
+  <main class="preview-shell">
+    <aside class="sidebar" aria-label="预览页面菜单">
+      <div class="brand"><span class="brand-mark"></span><strong>推广中心工作台</strong></div>
+      <span class="nav-label">页面预览</span>
+      <button class="nav-item active" type="button" data-view="mini" data-title="小程序 · 推广中心"><span class="nav-icon">小</span><span class="nav-copy"><strong>小程序预览</strong><small>用户素材中心</small></span></button>
+      <button class="nav-item" type="button" data-view="admin" data-title="管理后台 · 推广中心配置"><span class="nav-icon">管</span><span class="nav-copy"><strong>配置后台</strong><small>海报与文案管理</small></span></button>
+      <p class="sidebar-note">一个入口查看用户端呈现与运营配置。后台操作为本地交互原型，不会影响线上数据。</p>
+    </aside>
+    <section class="workspace">
+      <header class="topbar"><strong id="viewTitle">小程序 · 推广中心</strong><span>优坐标用户端原型</span></header>
+      <div class="frame-wrap"><iframe id="previewFrame" class="mini-frame" title="小程序推广中心预览" src="推广中心_页面还原.html"></iframe></div>
+    </section>
+  </main>
+  <script>
+    const frame = document.querySelector('#previewFrame');
+    const title = document.querySelector('#viewTitle');
+    const routes = { mini: '推广中心_页面还原.html', admin: 'promotion-center-admin/推广中心配置_离线预览.html' };
+    document.querySelectorAll('.nav-item').forEach(button => button.addEventListener('click', () => {
+      document.querySelector('.nav-item.active')?.classList.remove('active');
+      button.classList.add('active');
+      const view = button.dataset.view;
+      frame.src = routes[view];
+      frame.classList.toggle('mini-frame', view === 'mini');
+      frame.title = button.dataset.title;
+      title.textContent = button.dataset.title;
+      const url = new URL(location.href);
+      url.searchParams.set('view', view);
+      history.replaceState(null, '', url);
+    }));
+    const initialView = new URLSearchParams(location.search).get('view');
+    if (initialView === 'admin') document.querySelector('[data-view="admin"]').click();
+  </script>
+</body>
+</html>
