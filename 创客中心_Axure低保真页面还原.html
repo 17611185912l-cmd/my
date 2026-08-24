@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>创客中心｜任务优先型优化版</title>
+  <style>
+    :root{--page:#f3f6f8;--surface:#fff;--soft:#e6f4f5;--accent:#087f8c;--accent-dark:#066673;--ink:#14222f;--muted:#738294;--line:#e7edf1;--warning:#f59e0b;--radius:14px}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:#dfe5e8}
+    button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
+    button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+    /* The HTML hidden state must override component display modes. */
+    [hidden]{display:none!important}
+    .stage{min-height:100vh;display:grid;place-items:center;padding:24px}
+    .phone{position:relative;width:390px;height:min(844px,calc(100vh - 48px));min-height:640px;overflow:hidden;background:var(--page);border-radius:24px;box-shadow:0 22px 60px rgba(25,45,58,.2)}
+    .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--page);transform:translateX(100%);opacity:0;transition:transform .24s ease,opacity .18s ease;pointer-events:none}
+    .screen.active{transform:translateX(0);opacity:1;pointer-events:auto}.screen.leaving{transform:translateX(-18%)}
+    .statusbar{height:42px;display:flex;align-items:center;justify-content:space-between;padding:5px 22px 0 26px;background:var(--surface);font-size:14px;font-weight:700;flex:0 0 auto}
+    .status-icons{display:flex;align-items:center;gap:7px;font-size:13px;letter-spacing:-1px}.signal{letter-spacing:-2px}
+    .battery{width:22px;height:10px;border:1.8px solid #111;border-radius:2px;position:relative}.battery:before{content:"";position:absolute;inset:1.4px;background:#111;border-radius:1px}.battery:after{content:"";position:absolute;right:-3.4px;top:2px;width:2px;height:4px;background:#111;border-radius:0 1px 1px 0}
+    .navbar{height:49px;position:relative;display:flex;align-items:center;justify-content:center;background:var(--surface);flex:0 0 auto}.navbar-title,.manage-title{font-size:18px;font-weight:700;letter-spacing:.2px}
+    .back{position:absolute;left:8px;width:44px;height:44px;border:0;background:transparent;cursor:pointer}.back:before{content:"";position:absolute;left:17px;top:13px;width:12px;height:12px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg)}
+    .capsule{position:absolute;right:12px;width:76px;height:31px;border:1px solid var(--line);border-radius:18px;display:flex;align-items:center;justify-content:space-around;background:#fff}.dots{font-size:17px;letter-spacing:2px;transform:translateY(-3px)}.mini-circle{width:16px;height:16px;border:1.5px solid var(--ink);border-radius:50%;position:relative}.mini-circle:after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ink)}
+    .tabs{height:48px;display:flex;align-items:center;gap:29px;padding:0 18px;background:var(--surface);border-bottom:1px solid var(--line);flex:0 0 auto}.tab{position:relative;height:48px;padding:0;border:0;background:transparent;color:#9aa7b5;font-size:15px;cursor:pointer}.tab.active{color:var(--ink);font-weight:700}.tab.active:after{content:"";position:absolute;left:50%;bottom:-1px;width:24px;height:3px;border-radius:4px;background:var(--accent);transform:translateX(-50%)}.tab:focus-visible{outline:none}
+    .scroll{min-height:0;flex:1;overflow-y:auto;padding:14px 14px 28px;scrollbar-width:none;overscroll-behavior:contain}.scroll::-webkit-scrollbar{display:none}.stack{display:grid;gap:12px}
+    .wire-card{border-radius:var(--radius);background:var(--surface);box-shadow:0 1px 1px rgba(33,55,68,.03)}.label{display:block;color:var(--muted);font-size:12px;line-height:18px}.number{font-variant-numeric:tabular-nums;white-space:nowrap}
+    .club-card{min-height:54px;display:flex;align-items:center;padding:0 16px;gap:9px;border-left:4px solid var(--warning)}.club-name{font-size:15px;font-weight:700}.club-expiry{color:var(--muted);font-size:12px}.club-renew{margin-left:auto;border:0;background:transparent;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer}
+    .quota-card{padding:16px}.overview-quota{min-height:154px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 42px;gap:12px}.overview-quota>div{padding:13px;border-radius:12px;background:#f1f5f6}.overview-quota .white-button{grid-column:1/-1}.quota-row{display:flex;align-items:baseline;gap:6px;margin-top:4px}.quota-current{font-size:23px;line-height:29px;font-weight:750}.quota-total{font-size:15px;color:#526474}
+    .link-button{min-height:32px;padding:0;border:0;background:transparent;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer}.white-button{height:40px;padding:0 15px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer}.white-button:hover{background:var(--accent-dark)}.white-button:active,.action-tile:active{transform:translateY(1px)}
+    .income-card{padding:18px 17px 3px}.income-main{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding-bottom:17px}.available{display:block;margin-top:5px;font-size:25px;line-height:31px;font-weight:800;letter-spacing:-.45px}.currency{font-size:.72em;margin-right:3px}.income-list{border-top:1px solid var(--line)}.income-list>div{min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}.income-list>div:last-child{border-bottom:0}.income-value{font-size:14px;line-height:21px;font-weight:700}
+    .section-label{margin:7px 3px -3px;font-size:15px;font-weight:700}.metric-grid{display:grid;gap:1px;overflow:hidden;border-radius:var(--radius);background:var(--line)}.metric-grid.two{grid-template-columns:1fr 1fr}.metric-grid.three{grid-template-columns:repeat(3,1fr)}.metric-card{min-width:0;min-height:76px;padding:14px 13px;display:flex;flex-direction:column;justify-content:center;background:var(--surface);border-radius:0;box-shadow:none}.metric-value{display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;font-size:16px;line-height:22px;font-weight:750}.metric-grid.two .metric-value{font-size:13px;letter-spacing:-.3px}.metric-grid.three .metric-card{text-align:center;padding-inline:8px}.metric-grid.three .metric-value{order:-1;margin:0 0 4px;font-size:22px}
+    .overview-scroll{padding-top:12px;padding-bottom:16px}.overview-stack{gap:10px}.overview-stack .club-card{min-height:52px;padding-inline:15px}.overview-stack .overview-quota{min-height:124px;grid-template-rows:62px 38px;gap:10px;padding:11px}.overview-stack .overview-quota>div{padding:9px 12px}.overview-stack .overview-quota .white-button{height:38px}.overview-stack .quota-row{margin-top:3px}.overview-stack .quota-current{font-size:21px;line-height:25px}.overview-stack .quota-total{font-size:14px}.overview-stack .section-label{margin:3px 2px 0;font-size:14px;line-height:18px}.overview-stack .metric-card{min-height:64px;padding:10px}.overview-stack .metric-value{margin-top:4px;font-size:15px;line-height:19px}.overview-stack .metric-grid.two .metric-value{font-size:12.5px}.overview-stack .metric-grid.three .metric-value{margin:0 0 3px;font-size:21px;line-height:23px}
+    .team-view{padding-top:0}.pool-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pool-tab{height:64px;border:1px solid transparent;border-radius:12px;background:var(--surface);color:#637385;font-size:12px;line-height:18px;cursor:pointer}.pool-tab strong{display:block;color:var(--ink);font-size:19px;font-weight:750}.pool-tab.active{border-color:var(--accent);background:var(--soft);color:var(--accent)}.pool-tab.active strong{color:var(--accent)}
+    .team-tools{display:grid;grid-template-columns:64px 74px 96px minmax(92px,1fr);align-items:center;gap:5px;margin-top:10px}.filter-field{position:relative;min-width:0}.filter-field>span:first-child{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.filter-field:after{content:"";position:absolute;z-index:3;right:8px;top:16px;width:5px;height:5px;border-right:1.5px solid #7c8996;border-bottom:1.5px solid #7c8996;transform:translateY(-70%) rotate(45deg);transition:transform .16s ease;pointer-events:none}.sort-field.open:after{transform:translateY(-30%) rotate(225deg)}.filter-select{width:100%;height:32px;appearance:none;-webkit-appearance:none;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 22px 0 9px;color:#526474;font-size:11px;line-height:30px;text-align:left;cursor:pointer}.filter-select:hover{border-color:#d5e0e6}.filter-select:focus{outline:none}.filter-select:focus-visible{border-color:var(--accent);box-shadow:0 0 0 2px rgba(8,127,140,.12)}.sort-menu{position:absolute;z-index:12;top:37px;right:0;width:100%;overflow:hidden;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--surface);box-shadow:0 8px 20px rgba(37,58,72,.14)}.sort-option{width:100%;height:30px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:#526474;font-size:11px;text-align:left;cursor:pointer}.sort-option:hover,.sort-option:focus-visible{outline:none;background:#f1f5f6}.sort-option.active{background:var(--soft);color:var(--accent);font-weight:700}.count-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}.count-actions{display:flex;align-items:center;gap:4px}.count-pill{height:32px;display:inline-flex;align-items:center;border:0;border-radius:8px;background:var(--soft);padding:0 11px;color:var(--accent);font-size:12px;font-weight:700}.filter-reset,.batch-entry{height:32px;padding:0 8px;border:0;border-radius:8px;background:transparent;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer}.batch-entry{border:1px solid #c8e2e5;background:var(--soft);padding:0 10px}.filter-reset:hover,.filter-reset:focus-visible,.batch-entry:hover,.batch-entry:focus-visible{outline:none;background:var(--soft);text-decoration:none}.batch-entry:hover,.batch-entry:focus-visible{border-color:var(--accent)}.batch-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 58px 94px;align-items:center;gap:7px;margin-top:10px;padding:8px 9px;border:1px solid #c8e2e5;border-radius:11px;background:#f2fafb}.batch-toolbar[hidden]{display:none}.batch-selected-count{color:#526474;font-size:11px}.batch-selected-count strong{margin:0 2px;color:var(--accent);font-size:14px}.batch-cancel,.batch-submit{height:32px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer}.batch-cancel{border:1px solid var(--line);background:#fff;color:#637385}.batch-submit{border:0;background:var(--accent);color:#fff}.batch-submit:disabled{background:#bed4d7;cursor:not-allowed}.empty-result{padding:42px 18px;border:1px dashed #cbd7de;border-radius:14px;background:rgba(255,255,255,.7);color:var(--muted);text-align:center;font-size:13px;line-height:1.7}
+    .filter-field.open:after{z-index:13;transform:translateY(-30%) rotate(225deg)}.filter-select{white-space:nowrap}.filter-menu{position:absolute;z-index:12;top:37px;left:0;width:100%;overflow:hidden;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--surface);box-shadow:0 8px 20px rgba(37,58,72,.14)}.filter-option{width:100%;min-height:30px;padding:6px 8px;border:0;border-radius:6px;background:transparent;color:#526474;font-size:11px;line-height:18px;text-align:left;cursor:pointer;white-space:nowrap}.filter-option:hover,.filter-option:focus-visible{outline:none;background:#f1f5f6}.filter-option.active{background:var(--soft);color:var(--accent);font-weight:700}
+    .pool-panel{min-height:530px}.pool-panel[hidden]{display:none}.member-list{display:grid;gap:10px;margin-top:10px}.shared-member-list{margin-top:10px}.member-card{position:relative;padding:18px 12px 11px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 3px 12px rgba(37,58,72,.04);transition:border-color .16s ease,box-shadow .16s ease}.member-card.batch-selectable{padding-top:18px}.member-card.batch-selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(8,127,140,.11),0 3px 12px rgba(37,58,72,.04)}.batch-select-button{position:absolute;z-index:2;left:10px;top:9px;width:22px;height:22px;display:grid;place-items:center;border:1px solid #bdcbd1;border-radius:7px;background:#fff;color:transparent;font-size:14px;line-height:1;cursor:pointer}.batch-select-button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:#fff}.batch-select-button:hover,.batch-select-button:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(8,127,140,.12)}.batch-selectable .member-level{left:39px}.member-level,.inactive-days{position:absolute;top:10px;height:21px;padding:2px 8px;border-radius:8px;background:var(--soft);color:var(--accent);font-size:10px;line-height:17px}.member-level{left:11px}.inactive-days{right:11px;background:#fff3dc;color:#a86500}.member-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:9px;align-items:center;padding-top:20px}.avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:var(--soft);color:var(--accent);font-size:15px;font-weight:750}.member-name{font-size:14px;font-weight:700}.role-tag,.deal-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:8px;background:#eef1f4;color:#677687;font-size:9px;vertical-align:2px}.deal-tag.closed{background:#e7f6ee;color:#18794e}.deal-tag.open{background:#fff3dc;color:#a86500}.member-meta{display:flex;align-items:center;gap:8px;margin-top:5px;color:var(--muted);font-size:10px}.phone-link{min-height:20px;display:inline-flex;align-items:center;gap:3px;margin:-3px 0;padding:3px 4px;border-radius:6px;color:var(--accent);font-weight:700;text-decoration:none;white-space:nowrap}.phone-link:hover,.phone-link:focus-visible{outline:none;background:var(--soft);color:var(--accent-dark)}.phone-link:active{background:#d7edef}.phone-link.phone-masked{color:var(--muted);cursor:default}.phone-link.phone-masked:hover,.phone-link.phone-masked:focus-visible,.phone-link.phone-masked:active{background:transparent;color:var(--muted)}.phone-icon{width:12px;height:12px;flex:0 0 auto;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}.member-profit{text-align:right;color:var(--muted);font-size:10px}.member-profit strong{display:block;margin-top:5px;color:var(--ink);font-size:13px;font-weight:750}.trace{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fafcfd}.trace-row{min-height:31px;display:grid;grid-template-columns:52px minmax(0,1fr) 59px;align-items:center;padding:4px 8px;border-bottom:1px solid var(--line);font-size:10px}.trace-row:last-child{border-bottom:0}.trace-row>span:first-child{color:var(--muted)}.trace-copy{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trace-row.flow-row{align-items:start;padding-top:7px;padding-bottom:7px}.flow-row .trace-copy{overflow:visible;line-height:15px;text-overflow:clip;white-space:normal}.flow-row .trace-time{padding-top:1px}.trace-time{text-align:right;color:#526474}.team-summary{width:100%;min-height:31px;display:flex;align-items:center;margin:6px 0 -3px;border:0;border-radius:8px;background:transparent;padding:0 7px;color:var(--muted);font-size:10px;text-align:left;cursor:pointer}.team-summary:after{content:"";width:6px;height:6px;margin-left:auto;border-right:1.5px solid #8b98a4;border-top:1.5px solid #8b98a4;transform:rotate(45deg)}.team-summary:hover,.team-summary:focus-visible{outline:none;background:var(--soft);color:var(--accent)}.team-summary:active{background:#d7edef}.card-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px}.card-actions.no-transfer{grid-template-columns:repeat(3,1fr)}.card-action{height:29px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#455667;font-size:11px;cursor:pointer;white-space:nowrap}.card-action.transfer-action{border-color:var(--accent);background:var(--soft);color:var(--accent);font-weight:700}.batch-selectable .card-actions{display:none}.shared-pool-actions{display:flex;justify-content:flex-end;margin-top:10px}.cooperation-list{display:grid;gap:10px;margin-top:10px}.cooperation-member-card .trace{margin-bottom:0}.sea-search-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:6px}.sea-search-field{position:relative;min-width:0}.sea-search-input{width:100%;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:0 48px 0 11px;color:var(--ink);font:inherit;font-size:12px}.sea-search-input::-webkit-search-cancel-button{display:none}.sea-search-input::placeholder{color:#9aa7b3}.sea-search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(8,127,140,.12)}.sea-search-clear{position:absolute;right:5px;top:4px;height:28px;border:0;border-radius:7px;background:transparent;padding:0 6px;color:var(--accent);font-size:10px;font-weight:700;cursor:pointer}.sea-search-clear:hover,.sea-search-clear:focus-visible{outline:none;background:var(--soft)}.sea-search-clear[hidden]{display:none}.sea-sort-field:after{top:18px}.sea-sort-field .filter-select{height:36px;line-height:34px}.sea-filter-tools{display:grid;grid-template-columns:64px 74px 86px minmax(92px,1fr);gap:5px;margin-top:7px}.sea-filter-tools .filter-field:after{top:16px}.sea-filter-tools .filter-select{padding-left:8px;font-size:10px}.sea-filter-reset[hidden]{display:none}.sea-member-list{display:grid;gap:10px;margin-top:10px}.sea-card-actions{grid-template-columns:1fr 1fr}.sea-claim{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:700}.sea-claim:hover,.sea-claim:focus-visible{outline:none;background:var(--accent-dark)}.shared-pool-actions{display:flex;justify-content:flex-end;margin-top:10px}
+    .team-sheet-mask{position:absolute;z-index:30;inset:0;background:rgba(20,34,47,.34);opacity:0;will-change:opacity;transition:opacity .22s ease}.team-sheet-mask.open{opacity:1}.team-half-sheet{position:absolute;z-index:31;top:139px;left:0;right:0;bottom:0;min-height:0;display:flex;flex-direction:column;border-radius:20px 20px 0 0;background:var(--page);box-shadow:0 -10px 35px rgba(20,34,47,.16);transform:translate3d(0,100%,0);will-change:transform;transition:transform .24s cubic-bezier(.22,.8,.28,1)}.team-half-sheet.open{transform:translate3d(0,0,0)}.team-sheet-handle{width:34px;height:4px;margin:8px auto 4px;border-radius:4px;background:#cfdadd}.team-sheet-header{position:relative;padding:9px 14px 11px;border-bottom:1px solid var(--line);background:var(--surface)}.team-sheet-profile{display:flex;align-items:center;gap:11px;padding-right:44px}.team-sheet-owner-avatar{width:44px;height:44px;flex:0 0 auto;display:grid;place-items:center;border-radius:14px;background:var(--accent);color:#fff;font-size:16px;font-weight:800;box-shadow:0 6px 14px rgba(8,127,140,.2)}.team-sheet-owner-copy{min-width:0;flex:1}.team-sheet-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;line-height:21px;font-weight:800;letter-spacing:.1px}.team-sheet-owner-meta{display:flex;align-items:center;min-width:0;margin-top:2px}.team-sheet-owner-phone{min-height:20px;display:inline-flex;align-items:center;gap:3px;margin:-2px 0;padding:2px 4px;border-radius:6px;color:var(--accent);font-size:11px;line-height:16px;font-weight:700;font-variant-numeric:tabular-nums;text-decoration:none;white-space:nowrap}.team-sheet-owner-phone:hover,.team-sheet-owner-phone:focus-visible{outline:none;background:var(--soft);color:var(--accent-dark)}.team-sheet-owner-profit{margin-left:auto;color:#8794a0;font-size:10px;line-height:18px;white-space:nowrap}.team-sheet-owner-profit strong{margin-left:3px;color:#455667;font-size:11px;font-weight:750;font-variant-numeric:tabular-nums}.team-sheet-summary{margin-top:9px}.team-sheet-growth-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.team-sheet-growth-tags{min-width:0;display:flex;align-items:center;gap:7px}.team-sheet-stat{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;background:#f1f5f6;color:#657585;font-size:10px;line-height:18px;white-space:nowrap}.team-sheet-today{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 9px;border:1px solid #c8e2e5;border-radius:8px;background:var(--soft);color:var(--accent);font-size:10px;line-height:18px;font-weight:650;white-space:nowrap}.team-sheet-today strong{font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}.team-sheet-close{position:absolute;right:14px;top:14px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:#fff;color:#7a8996;font-size:20px;line-height:30px;cursor:pointer;box-shadow:0 2px 8px rgba(37,58,72,.06);transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}.team-sheet-close:hover,.team-sheet-close:focus-visible{outline:none;border-color:#c8e2e5;background:var(--soft);color:var(--accent)}.team-sheet-close:active{transform:scale(.94)}.team-sheet-body{min-height:0;flex:1;overflow-y:auto;padding:0 14px 24px;background:var(--page);overscroll-behavior:contain;scrollbar-width:none}.team-sheet-body::-webkit-scrollbar{display:none}.team-date-tools{position:sticky;z-index:3;top:0;margin:0 -14px 10px;padding:12px 14px 10px;background:var(--page);box-shadow:0 7px 10px rgba(238,242,244,.88)}.team-date-presets{display:grid;grid-template-columns:54px 62px 70px minmax(78px,1fr);gap:7px}.team-date-preset{height:34px;border:1px solid transparent;border-radius:8px;background:#e9eef1;color:#526474;font-size:11px;font-weight:650;cursor:pointer;white-space:nowrap}.team-date-preset:hover,.team-date-preset:focus-visible{outline:none;border-color:#c8dce0;color:var(--accent)}.team-date-preset.active{border-color:#c8e2e5;background:var(--soft);color:var(--accent);font-weight:800}.team-date-custom{display:grid;grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 52px;align-items:center;gap:6px;margin-top:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}.team-date-custom[hidden]{display:none}.team-date-input{width:100%;height:34px;min-width:0;border:1px solid var(--line);border-radius:8px;background:#f7fafb;padding:0 7px;color:#526474;font:inherit;font-size:10px}.team-date-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(8,127,140,.1)}.team-date-separator{color:#9aa7b5;font-size:10px;text-align:center}.team-date-apply{height:34px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer}.team-date-apply:hover,.team-date-apply:focus-visible{outline:none;background:var(--accent-dark)}.team-date-message{min-height:14px;margin:5px 2px -3px;color:#c05a2c;font-size:10px;line-height:14px}.team-member-list{display:grid;gap:10px}.team-member-card{position:relative;padding:17px 12px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 3px 12px rgba(37,58,72,.04)}.team-member-card .member-head{padding-top:19px}.team-member-card .member-level{top:9px}.team-member-card .member-meta{gap:6px}.team-member-phone{color:var(--accent);font-weight:700;white-space:nowrap}.team-member-register{margin-top:4px;color:#97a3af;font-size:9px;line-height:14px}.team-member-card .trace{margin-top:9px}.team-member-card .trace-row{grid-template-columns:52px minmax(0,1fr) 60px}.team-member-card .member-profit strong{color:var(--ink)}.team-date-empty{margin-top:2px}
+    .follow-transfer-mask{position:absolute;z-index:40;inset:0;background:rgba(20,34,47,.42);opacity:0;transition:opacity .2s ease}.follow-transfer-mask.open{opacity:1}.follow-transfer-dialog{position:absolute;z-index:41;left:18px;right:18px;top:50%;overflow:hidden;border-radius:18px;background:var(--surface);box-shadow:0 18px 48px rgba(20,34,47,.24);opacity:0;transform:translateY(-46%) scale(.97);transition:opacity .2s ease,transform .22s cubic-bezier(.22,.8,.28,1)}.follow-transfer-dialog.open{opacity:1;transform:translateY(-50%) scale(1)}.follow-transfer-header{position:relative;padding:18px 54px 13px 18px;border-bottom:1px solid var(--line)}.follow-transfer-title{display:block;font-size:17px;line-height:24px;font-weight:800}.follow-transfer-subtitle{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:18px}.follow-transfer-close{position:absolute;right:14px;top:16px;width:32px;height:32px;border:1px solid var(--line);border-radius:50%;background:#fff;color:#7a8996;font-size:19px;line-height:28px;cursor:pointer}.follow-transfer-close:hover,.follow-transfer-close:focus-visible{outline:none;border-color:#c8e2e5;background:var(--soft);color:var(--accent)}.follow-transfer-body{padding:15px 18px 18px}.follow-transfer-current{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#f7fafb}.follow-transfer-current-label{color:var(--muted);font-size:11px}.follow-transfer-current-user{min-width:0;display:grid;justify-items:end;gap:2px;text-align:right}.follow-transfer-current-name{color:var(--ink);font-size:13px;font-weight:750}.follow-transfer-current-phone{color:#70808e;font-size:11px;line-height:16px;font-variant-numeric:tabular-nums}.follow-transfer-form label{display:block;color:#526474;font-size:12px}.follow-transfer-result{min-height:0}.follow-transfer-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:14px}.follow-transfer-cancel,.follow-transfer-submit{height:42px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}.follow-transfer-cancel{border:1px solid var(--line);background:#fff;color:#526474}.follow-transfer-submit{border:0;background:var(--accent);color:#fff;box-shadow:0 5px 12px rgba(8,127,140,.18)}.follow-transfer-submit:disabled{background:#bed4d7;box-shadow:none;cursor:not-allowed}.follow-transfer-cancel:hover,.follow-transfer-cancel:focus-visible{outline:none;border-color:#c8d8dd;background:#f7fafb}.follow-transfer-submit:hover:not(:disabled),.follow-transfer-submit:focus-visible{outline:none;background:var(--accent-dark)}
+    .manage-scroll{padding-top:14px}.manage-scroll>.quota-card{display:block;min-height:88px}.manage-scroll>.quota-card .quota-row{align-items:center}.manage-scroll>.quota-card .link-button{margin-left:auto}.manage-member-card{min-height:82px;margin-top:10px;padding:15px 17px}.manage-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.action-tile{height:58px;border:1px solid transparent;border-radius:12px;background:var(--surface);color:#314353;text-align:center;padding:0 8px;font-size:13px;font-weight:650;cursor:pointer}.action-tile:first-child{border-color:var(--accent);background:var(--soft);color:var(--accent)}.section-title{margin:19px 2px 10px;font-size:15px;font-weight:700}.record-filters{display:flex;gap:7px;margin-bottom:10px;overflow-x:auto}.record-filter{height:33px;min-width:62px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:#617183;font-size:12px;cursor:pointer}.record-filter.active{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:700}.record-list{overflow:hidden;border-radius:var(--radius);background:var(--surface)}.record{min-height:86px;padding:14px 15px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);background:var(--surface)}.record:last-child{border-bottom:0}.record-title{font-size:14px;font-weight:700}.record-name{margin-top:6px;color:#526474;font-size:11px}.record-date{margin-top:5px;color:#97a3af;font-size:10px}.record-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end}.record-change{font-size:16px;font-weight:750}.record-operator{margin-top:7px;color:var(--muted);font-size:10px}
+    .partner-scroll{padding-top:18px}.partner-intro{text-align:center;padding:4px 12px 15px}.partner-intro h1{margin:0;color:var(--accent);font-size:22px;line-height:30px;font-weight:800}.partner-intro p{margin:8px 0 0;color:var(--muted);font-size:12px;line-height:20px}.partner-status{min-height:82px;display:flex;align-items:center;justify-content:space-between;padding:15px 17px}.partner-status-copy{display:grid;gap:4px}.partner-status-label{color:var(--accent);font-size:11px}.partner-status-name{color:#526474;font-size:13px}.partner-status-value{display:flex;align-items:baseline;color:var(--accent)}.partner-status-value strong{font-size:25px;line-height:30px;font-weight:800}.partner-status-value span{margin-left:3px;font-size:12px}.partner-form{margin-top:12px;padding:16px}.partner-form label{display:block;color:#526474;font-size:12px}.partner-query-row{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;margin-top:8px}.partner-phone-input{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;background:#f7fafb;padding:0 12px;color:var(--ink);font:inherit;font-size:13px}.partner-phone-input::placeholder{color:#9ba8b4}.partner-phone-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(8,127,140,.12)}.partner-query-button{height:40px;border:1px solid var(--accent);border-radius:10px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:700;cursor:pointer}.partner-query-button:hover{background:#d9eef0}.partner-query-button:active{transform:translateY(1px)}.partner-query-result{min-height:86px;margin-top:12px;padding:10px 2px 2px;border-top:1px solid var(--line)}.partner-query-title{color:var(--muted);font-size:11px}.partner-user{display:flex;align-items:center;gap:11px;margin-top:9px;padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:#f7fafb}.partner-avatar{width:48px;height:48px;flex:0 0 auto;border:2px solid var(--surface);border-radius:50%;object-fit:cover;box-shadow:0 1px 4px rgba(37,58,72,.16)}.partner-user-copy{min-width:0;display:grid;gap:4px}.partner-user-name{color:var(--ink);font-size:15px;line-height:20px;font-weight:750}.partner-user-phone{color:#526474;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums}.partner-error{min-height:14px;margin-top:7px;color:#c05a2c;font-size:11px;line-height:14px}.transfer-count-field{margin-top:14px}.transfer-count-row{position:relative;margin-top:8px}.transfer-count-input{padding-right:34px;-moz-appearance:textfield}.transfer-count-input::-webkit-inner-spin-button,.transfer-count-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.transfer-count-unit{position:absolute;right:13px;top:50%;color:var(--muted);font-size:12px;transform:translateY(-50%);pointer-events:none}.partner-submit{width:100%;height:42px;margin-top:13px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;box-shadow:0 5px 12px rgba(8,127,140,.2);cursor:pointer}.partner-submit:hover{background:var(--accent-dark)}.partner-submit:active{transform:translateY(1px)}.partner-submit:disabled{background:#bed4d7;color:#fff;box-shadow:none;cursor:not-allowed}.partner-submit:focus-visible,.partner-query-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+    .bill-scroll{padding:12px 13px 28px}.withdraw-card{overflow:hidden;border-radius:16px;background:var(--surface)}.withdraw-summary{padding:16px 17px;background:var(--accent);color:#fff}.withdraw-summary-label{font-size:12px;line-height:18px;opacity:.8}.withdraw-summary-value{display:block;margin-top:3px;font-size:31px;line-height:37px;font-weight:800;letter-spacing:.2px}.withdraw-summary-note{margin-top:5px;font-size:11px;line-height:18px;opacity:.86}.withdraw-body{padding:14px 16px 16px}.withdraw-amount-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}.withdraw-amount-wrap{display:flex;align-items:center;min-width:0}.withdraw-currency{font-size:20px;font-weight:750}.withdraw-input{width:190px;min-width:0;border:0;background:transparent;padding:0 0 0 5px;color:var(--ink);font:inherit;font-size:24px;line-height:32px;font-weight:800;font-variant-numeric:tabular-nums}.withdraw-input:focus{outline:none}.withdraw-all{min-height:32px;border:0;background:transparent;padding:0;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer}.withdraw-all:hover,.withdraw-all:focus-visible{outline:none;text-decoration:underline}.payout-methods{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.payout-method{height:43px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#526474;font-size:12px;cursor:pointer}.payout-method.active{border-color:var(--accent);background:var(--soft);color:var(--accent);font-weight:700}.payout-method:hover{border-color:#cbdde0}.payout-method:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.withdraw-submit{width:100%;height:43px;margin-top:12px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:750;box-shadow:0 5px 12px rgba(8,127,140,.18);cursor:pointer}.withdraw-submit:hover{background:var(--accent-dark)}.withdraw-submit:active{transform:translateY(1px)}.withdraw-hint{margin:9px 0 0;color:#97a3af;font-size:10px;line-height:16px;text-align:center}.bill-tabs{display:grid;grid-template-columns:1fr 1fr;margin-top:12px;padding:3px;border-radius:11px;background:#e9eef1}.bill-tab{height:32px;border:0;border-radius:8px;background:transparent;color:#8794a1;font-size:12px;cursor:pointer}.bill-tab.active{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(37,58,72,.1)}.bill-tab:focus-visible{outline:2px solid var(--accent);outline-offset:1px}.bill-panel{padding-top:12px}.bill-filters{display:flex;flex-wrap:wrap;gap:7px}.bill-filter{height:31px;border:1px solid #d9e2e7;border-radius:17px;background:#fff;padding:0 11px;color:#526474;font-size:11px;cursor:pointer;white-space:nowrap}.bill-filter:hover{border-color:#b9ced2;color:var(--accent)}.bill-filter.active{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:700}.bill-filter:focus-visible{outline:2px solid var(--accent);outline-offset:1px}.commission-list-head{display:flex;align-items:center;justify-content:space-between;margin:14px 3px 9px}.commission-list-title{font-size:15px;line-height:20px;font-weight:800}.commission-list-count{color:#7f8d9b;font-size:11px}.withdraw-record-title{margin:12px 3px 9px;color:#7f8d9b;font-size:11px;line-height:17px;font-weight:700}.bill-record-list{display:grid;gap:8px}.bill-record-item{min-height:70px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 13px;border-radius:13px;background:#fff}.commission-record-item{grid-template-columns:36px minmax(0,1fr) auto;gap:10px;padding:11px 12px}.commission-record-icon{width:36px;height:36px;display:block;border-radius:10px;object-fit:cover}.bill-record-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.bill-record-time{margin-top:5px;color:#8794a1;font-size:10px}.commission-record-detail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bill-record-side{text-align:right}.bill-record-money{display:block;color:#344454;font-size:15px;font-weight:800}.commission-record-item .bill-record-money{color:var(--accent)}.bill-record-status{display:inline-flex;align-items:center;height:21px;margin-top:5px;padding:0 8px;border-radius:11px;background:#fff2df;color:#bd6d00;font-size:10px}.bill-record-status.settled,.bill-record-status.done{background:#e6f5f0;color:#18794e}.bill-record-status.withdrawn{background:#e9f2f3;color:var(--accent)}
+    .bill-filter-wrap{position:relative}.bill-filter-wrap .bill-filters{display:flex;flex-wrap:nowrap;gap:5px;overflow:visible}.bill-filter-wrap .bill-filter{min-width:0;padding:0 8px;font-size:10px}.commission-more-filter{display:inline-flex;align-items:center;gap:4px;padding-right:10px!important}.commission-more-filter:after{content:"";width:5px;height:5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .16s ease}.commission-more-filter[aria-expanded="true"]:after{transform:translateY(1px) rotate(225deg)}.commission-filter-menu{position:absolute;z-index:12;top:38px;left:0;right:0;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 10px 26px rgba(37,58,72,.15)}.commission-filter-option{min-height:34px;border:0;border-radius:8px;background:transparent;padding:6px 9px;color:#526474;font-size:11px;text-align:left;cursor:pointer}.commission-filter-option:hover,.commission-filter-option:focus-visible{outline:none;background:#f1f5f6}.commission-filter-option.active{background:var(--soft);color:var(--accent);font-weight:700}
+    .bill-sticky-tools{position:sticky;z-index:14;top:-12px;margin:12px -1px 0;padding:12px 1px 7px;background:var(--page);box-shadow:0 8px 12px rgba(238,242,244,.92)}.bill-sticky-tools .bill-tabs{margin-top:0}.bill-sticky-tools #commissionFilterWrap{margin-top:7px}
+    .transfer-record-scroll{padding:12px 13px 28px}.transfer-record-list{display:grid;gap:9px}.transfer-record-card{min-height:112px;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 3px 12px rgba(37,58,72,.04)}.transfer-record-date{display:block;color:#95a2ae;font-size:10px;line-height:16px;font-variant-numeric:tabular-nums}.transfer-record-main{display:flex;align-items:baseline;gap:7px;margin-top:11px;color:var(--ink);font-size:14px;line-height:21px;font-weight:750}.transfer-record-label{flex:0 0 auto;color:#526474;font-size:11px;font-weight:600}.transfer-record-person{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.transfer-record-phone{margin-left:4px;color:var(--accent);font-variant-numeric:tabular-nums}.transfer-record-receiver{display:flex;align-items:baseline;gap:7px;margin-top:6px;color:#7d8b98;font-size:12px;line-height:19px}.transfer-record-receiver .transfer-record-label{color:#8794a1}.transfer-record-receiver .transfer-record-phone{color:#6e7e8d}.transfer-record-card:hover{border-color:#d5e4e7}
+    .follow-record-scroll{padding:12px 13px 28px}.follow-record-profile{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:11px;padding:15px;border:1px solid var(--line);border-radius:14px 14px 0 0;background:var(--surface);box-shadow:0 3px 12px rgba(37,58,72,.04)}.follow-record-avatar{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;background:var(--soft);color:var(--accent);font-size:16px;font-weight:800}.follow-record-user{min-width:0}.follow-record-name{display:flex;align-items:center;gap:6px;font-size:15px;line-height:22px;font-weight:800}.follow-record-level,.follow-record-role{padding:1px 7px;border-radius:8px;font-size:9px;line-height:16px;font-weight:500}.follow-record-level{background:var(--soft);color:var(--accent)}.follow-record-role{background:#eef1f4;color:#677687}.follow-record-meta{display:flex;align-items:center;gap:7px;margin-top:4px;color:var(--muted);font-size:10px}.follow-record-phone{color:var(--accent);font-weight:700;text-decoration:none;font-variant-numeric:tabular-nums}.follow-record-phone:hover,.follow-record-phone:focus-visible{outline:none;color:var(--accent-dark);text-decoration:underline;text-underline-offset:2px}.follow-record-deal{height:23px;display:inline-flex;align-items:center;padding:0 8px;border-radius:8px;background:#fff3dc;color:#a86500;font-size:10px;font-weight:700}.follow-record-deal.closed{background:#e7f6ee;color:#18794e}.member-detail-latest{display:grid;grid-template-columns:58px minmax(0,1fr);gap:8px;padding:10px 15px;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;background:#fbfcfd;color:var(--muted);font-size:10px;line-height:17px}.member-detail-latest strong{overflow:hidden;color:#435466;font-weight:650;text-overflow:ellipsis;white-space:nowrap}.follow-record-heading{display:flex;align-items:center;justify-content:space-between;margin:15px 3px 9px}.follow-record-heading strong{font-size:15px;line-height:21px;font-weight:800}.follow-record-heading span{color:var(--muted);font-size:11px}.follow-record-list{display:grid;gap:9px}.follow-record-item{position:relative;padding:14px 14px 14px 37px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 3px 12px rgba(37,58,72,.04)}.follow-record-item:before{content:"";position:absolute;left:16px;top:18px;width:8px;height:8px;border:3px solid #c8e2e5;border-radius:50%;background:var(--accent)}.follow-record-item:after{content:"";position:absolute;left:22px;top:32px;bottom:-14px;width:1px;background:#dce8eb}.follow-record-item:last-child:after{display:none}.follow-record-time{display:block;color:#95a2ae;font-size:10px;line-height:16px;font-variant-numeric:tabular-nums}.follow-record-title{margin-top:5px;font-size:13px;line-height:20px;font-weight:800}.follow-record-content{margin:5px 0 0;color:#526474;font-size:11px;line-height:18px}.follow-record-operator{display:block;margin-top:8px;color:#8b98a4;font-size:10px;line-height:16px}
+    .member-detail-summary{display:grid;grid-template-columns:1.05fr 1.95fr;align-items:center;gap:0;margin-top:9px;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.member-detail-stat{min-width:0}.member-detail-stat+ .member-detail-stat{padding-left:10px;border-left:1px solid var(--line)}.member-detail-stat span{display:block;color:var(--muted);font-size:10px;line-height:16px}.member-detail-stat strong{display:block;margin-top:2px;font-size:14px;line-height:20px;font-weight:800}.member-detail-team{position:relative;min-height:40px;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding-top:0;padding-right:20px;padding-bottom:0;background:transparent;color:var(--ink);border-top:0;border-right:0;border-bottom:0;text-align:left;font:inherit;cursor:pointer}.member-detail-team-value{min-width:0}.member-detail-team-value+ .member-detail-team-value{padding-left:10px;border-left:1px solid var(--line)}.member-detail-team:after{content:"";position:absolute;right:5px;top:50%;width:6px;height:6px;border-top:1.5px solid #8b98a4;border-right:1.5px solid #8b98a4;transform:translateY(-50%) rotate(45deg)}.member-detail-team:hover,.member-detail-team:focus-visible{outline:none;color:var(--accent)}.member-detail-team:hover{border-radius:8px;background:var(--soft)}.member-detail-team:focus-visible{border-radius:8px;box-shadow:0 0 0 2px rgba(8,127,140,.15)}.member-detail-team:active{background:#d7edef;color:var(--accent-dark)}.member-detail-team:hover:after,.member-detail-team:focus-visible:after{border-color:var(--accent)}.member-detail-today strong{color:var(--accent)}.member-detail-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}.member-detail-actions.two{grid-template-columns:repeat(2,minmax(0,1fr))}.member-detail-actions.single{grid-template-columns:1fr}.member-detail-action{height:36px;border:1px solid var(--line);border-radius:9px;background:#fff;color:#455667;font-size:11px;font-weight:650;cursor:pointer;white-space:nowrap}.member-detail-action:hover,.member-detail-action:focus-visible{outline:none;border-color:#c8e2e5;background:var(--soft);color:var(--accent)}.member-detail-action:active{background:#d7edef}.member-detail-action.primary{border-color:var(--accent);background:var(--accent);color:#fff}.member-detail-action.primary:hover,.member-detail-action.primary:focus-visible{background:var(--accent-dark);color:#fff}.member-detail-action[hidden]{display:none}.member-detail-tabs{position:sticky;z-index:5;top:-12px;display:grid;grid-template-columns:repeat(4,1fr);margin:10px -13px 10px;padding:0 13px;border-bottom:1px solid var(--line);background:var(--page)}.member-detail-tab{position:relative;height:44px;padding:0 2px;border:0;background:transparent;color:#7d8b98;font-size:11px;font-weight:650;cursor:pointer;white-space:nowrap}.member-detail-tab.active{color:var(--accent);font-weight:800}.member-detail-tab.active:after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:3px;border-radius:3px;background:var(--accent)}.member-detail-tab:hover,.member-detail-tab:focus-visible{outline:none;color:var(--accent)}.detail-record-list{display:grid;gap:9px}.detail-record-card{padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 3px 12px rgba(37,58,72,.04)}.detail-record-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.detail-record-kind{height:21px;display:inline-flex;align-items:center;padding:0 8px;border-radius:7px;background:var(--soft);color:var(--accent);font-size:9px;font-weight:750}.detail-record-time{color:#95a2ae;font-size:10px;font-variant-numeric:tabular-nums}.detail-record-title{margin-top:8px;font-size:13px;line-height:20px;font-weight:800}.detail-record-content{margin:4px 0 0;color:#526474;font-size:11px;line-height:18px}.detail-record-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #f0f3f5;color:#8b98a4;font-size:10px}.detail-record-amount{color:var(--accent);font-size:13px;font-weight:800}.member-card:not(.batch-selectable){cursor:pointer}.member-card:not(.batch-selectable):hover{border-color:#d5e4e7}.member-card:not(.batch-selectable):focus-within{border-color:#c8e2e5}
+    .toast{position:absolute;z-index:20;left:50%;bottom:26px;max-width:82%;padding:10px 15px;border-radius:9px;background:rgba(20,34,47,.92);color:#fff;font-size:12px;text-align:center;opacity:0;transform:translate(-50%,10px);transition:.18s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .team-member-card[role="link"]{cursor:pointer;transition:border-color .16s ease,box-shadow .16s ease}.team-member-card[role="link"]:hover,.team-member-card[role="link"]:focus-visible{outline:none;border-color:#c8e2e5;box-shadow:0 0 0 2px rgba(8,127,140,.08),0 3px 12px rgba(37,58,72,.04)}.team-member-card[role="link"]:active{background:#fbfdfd}.team-member-detail-entry{position:absolute;z-index:2;top:7px;right:9px;min-height:24px;display:inline-flex;align-items:center;gap:3px;padding:0 4px;border:0;border-radius:6px;background:transparent;color:var(--accent);font-size:10px;font-weight:700;cursor:pointer}.team-member-detail-entry:after{content:"›";font-size:14px;line-height:1}.team-member-detail-entry:hover,.team-member-detail-entry:focus-visible{outline:none;background:var(--soft);box-shadow:0 0 0 2px rgba(8,127,140,.1)}.team-member-detail-entry:active{background:#d9eef0;color:var(--accent-dark)}
+    .follow-record-phone.masked,.team-sheet-owner-phone.masked{color:var(--muted);cursor:default;text-decoration:none}.follow-record-phone.masked:hover,.follow-record-phone.masked:focus-visible,.team-sheet-owner-phone.masked:hover,.team-sheet-owner-phone.masked:focus-visible{background:transparent;color:var(--muted);text-decoration:none}.team-sheet-owner-phone.masked .phone-icon{display:none}
+    @media(max-width:480px){html,body{background:var(--page)}.stage{display:block;padding:0}.phone{width:100%;height:100vh;min-height:0;border-radius:0;box-shadow:none}}
+    @media(max-width:360px){.scroll{padding-inline:10px}.available{font-size:22px}.overview-quota{gap:8px}.income-card{padding-inline:14px}.tabs{padding-left:14px}.metric-grid.two .metric-value{font-size:12px}.team-tools{grid-template-columns:58px 68px 90px minmax(78px,1fr);gap:4px}.filter-field:after{right:7px}.filter-select{padding:0 19px 0 7px;font-size:10px}.card-action{font-size:10px}.bill-filter-wrap .bill-filters{gap:3px}.bill-filter-wrap .bill-filter{padding-inline:6px;font-size:9.5px}.commission-more-filter{padding-right:8px!important}.overview-stack .metric-grid.two .metric-value{font-size:10.5px}}
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" aria-label="创客中心 Axure 页面还原">
+      <section class="screen active" id="overviewScreen" aria-label="创客中心概览">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" type="button" data-toast="返回上一页" aria-label="返回"></button><strong class="navbar-title">创客中心</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <nav class="tabs" aria-label="页面栏目">
+          <button class="tab" type="button" data-tab="overview">概览</button>
+          <button class="tab active" type="button" data-tab="team">团队</button>
+          <button class="tab" type="button" data-tab="sea">公海</button>
+        </nav>
+        <div class="scroll overview-scroll" id="overviewScroll">
+          <section class="tab-view" data-view="overview" hidden>
+            <div class="stack overview-stack">
+              <article class="wire-card club-card"><strong class="club-name">俱乐部</strong><span class="club-expiry">2027.05.05 到期</span><button class="club-renew" type="button" data-toast="已打开俱乐部续费">立即续费 &gt;</button></article>
+              <article class="wire-card quota-card overview-quota">
+                <div><span class="label">合伙人名额（个）</span><div class="quota-row"><strong class="quota-current number">10</strong><span class="quota-total number">/ 20</span></div></div>
+                <div class="member-count"><span class="label">已开通会员（个）</span><div class="quota-row"><strong class="quota-current number">10</strong></div></div>
+                <button class="white-button" id="openManage" type="button">名额管理</button>
+              </article>
+              <article class="wire-card income-card">
+                <div class="income-main"><div><span class="label">可提现（元）</span><strong class="available number"><small class="currency">¥</small>255,386.50</strong></div><button class="white-button" id="openBill" type="button">立即提现</button></div>
+                <div class="income-list">
+                  <div><span class="label">累计收益（元）</span><strong class="income-value number"><small class="currency">¥</small>812,386.50</strong></div>
+                  <div><span class="label">待结算（元）</span><strong class="income-value number"><small class="currency">¥</small>112,386.50</strong></div>
+                  <div><span class="label">已提现（元）</span><strong class="income-value number"><small class="currency">¥</small>556,420.00</strong></div>
+                </div>
+              </article>
+              <h2 class="section-label">新增收益</h2>
+              <section class="metric-grid two" aria-label="新增收益">
+                <article class="wire-card metric-card"><span class="label">今日新增收益（元）</span><strong class="metric-value number"><small class="currency">¥</small>126,580.50</strong></article>
+                <article class="wire-card metric-card"><span class="label">昨日新增收益（元）</span><strong class="metric-value number"><small class="currency">¥</small>118,360.00</strong></article>
+              </section>
+              <h2 class="section-label">今日数据</h2>
+              <section class="metric-grid three" aria-label="今日数据">
+                <article class="wire-card metric-card"><span class="label">今日注册（人）</span><strong class="metric-value number">10</strong></article>
+                <article class="wire-card metric-card"><span class="label">今日成交（人）</span><strong class="metric-value number">2</strong></article>
+                <article class="wire-card metric-card"><span class="label">今日转移（人）</span><strong class="metric-value number">2</strong></article>
+              </section>
+            </div>
+          </section>
+          <section class="tab-view team-view" data-view="team">
+            <div class="pool-tabs" role="tablist" aria-label="团队客户池">
+              <button class="pool-tab active" type="button" data-pool="private"><strong id="privatePoolCount">218</strong>私客池</button>
+              <button class="pool-tab" type="button" data-pool="cooperation"><strong>12</strong>合作池</button>
+              <button class="pool-tab" type="button" data-pool="shared"><strong id="sharedPoolCount">89</strong>共享池</button>
+            </div>
+            <section class="pool-panel" data-pool-panel="private">
+              <!-- 四个筛选项统一使用页面自有 listbox。 -->
+              <div class="team-tools" aria-label="团队筛选条件">
+                <div class="filter-field" id="identityField"><span id="identityLabel">身份</span><button class="filter-select" id="identityFilter" type="button" data-value="all" data-default-text="身份" aria-labelledby="identityLabel identityFilterText" aria-haspopup="listbox" aria-expanded="false"><span id="identityFilterText">身份</span></button><div class="filter-menu" id="identityMenu" role="listbox" aria-label="身份" hidden><button class="filter-option active" type="button" role="option" aria-selected="true" data-option-value="all">全部</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="partner">合伙人</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="parent">家长</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="teacher">老师</button></div></div>
+                <div class="filter-field" id="dealField"><span id="dealLabel">成交状态</span><button class="filter-select" id="dealFilter" type="button" data-value="all" data-default-text="成交状态" aria-labelledby="dealLabel dealFilterText" aria-haspopup="listbox" aria-expanded="false"><span id="dealFilterText">成交状态</span></button><div class="filter-menu" id="dealMenu" role="listbox" aria-label="成交状态" hidden><button class="filter-option active" type="button" role="option" aria-selected="true" data-option-value="all">全部</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="closed">已成交</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="open">未成交</button></div></div>
+                <div class="filter-field" id="followField"><span id="followLabel">跟进情况</span><button class="filter-select" id="followFilter" type="button" data-value="3" data-default-text="跟进情况" aria-labelledby="followLabel followFilterText" aria-haspopup="listbox" aria-expanded="false"><span id="followFilterText">3日未跟进</span></button><div class="filter-menu" id="followMenu" role="listbox" aria-label="跟进情况" hidden><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="all">全部</button><button class="filter-option active" type="button" role="option" aria-selected="true" data-option-value="3">3日未跟进</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="7">7日未跟进</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="14">14日未跟进</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="30">30日未跟进</button></div></div>
+                <div class="filter-field" id="sortField"><span id="sortLabel">排序</span><button class="filter-select" id="sortFilter" type="button" data-value="default" aria-labelledby="sortLabel sortFilterText" aria-haspopup="listbox" aria-expanded="false"><span id="sortFilterText">默认排序</span></button><div class="filter-menu" id="sortMenu" role="listbox" aria-label="排序方式" hidden><button class="filter-option active" type="button" role="option" aria-selected="true" data-option-value="default">默认排序</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="asc">天数顺序</button><button class="filter-option" type="button" role="option" aria-selected="false" data-option-value="desc">天数倒序</button></div></div>
+              </div>
+              <div class="count-row"><span class="count-pill" id="memberCount">0人</span><div class="count-actions"><button class="filter-reset" type="button" data-open-transfer-record>转移记录</button><button class="batch-entry" type="button" data-start-batch="private">批量转移</button></div></div>
+              <div class="batch-toolbar" data-batch-toolbar="private" hidden><span class="batch-selected-count">已选<strong>0</strong>人</span><button class="batch-cancel" type="button" data-cancel-batch>取消</button><button class="batch-submit" type="button" data-open-batch-transfer disabled>转移所选</button></div>
+              <div class="member-list" id="memberList"></div>
+            </section>
+            <section class="pool-panel" data-pool-panel="cooperation" hidden>
+              <div class="team-tools pool-filter-tools" data-pool-filters="cooperation" aria-label="合作池筛选条件">
+                <div class="filter-field"><span>身份</span><select class="filter-select" data-pool-filter="identity" data-default-text="身份" aria-label="身份"><option value="all">全部</option><option value="partner">合伙人</option><option value="parent">家长</option><option value="teacher">老师</option></select></div>
+                <div class="filter-field"><span>成交状态</span><select class="filter-select" data-pool-filter="deal" data-default-text="成交状态" aria-label="成交状态"><option value="all">全部</option><option value="closed">已成交</option><option value="open">未成交</option></select></div>
+                <div class="filter-field"><span>跟进情况</span><select class="filter-select" data-pool-filter="follow" data-default-text="跟进情况" aria-label="跟进情况"><option value="3" selected>3日未跟进</option><option value="all">全部</option><option value="7">7日未跟进</option><option value="14">14日未跟进</option><option value="30">30日未跟进</option></select></div>
+                <div class="filter-field"><span>排序</span><select class="filter-select" data-pool-filter="sort" aria-label="排序"><option value="default" selected>默认排序</option><option value="asc">天数顺序</option><option value="desc">天数倒序</option></select></div>
+              </div>
+              <div class="count-row"><span class="count-pill" id="cooperationCount">0人</span><div class="count-actions"><button class="filter-reset" type="button" data-open-transfer-record>转移记录</button><button class="batch-entry" type="button" data-start-batch="cooperation">批量转移</button></div></div>
+              <div class="batch-toolbar" data-batch-toolbar="cooperation" hidden><span class="batch-selected-count">已选<strong>0</strong>人</span><button class="batch-cancel" type="button" data-cancel-batch>取消</button><button class="batch-submit" type="button" data-open-batch-transfer disabled>转移所选</button></div>
+              <div class="cooperation-list" id="cooperationMemberList" aria-label="合作池客户列表"></div>
+            </section>
+            <section class="pool-panel" data-pool-panel="shared" hidden>
+              <div class="team-tools pool-filter-tools" data-pool-filters="shared" aria-label="共享池筛选条件">
+                <div class="filter-field"><span>身份</span><select class="filter-select" data-pool-filter="identity" data-default-text="身份" aria-label="身份"><option value="all">全部</option><option value="partner">合伙人</option><option value="parent">家长</option><option value="teacher">老师</option></select></div>
+                <div class="filter-field"><span>成交状态</span><select class="filter-select" data-pool-filter="deal" data-default-text="成交状态" aria-label="成交状态"><option value="all">全部</option><option value="closed">已成交</option><option value="open">未成交</option></select></div>
+                <div class="filter-field"><span>跟进情况</span><select class="filter-select" data-pool-filter="follow" data-default-text="跟进情况" aria-label="跟进情况"><option value="3" selected>3日未跟进</option><option value="all">全部</option><option value="7">7日未跟进</option><option value="14">14日未跟进</option><option value="30">30日未跟进</option></select></div>
+                <div class="filter-field"><span>排序</span><select class="filter-select" data-pool-filter="sort" aria-label="排序"><option value="default" selected>默认排序</option><option value="asc">天数顺序</option><option value="desc">天数倒序</option></select></div>
+              </div>
+              <div class="count-row"><span class="count-pill" id="sharedMemberCount">0人</span><div class="count-actions"><button class="filter-reset" type="button" data-open-transfer-record>转移记录</button><button class="batch-entry" type="button" data-start-batch="shared">批量转移</button></div></div>
+              <div class="batch-toolbar" data-batch-toolbar="shared" hidden><span class="batch-selected-count">已选<strong>0</strong>人</span><button class="batch-cancel" type="button" data-cancel-batch>取消</button><button class="batch-submit" type="button" data-open-batch-transfer disabled>转移所选</button></div>
+              <div class="member-list shared-member-list" id="sharedMemberList"></div>
+            </section>
+          </section>
+          <section class="tab-view team-view" data-view="sea" hidden>
+            <div class="sea-search-row">
+              <div class="sea-search-field"><input class="sea-search-input" id="seaSearchInput" type="search" autocomplete="off" placeholder="搜索姓名/手机号" aria-label="搜索公海客户姓名或手机号"><button class="sea-search-clear" id="seaSearchClear" type="button" hidden>清除</button></div>
+              <div class="filter-field sea-sort-field"><span>进入时间排序</span><select class="filter-select" id="seaSort" aria-label="公海客户排序"><option value="newest" selected>最新进入</option><option value="oldest">最早进入</option></select></div>
+            </div>
+            <div class="sea-filter-tools" aria-label="公海筛选条件">
+              <div class="filter-field"><span>客户身份</span><select class="filter-select" id="seaIdentityFilter" aria-label="客户身份"><option value="all" selected>身份</option><option value="parent">家长</option><option value="teacher">老师</option><option value="partner">合伙人</option></select></div>
+              <div class="filter-field"><span>所在地区</span><select class="filter-select" id="seaCityFilter" aria-label="所在地区"><option value="all" selected>地区</option><option value="陕西·西安">西安</option><option value="陕西·咸阳">咸阳</option><option value="陕西·渭南">渭南</option><option value="陕西·宝鸡">宝鸡</option><option value="陕西·汉中">汉中</option><option value="陕西·安康">安康</option></select></div>
+              <div class="filter-field"><span>进入公海来源</span><select class="filter-select" id="seaSourceFilter" aria-label="进入公海来源"><option value="all" selected>来源</option><option value="natural">自然注册</option><option value="released">他人释放</option></select></div>
+              <div class="filter-field"><span>进入公海时间</span><select class="filter-select" id="seaTimeFilter" aria-label="进入公海时间"><option value="all" selected>进入时间</option><option value="today">今天</option><option value="7">近7天</option><option value="30">近30天</option></select></div>
+            </div>
+            <div class="count-row"><span class="count-pill" id="seaMemberCount">8人</span><button class="filter-reset sea-filter-reset" id="seaFilterReset" type="button" hidden>重置</button></div>
+            <div class="sea-member-list" id="seaMemberList" aria-label="公海客户列表"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="screen" id="manageScreen" aria-label="名额管理">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closeManage" type="button" aria-label="返回概览"></button><strong class="manage-title">名额管理</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll manage-scroll">
+          <article class="wire-card quota-card">
+            <div><span class="label">合伙人名额（个）</span><div class="quota-row"><strong class="quota-current number">10</strong><span class="quota-total number">/ 20</span><button class="link-button" type="button" data-toast="已打开名额续费">立即续费 &gt;</button></div></div>
+          </article>
+          <article class="wire-card manage-member-card"><span class="label">已开通会员（个）</span><div class="quota-row"><strong class="quota-current number">10</strong></div></article>
+          <section class="manage-actions" aria-label="名额操作">
+            <button class="action-tile" id="openPartner" type="button">开通合伙人</button>
+            <button class="action-tile" id="openTransfer" type="button">转让名额</button>
+            <button class="action-tile" id="openMember" type="button">开通会员</button>
+          </section>
+          <h2 class="section-title">名额记录</h2>
+          <nav class="record-filters" aria-label="名额记录筛选">
+            <button class="record-filter active" type="button" data-record-filter="all">全部</button>
+            <button class="record-filter" type="button" data-record-filter="partner">合伙人</button>
+            <button class="record-filter" type="button" data-record-filter="member">会员</button>
+            <button class="record-filter" type="button" data-record-filter="renew">续费</button>
+          </nav>
+          <section class="record-list" id="recordList"></section>
+        </div>
+      </section>
+
+      <section class="screen" id="partnerScreen" aria-label="开通合伙人">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closePartner" type="button" aria-label="返回名额管理"></button><strong class="manage-title">开通合伙人</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll partner-scroll">
+          <section class="partner-intro">
+            <h1>给用户开通合伙人</h1>
+            <p>请完善下方信息，快速完成合伙人名额分配</p>
+          </section>
+          <article class="wire-card partner-status">
+            <div class="partner-status-copy"><span class="partner-status-name">当前剩余合伙人名额</span></div>
+            <div class="partner-status-value"><strong class="number">10</strong><span>个</span></div>
+          </article>
+          <form class="wire-card partner-form" id="partnerForm" novalidate>
+            <label for="partnerPhone">开通手机号</label>
+            <div class="partner-query-row"><input class="partner-phone-input" id="partnerPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入手机号码" aria-describedby="partnerPhoneMessage"><button class="partner-query-button" id="queryPartner" type="button">查询</button></div>
+            <div class="partner-error" id="partnerPhoneMessage" role="alert" hidden></div>
+            <section class="partner-query-result" id="partnerQueryResult" aria-live="polite" hidden><div class="partner-query-title">查询结果</div><div class="partner-user"><img class="partner-avatar" src="assets/开通合伙人_查询结果头像.png" alt="查询到的用户头像"><div class="partner-user-copy"><strong class="partner-user-name">李*</strong><span class="partner-user-phone" id="partnerResultPhone">12000000001</span></div></div></section>
+            <button class="partner-submit" id="submitPartner" type="submit">开通</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="screen" id="memberScreen" aria-label="开通会员">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closeMember" type="button" aria-label="返回名额管理"></button><strong class="manage-title">开通会员</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll partner-scroll">
+          <section class="partner-intro">
+            <h1>给用户开通会员</h1>
+            <p>请完善下方信息，快速完成会员开通</p>
+          </section>
+          <article class="wire-card partner-status">
+            <div class="partner-status-copy"><span class="partner-status-name">当前已开通会员</span></div>
+            <div class="partner-status-value"><strong class="number">10</strong><span>个</span></div>
+          </article>
+          <form class="wire-card partner-form" id="memberForm" novalidate>
+            <label for="memberPhone">开通手机号</label>
+            <div class="partner-query-row"><input class="partner-phone-input" id="memberPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入手机号码" aria-describedby="memberPhoneMessage"><button class="partner-query-button" id="queryMember" type="button">查询</button></div>
+            <div class="partner-error" id="memberPhoneMessage" role="alert" hidden></div>
+            <section class="partner-query-result" id="memberQueryResult" aria-live="polite" hidden><div class="partner-query-title">查询结果</div><div class="partner-user"><img class="partner-avatar" src="assets/开通合伙人_查询结果头像.png" alt="查询到的用户头像"><div class="partner-user-copy"><strong class="partner-user-name">李*</strong><span class="partner-user-phone" id="memberResultPhone">12000000001</span></div></div></section>
+            <button class="partner-submit" id="submitMember" type="submit">开通</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="screen" id="transferScreen" aria-label="转让名额">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closeTransfer" type="button" aria-label="返回名额管理"></button><strong class="manage-title">转让名额</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll partner-scroll">
+          <section class="partner-intro">
+            <h1>给用户转让名额</h1>
+            <p>请完善下方信息，快速完成合伙人名额转让</p>
+          </section>
+          <article class="wire-card partner-status">
+            <div class="partner-status-copy"><span class="partner-status-name">当前剩余合伙人名额</span></div>
+            <div class="partner-status-value"><strong class="number">10</strong><span>个</span></div>
+          </article>
+          <form class="wire-card partner-form" id="transferForm" novalidate>
+            <label for="transferPhone">接收手机号</label>
+            <div class="partner-query-row"><input class="partner-phone-input" id="transferPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入手机号码" aria-describedby="transferPhoneMessage"><button class="partner-query-button" id="queryTransfer" type="button">查询</button></div>
+            <div class="partner-error" id="transferPhoneMessage" role="alert" hidden></div>
+            <section class="partner-query-result" id="transferQueryResult" aria-live="polite" hidden><div class="partner-query-title">查询结果</div><div class="partner-user"><img class="partner-avatar" src="assets/开通合伙人_查询结果头像.png" alt="查询到的用户头像"><div class="partner-user-copy"><strong class="partner-user-name">李*</strong><span class="partner-user-phone" id="transferResultPhone">12000000001</span></div></div></section>
+            <div class="transfer-count-field">
+              <label for="transferCount">转让数量</label>
+              <div class="transfer-count-row"><input class="partner-phone-input transfer-count-input" id="transferCount" type="number" inputmode="numeric" min="1" max="10" step="1" placeholder="请输入转让数量" aria-describedby="transferCountMessage"><span class="transfer-count-unit">个</span></div>
+              <div class="partner-error" id="transferCountMessage" role="alert" hidden></div>
+            </div>
+            <button class="partner-submit" id="submitTransfer" type="submit">确认转让</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="screen" id="billScreen" aria-label="我的账单">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closeBill" type="button" aria-label="返回创客中心"></button><strong class="manage-title">我的账单</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll bill-scroll">
+          <section class="withdraw-card" aria-label="提现操作">
+            <div class="withdraw-summary"><span class="withdraw-summary-label">可提现佣金（元）</span><strong class="withdraw-summary-value number">3,678.92</strong><div class="withdraw-summary-note">冻结中（待结算）2,928.12 元，过售后期后可提</div></div>
+            <form class="withdraw-body" id="withdrawForm" novalidate>
+              <label class="withdraw-amount-row" for="withdrawAmount"><span class="withdraw-amount-wrap"><span class="withdraw-currency">¥</span><input class="withdraw-input" id="withdrawAmount" type="text" inputmode="decimal" value="3678.92" aria-describedby="withdrawMessage"></span><button class="withdraw-all" id="withdrawAll" type="button">全部提现</button></label>
+              <div class="partner-error" id="withdrawMessage" role="alert" hidden></div>
+              <div class="payout-methods" role="group" aria-label="提现方式"><button class="payout-method" type="button" data-payout="wechat">微信零钱</button><button class="payout-method active" type="button" data-payout="bank">银行卡</button></div>
+              <button class="withdraw-submit" type="submit">确认提现</button>
+              <p class="withdraw-hint">单笔最低 10 元 · 每日限提 3 次 · 演示环境不产生真实交易</p>
+            </form>
+          </section>
+          <div class="bill-sticky-tools">
+            <div class="bill-tabs" role="tablist" aria-label="账单类型"><button class="bill-tab active" id="commissionTab" type="button" role="tab" aria-selected="true" aria-controls="commissionPanel" data-bill-tab="commission">佣金明细</button><button class="bill-tab" id="withdrawTab" type="button" role="tab" aria-selected="false" aria-controls="withdrawPanel" data-bill-tab="withdraw">提现记录</button></div>
+            <div class="bill-filter-wrap" id="commissionFilterWrap">
+              <nav class="bill-filters" aria-label="分佣业务类型">
+                <button class="bill-filter active" type="button" data-commission-filter="all">全部</button><button class="bill-filter" type="button" data-commission-filter="member">购买会员</button><button class="bill-filter" type="button" data-commission-filter="trial">购买体验课</button><button class="bill-filter" type="button" data-commission-filter="consult">预约咨询</button><button class="bill-filter commission-more-filter" id="commissionMoreFilter" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="commissionMoreFilterText">全部分类</span></button>
+              </nav>
+              <div class="commission-filter-menu" id="commissionFilterMenu" role="listbox" aria-label="其他业务类型" hidden>
+                <button class="commission-filter-option" type="button" role="option" aria-selected="false" data-commission-filter="follow">关注公众号</button><button class="commission-filter-option" type="button" role="option" aria-selected="false" data-commission-filter="art">购买艺术课</button><button class="commission-filter-option" type="button" role="option" aria-selected="false" data-commission-filter="psychology">购买心理课</button><button class="commission-filter-option" type="button" role="option" aria-selected="false" data-commission-filter="service">购买升学服务</button><button class="commission-filter-option" type="button" role="option" aria-selected="false" data-commission-filter="teacher">教师入驻</button>
+              </div>
+            </div>
+          </div>
+          <section class="bill-panel" id="commissionPanel" role="tabpanel" aria-labelledby="commissionTab">
+            <div class="commission-list-head"><strong class="commission-list-title">明细动态</strong><span class="commission-list-count" id="commissionSummary">14 笔记录</span></div>
+            <div class="bill-record-list" id="commissionList"></div>
+          </section>
+          <section class="bill-panel" id="withdrawPanel" role="tabpanel" aria-labelledby="withdrawTab" hidden>
+            <h2 class="withdraw-record-title">提现记录</h2>
+            <div class="bill-record-list" id="withdrawRecordList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="screen" id="transferRecordScreen" aria-label="转移记录">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closeTransferRecord" type="button" aria-label="返回我的团队"></button><strong class="manage-title">转移记录</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll transfer-record-scroll">
+          <div class="transfer-record-list" id="transferRecordList" aria-live="polite"></div>
+        </div>
+      </section>
+      <section class="screen" id="followRecordScreen" aria-label="成员详情">
+        <div class="statusbar"><span>23:58 ◢</span><span class="status-icons"><span class="signal">▮▮▮</span><span>⌁</span><span class="battery"></span></span></div>
+        <header class="navbar"><button class="back" id="closeFollowRecord" type="button" aria-label="返回客户列表"></button><strong class="manage-title">成员详情</strong><span class="capsule" aria-hidden="true"><span class="dots">•••</span><span class="mini-circle"></span></span></header>
+        <div class="scroll follow-record-scroll">
+          <article class="follow-record-profile">
+            <span class="follow-record-avatar" id="followRecordAvatar" aria-hidden="true">林</span>
+            <div class="follow-record-user"><div class="follow-record-name"><span id="followRecordName">林*满</span><span class="follow-record-level" id="followRecordLevel">一星</span><span class="follow-record-role" id="followRecordRole">家长</span></div><div class="follow-record-meta"><span id="followRecordCity">陕西·西安</span><a class="follow-record-phone" id="followRecordPhone" href="tel:12000000002">12000000002</a></div></div>
+            <span class="follow-record-deal" id="followRecordDeal">未成交</span>
+          </article>
+          <div class="member-detail-latest"><span>最近跟进</span><strong id="memberDetailLatest">暂无跟进记录</strong></div>
+          <section class="member-detail-summary" aria-label="成员业务概况"><div class="member-detail-stat"><span>累计分润</span><strong id="memberDetailProfit">¥ 0.00</strong></div><button class="member-detail-stat member-detail-team" id="memberDetailTeam" type="button" aria-label="查看该成员的团队，团队人数4人，今日新增1人"><span class="member-detail-team-value"><span>团队人数</span><strong>4人</strong></span><span class="member-detail-team-value member-detail-today"><span>今日新增</span><strong id="memberDetailToday">1人</strong></span></button></section>
+          <div class="member-detail-actions" id="memberDetailActions" aria-label="成员操作"><button class="member-detail-action" id="memberDetailRevisit" type="button">添加回访</button><button class="member-detail-action primary" id="memberDetailTransfer" type="button">转移跟进</button><button class="member-detail-action" id="memberDetailRelease" type="button">释放公海</button><button class="member-detail-action primary" id="memberDetailClaim" type="button" hidden>认领</button></div>
+          <nav class="member-detail-tabs" role="tablist" aria-label="成员明细类型"><button class="member-detail-tab active" type="button" role="tab" aria-selected="true" data-member-detail-tab="follow">跟进记录</button><button class="member-detail-tab" type="button" role="tab" aria-selected="false" data-member-detail-tab="flow">流转记录</button><button class="member-detail-tab" type="button" role="tab" aria-selected="false" data-member-detail-tab="browse">浏览记录</button><button class="member-detail-tab" type="button" role="tab" aria-selected="false" data-member-detail-tab="purchase">购买记录</button></nav>
+          <div class="follow-record-heading"><strong id="memberDetailListTitle">跟进动态</strong><span id="followRecordCount">0 条记录</span></div>
+          <div class="detail-record-list" id="followRecordList" aria-live="polite"></div>
+        </div>
+      </section>
+      <div class="team-sheet-mask" id="teamSheetMask" hidden></div>
+      <section class="team-half-sheet" id="teamHalfSheet" role="dialog" aria-modal="true" aria-labelledby="teamSheetTitle" hidden>
+        <div class="team-sheet-handle" aria-hidden="true"></div>
+        <header class="team-sheet-header"><div class="team-sheet-profile"><span class="team-sheet-owner-avatar" id="teamSheetOwnerAvatar" aria-hidden="true">张</span><div class="team-sheet-owner-copy"><strong class="team-sheet-title" id="teamSheetTitle">张*的团队</strong><div class="team-sheet-owner-meta"><a class="team-sheet-owner-phone" id="teamSheetOwnerPhone" href="tel:12000000003"><span id="teamSheetOwnerPhoneText">12000000003</span><svg class="phone-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.8 9 3.2l2 5-1.7 1.4a14 14 0 0 0 5.1 5.1L15.8 13l5 2-.6 2.4c-.3 1.3-1.5 2.2-2.8 2.1A15.8 15.8 0 0 1 4.5 6.6c-.1-1.3.8-2.5 2.1-2.8Z"/></svg></a></div></div></div><div class="team-sheet-summary"><div class="team-sheet-growth-row"><div class="team-sheet-growth-tags"><span class="team-sheet-today"><span>今日新增</span><strong id="teamSheetTodayStat">1人</strong></span><span class="team-sheet-stat">二星团队 · 4人</span></div><span class="team-sheet-owner-profit">累计分润<strong>¥2462.11</strong></span></div></div><button class="team-sheet-close" id="teamSheetClose" type="button" aria-label="关闭团队人数面板">×</button></header>
+        <div class="team-sheet-body">
+          <section class="team-date-tools" aria-label="按注册时间筛选团队成员">
+            <div class="team-date-presets" role="group" aria-label="注册时间快捷筛选">
+              <button class="team-date-preset active" type="button" data-team-date-filter="today" aria-pressed="true">今天</button>
+              <button class="team-date-preset" type="button" data-team-date-filter="7" aria-pressed="false">近7天</button>
+              <button class="team-date-preset" type="button" data-team-date-filter="30" aria-pressed="false">近30天</button>
+              <button class="team-date-preset" type="button" data-team-date-filter="custom" aria-pressed="false">自定义</button>
+            </div>
+            <div class="team-date-custom" id="teamDateCustom" hidden>
+              <input class="team-date-input" id="teamDateStart" type="date" aria-label="注册开始日期">
+              <span class="team-date-separator" aria-hidden="true">至</span>
+              <input class="team-date-input" id="teamDateEnd" type="date" aria-label="注册结束日期">
+              <button class="team-date-apply" id="applyTeamDate" type="button">筛选</button>
+            </div>
+            <div class="team-date-message" id="teamDateMessage" role="alert" hidden></div>
+          </section>
+          <div class="team-member-list" aria-label="团队成员列表">
+            <article class="team-member-card" data-register-date="2026-08-22"><span class="member-level">二星</span><div class="member-head"><span class="avatar">冯</span><div><div class="member-name">冯*<span class="role-tag">家长</span><span class="deal-tag closed">已成交</span></div><div class="member-meta"><span>陕西·西安</span><span class="team-member-phone">12000000003</span></div><div class="team-member-register">注册于 2026.08.22</div></div><div class="member-profit">累计分润<strong>¥ 825.62</strong></div></div><div class="trace"><div class="trace-row"><span>最近跟进</span><span class="trace-copy">已电话沟通，家长有意向上课</span><span class="trace-time">今天 13:43</span></div><div class="trace-row"><span>最近流转</span><span class="trace-copy">通过 张* 邀请注册，进入私客池</span><span class="trace-time">今天 10:43</span></div></div></article>
+            <article class="team-member-card" data-register-date="2026-08-22"><span class="member-level">二星</span><div class="member-head"><span class="avatar">潘</span><div><div class="member-name">潘*<span class="role-tag">合伙人</span><span class="deal-tag open">未成交</span></div><div class="member-meta"><span>陕西·西安</span><span class="team-member-phone">12000000004</span></div><div class="team-member-register">注册于 2026.08.22</div></div><div class="member-profit">累计分润<strong>¥ 617.96</strong></div></div><div class="trace"><div class="trace-row"><span>最近跟进</span><span class="trace-copy">已发送课程资料，等待进一步回复</span><span class="trace-time">今天 12:20</span></div><div class="trace-row"><span>最近流转</span><span class="trace-copy">由共享池转入张*私客池</span><span class="trace-time">今天 10:43</span></div></div></article>
+            <article class="team-member-card" data-register-date="2026-08-18"><span class="member-level">二星</span><div class="member-head"><span class="avatar">许</span><div><div class="member-name">许*<span class="role-tag">老师</span><span class="deal-tag closed">已成交</span></div><div class="member-meta"><span>陕西·咸阳</span><span class="team-member-phone">12000000005</span></div><div class="team-member-register">注册于 2026.08.18</div></div><div class="member-profit">累计分润<strong>¥ 300.70</strong></div></div><div class="trace"><div class="trace-row"><span>最近跟进</span><span class="trace-copy">已完成教师入驻资料确认</span><span class="trace-time">08.20 11:05</span></div><div class="trace-row"><span>最近流转</span><span class="trace-copy">通过 张* 邀请注册，进入私客池</span><span class="trace-time">08.18 09:32</span></div></div></article>
+            <article class="team-member-card" data-register-date="2026-08-03"><span class="member-level">二星</span><div class="member-head"><span class="avatar">周</span><div><div class="member-name">周*<span class="role-tag">家长</span><span class="deal-tag open">未成交</span></div><div class="member-meta"><span>陕西·渭南</span><span class="team-member-phone">12000000006</span></div><div class="team-member-register">注册于 2026.08.03</div></div><div class="member-profit">累计分润<strong>¥ 61.54</strong></div></div><div class="trace"><div class="trace-row"><span>最近跟进</span><span class="trace-copy">家长暂未确定体验课时间</span><span class="trace-time">08.08 16:18</span></div><div class="trace-row"><span>最近流转</span><span class="trace-copy">由公海池领取，进入张*私客池</span><span class="trace-time">08.03 14:06</span></div></div></article>
+          </div>
+          <div class="empty-result team-date-empty" id="teamDateEmpty" hidden>该注册时间范围内暂无团队成员</div>
+        </div>
+      </section>
+      <div class="follow-transfer-mask" id="followTransferMask" hidden></div>
+      <section class="follow-transfer-dialog" id="followTransferDialog" role="dialog" aria-modal="true" aria-labelledby="followTransferTitle" hidden>
+        <header class="follow-transfer-header"><strong class="follow-transfer-title" id="followTransferTitle">转移跟进</strong><p class="follow-transfer-subtitle">搜索并确认接收用户后完成转移</p><button class="follow-transfer-close" id="followTransferClose" type="button" aria-label="关闭转移跟进弹窗">×</button></header>
+        <div class="follow-transfer-body">
+          <div class="follow-transfer-current"><span class="follow-transfer-current-label">当前转移用户</span><span class="follow-transfer-current-user"><strong class="follow-transfer-current-name" id="followTransferMember">张*</strong><span class="follow-transfer-current-phone" id="followTransferCurrentPhone">12000000003</span></span></div>
+          <form class="follow-transfer-form" id="followTransferForm" novalidate>
+            <label for="followTransferPhone">接收人手机号</label>
+            <div class="partner-query-row"><input class="partner-phone-input" id="followTransferPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入手机号码" aria-describedby="followTransferMessage"><button class="partner-query-button" id="queryFollowTransfer" type="button">查询</button></div>
+            <div class="partner-error" id="followTransferMessage" role="status" aria-live="polite"></div>
+            <section class="partner-query-result follow-transfer-result" id="followTransferResult" aria-live="polite" hidden><div class="partner-query-title">查询结果</div><div class="partner-user"><img class="partner-avatar" src="assets/开通合伙人_查询结果头像.png" alt="查询到的接收用户头像"><div class="partner-user-copy"><strong class="partner-user-name">李*</strong><span class="partner-user-phone" id="followTransferResultPhone"></span></div></div></section>
+            <div class="follow-transfer-actions"><button class="follow-transfer-cancel" id="cancelFollowTransfer" type="button">取消</button><button class="follow-transfer-submit" id="confirmFollowTransfer" type="submit" disabled>确认转移</button></div>
+          </form>
+        </div>
+      </section>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+  <script>
+    const overviewScreen=document.querySelector('#overviewScreen');
+    const manageScreen=document.querySelector('#manageScreen');
+    const partnerScreen=document.querySelector('#partnerScreen');
+    const memberScreen=document.querySelector('#memberScreen');
+    const transferScreen=document.querySelector('#transferScreen');
+    const billScreen=document.querySelector('#billScreen');
+    const transferRecordScreen=document.querySelector('#transferRecordScreen');
+    const transferRecordList=document.querySelector('#transferRecordList');
+    const followRecordScreen=document.querySelector('#followRecordScreen');
+    const followRecordList=document.querySelector('#followRecordList');
+    const followRecordAvatar=document.querySelector('#followRecordAvatar');
+    const followRecordName=document.querySelector('#followRecordName');
+    const followRecordRole=document.querySelector('#followRecordRole');
+    const followRecordLevel=document.querySelector('#followRecordLevel');
+    const followRecordCity=document.querySelector('#followRecordCity');
+    const followRecordPhone=document.querySelector('#followRecordPhone');
+    const followRecordDeal=document.querySelector('#followRecordDeal');
+    const followRecordCount=document.querySelector('#followRecordCount');
+    const memberDetailProfit=document.querySelector('#memberDetailProfit');
+    const memberDetailTeam=document.querySelector('#memberDetailTeam');
+    const memberDetailToday=document.querySelector('#memberDetailToday');
+    const memberDetailActions=document.querySelector('#memberDetailActions');
+    const memberDetailRevisit=document.querySelector('#memberDetailRevisit');
+    const memberDetailTransfer=document.querySelector('#memberDetailTransfer');
+    const memberDetailRelease=document.querySelector('#memberDetailRelease');
+    const memberDetailClaim=document.querySelector('#memberDetailClaim');
+    const memberDetailLatest=document.querySelector('#memberDetailLatest');
+    const memberDetailListTitle=document.querySelector('#memberDetailListTitle');
+    const memberDetailTabs=[...document.querySelectorAll('[data-member-detail-tab]')];
+    let memberDetailCurrentItem=null;
+    const toast=document.querySelector('#toast');
+    const teamSheetMask=document.querySelector('#teamSheetMask');
+    const teamHalfSheet=document.querySelector('#teamHalfSheet');
+    const teamSheetClose=document.querySelector('#teamSheetClose');
+    const teamSheetTitle=document.querySelector('#teamSheetTitle');
+    const teamSheetOwnerAvatar=document.querySelector('#teamSheetOwnerAvatar');
+    const teamSheetOwnerPhone=document.querySelector('#teamSheetOwnerPhone');
+    const teamSheetOwnerPhoneText=document.querySelector('#teamSheetOwnerPhoneText');
+    const teamSheetTodayStat=document.querySelector('#teamSheetTodayStat');
+    const teamDateCustom=document.querySelector('#teamDateCustom');
+    const teamDateStart=document.querySelector('#teamDateStart');
+    const teamDateEnd=document.querySelector('#teamDateEnd');
+    const teamDateMessage=document.querySelector('#teamDateMessage');
+    const teamDateEmpty=document.querySelector('#teamDateEmpty');
+    const followTransferMask=document.querySelector('#followTransferMask');
+    const followTransferDialog=document.querySelector('#followTransferDialog');
+    const followTransferTitle=document.querySelector('#followTransferTitle');
+    const followTransferSubtitle=document.querySelector('.follow-transfer-subtitle');
+    const followTransferClose=document.querySelector('#followTransferClose');
+    const followTransferMember=document.querySelector('#followTransferMember');
+    const followTransferCurrentPhoneText=document.querySelector('#followTransferCurrentPhone');
+    const followTransferForm=document.querySelector('#followTransferForm');
+    const followTransferPhone=document.querySelector('#followTransferPhone');
+    const followTransferMessage=document.querySelector('#followTransferMessage');
+    const followTransferResult=document.querySelector('#followTransferResult');
+    const followTransferResultPhone=document.querySelector('#followTransferResultPhone');
+    const confirmFollowTransfer=document.querySelector('#confirmFollowTransfer');
+    let teamSheetReturnFocus=null;
+    let teamSheetOpenFrame=0;
+    let teamSheetCloseTimer=0;
+    let followTransferReturnFocus=null;
+    let followTransferCurrentMember='';
+    let followTransferCurrentPhone='';
+    let followTransferCurrentPool='';
+    let followTransferFromDetail=false;
+    let followTransferMode='single';
+    let batchModePool='';
+    const batchSelectedPhones=new Set();
+    let toastTimer;
+    function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),1500)}
+    function maskUserName(name){const value=String(name||'').trim().replace(/\*+/g,'*');if(!value||value.includes('*'))return value;const chars=Array.from(value);if(chars.length===1)return chars[0];if(chars.length===2)return `${chars[0]}*`;return `${chars[0]}*${chars.at(-1)}`}
+    function maskPhone(phone){const value=String(phone||'').trim();if(!value)return '';if(value.includes('*'))return value;if(/^\d{11}$/.test(value))return `${value.slice(0,3)}****${value.slice(-4)}`;if(value.length<=4)return '*'.repeat(value.length);return `${value.slice(0,Math.min(3,value.length-2))}****${value.slice(-2)}`}
+    const privacyUserNames=['林小满','王老师','陈老师','周老师','郑老师','何老师','李老师','赵老师','吴老师','方老师','唐老师','孙老师','刘老师','张三丰','张三','李明','赵敏','刘洋','孙悦','周静','陈浩','王芳','刘欣','方敏','吴桐','郑凯','唐悦','陈雨','李欣','赵凯','孙萌','李四'].sort((a,b)=>b.length-a.length);
+    function maskUserNamesInText(text){let value=String(text||'').replace(/\*+/g,'*');privacyUserNames.forEach(name=>{value=value.replaceAll(name,maskUserName(name))});return value}
+    function localDateValue(date){const pad=value=>String(value).padStart(2,'0');return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`}
+    function setTeamDateActive(value){document.querySelectorAll('[data-team-date-filter]').forEach(button=>{const active=button.dataset.teamDateFilter===value;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))})}
+    function filterTeamMembers(start,end){let visibleCount=0;document.querySelectorAll('.team-member-card').forEach(card=>{const registerDate=card.dataset.registerDate;const visible=registerDate>=start&&registerDate<=end;card.hidden=!visible;if(visible)visibleCount+=1});teamDateEmpty.hidden=visibleCount>0;return visibleCount}
+    function applyTeamDatePreset(value){const today=new Date();const end=localDateValue(today);const startDate=new Date(today);startDate.setDate(today.getDate()-(value==='today'?0:Number(value)-1));teamDateCustom.hidden=true;teamDateMessage.hidden=true;teamDateMessage.textContent='';setTeamDateActive(value);filterTeamMembers(localDateValue(startDate),end)}
+    function resetTeamDateFilter(){const today=localDateValue(new Date());teamDateStart.value=today;teamDateEnd.value=today;applyTeamDatePreset('today')}
+    function openTeamSheet(trigger,ownerData){
+      if(!teamHalfSheet.hidden)return;
+      clearTimeout(teamSheetCloseTimer);
+      cancelAnimationFrame(teamSheetOpenFrame);
+      teamSheetReturnFocus=trigger;
+      const ownerCard=trigger.closest('.member-card');
+      const owner=ownerData?.name||ownerCard?.dataset.member||'用户';
+      const ownerPhone=ownerData?.phone||ownerCard?.dataset.phone||'';
+      const isPublicOwner=ownerData?.pool==='public'||ownerData?.isPublic===true;
+      const todayAdded=ownerData?.todayAdded||trigger.textContent.match(/今日新增\s*(\d+)\s*人/)?.[1]||'0';
+      const displayOwner=maskUserName(owner);
+      teamSheetTitle.textContent=`${displayOwner}的团队`;
+      teamSheetOwnerAvatar.textContent=owner.slice(0,1);
+      teamSheetOwnerPhoneText.textContent=isPublicOwner?maskPhone(ownerPhone):ownerPhone;
+      teamSheetOwnerPhone.classList.toggle('masked',isPublicOwner);
+      if(isPublicOwner){teamSheetOwnerPhone.removeAttribute('href');teamSheetOwnerPhone.setAttribute('aria-label',`${displayOwner}的电话已脱敏`)}else{teamSheetOwnerPhone.href=`tel:${ownerPhone}`;teamSheetOwnerPhone.setAttribute('aria-label',`拨打${displayOwner}的电话 ${ownerPhone}`)}
+      teamSheetTodayStat.textContent=`${todayAdded}人`;
+      resetTeamDateFilter();
+      teamSheetMask.classList.remove('open');
+      teamHalfSheet.classList.remove('open');
+      teamSheetMask.hidden=false;
+      teamHalfSheet.hidden=false;
+      void teamHalfSheet.offsetHeight;
+      teamSheetOpenFrame=requestAnimationFrame(()=>{
+        teamSheetOpenFrame=requestAnimationFrame(()=>{
+          teamSheetMask.classList.add('open');
+          teamHalfSheet.classList.add('open');
+          teamSheetClose.focus({preventScroll:true});
+          teamSheetOpenFrame=0;
+        });
+      });
+    }
+    function closeTeamSheet(){
+      if(teamHalfSheet.hidden)return;
+      cancelAnimationFrame(teamSheetOpenFrame);
+      clearTimeout(teamSheetCloseTimer);
+      teamSheetMask.classList.remove('open');
+      teamHalfSheet.classList.remove('open');
+      teamSheetCloseTimer=setTimeout(()=>{teamSheetMask.hidden=true;teamHalfSheet.hidden=true;teamSheetReturnFocus?.focus({preventScroll:true});teamSheetReturnFocus=null},250);
+    }
+    function resetFollowTransfer(){followTransferPhone.value='';followTransferPhone.removeAttribute('aria-invalid');followTransferMessage.textContent='';followTransferResult.hidden=true;followTransferResultPhone.textContent='';confirmFollowTransfer.disabled=true}
+    function showFollowTransferDialog(){
+      followTransferMember.textContent=followTransferMode==='batch'?followTransferCurrentMember:maskUserName(followTransferCurrentMember);
+      followTransferCurrentPhoneText.textContent=followTransferCurrentPhone;
+      followTransferCurrentPhoneText.hidden=followTransferMode==='batch';
+      resetFollowTransfer();
+      followTransferMask.classList.remove('open');
+      followTransferDialog.classList.remove('open');
+      followTransferMask.hidden=false;
+      followTransferDialog.hidden=false;
+      void followTransferDialog.offsetHeight;
+      requestAnimationFrame(()=>{followTransferMask.classList.add('open');followTransferDialog.classList.add('open');followTransferPhone.focus({preventScroll:true})});
+    }
+    function openFollowTransfer(trigger,ownerData){
+      followTransferMode='single';
+      followTransferReturnFocus=trigger;
+      const card=trigger.closest('.member-card');
+      followTransferCurrentMember=ownerData?.name||card?.dataset.member||'当前用户';
+      followTransferCurrentPhone=ownerData?.phone||card?.dataset.phone||'';
+      followTransferCurrentPool=ownerData?.pool||card?.dataset.pool||'';
+      followTransferFromDetail=Boolean(ownerData);
+      followTransferTitle.textContent='转移跟进';
+      followTransferSubtitle.textContent='搜索并确认接收用户后完成转移';
+      confirmFollowTransfer.textContent='确认转移';
+      showFollowTransferDialog();
+    }
+    function openBatchFollowTransfer(trigger){
+      if(!batchSelectedPhones.size)return;
+      followTransferMode='batch';
+      followTransferReturnFocus=trigger;
+      followTransferCurrentMember=`已选择 ${batchSelectedPhones.size} 人`;
+      followTransferCurrentPhone='';
+      followTransferCurrentPool='';
+      followTransferFromDetail=false;
+      followTransferTitle.textContent='批量转移跟进';
+      followTransferSubtitle.textContent='搜索并确认接收用户后，统一转移所选用户';
+      confirmFollowTransfer.textContent=`确认转移 ${batchSelectedPhones.size} 人`;
+      showFollowTransferDialog();
+    }
+    function closeFollowTransfer(){
+      if(followTransferDialog.hidden)return;
+      followTransferMask.classList.remove('open');
+      followTransferDialog.classList.remove('open');
+      setTimeout(()=>{followTransferMask.hidden=true;followTransferDialog.hidden=true;followTransferReturnFocus?.focus({preventScroll:true});followTransferReturnFocus=null},230);
+    }
+    function queryFollowTransferUser(){
+      const phone=followTransferPhone.value.trim();
+      if(!/^1\d{10}$/.test(phone)){followTransferPhone.setAttribute('aria-invalid','true');followTransferMessage.textContent='请输入正确的11位手机号码';followTransferResult.hidden=true;confirmFollowTransfer.disabled=true;followTransferPhone.focus();return}
+      followTransferPhone.removeAttribute('aria-invalid');
+      followTransferMessage.textContent='';
+      followTransferResultPhone.textContent=phone;
+      followTransferResult.hidden=false;
+      confirmFollowTransfer.disabled=false;
+      confirmFollowTransfer.focus();
+    }
+    function openManage(){overviewScreen.classList.add('leaving');overviewScreen.classList.remove('active');manageScreen.classList.add('active');manageScreen.querySelector('.scroll').scrollTop=0}
+    function closeManage(){overviewScreen.classList.remove('leaving');overviewScreen.classList.add('active');manageScreen.classList.remove('active')}
+    function openBill(){resetBill();overviewScreen.classList.add('leaving');overviewScreen.classList.remove('active');billScreen.classList.add('active');billScreen.querySelector('.scroll').scrollTop=0}
+    function closeBill(){overviewScreen.classList.remove('leaving');overviewScreen.classList.add('active');billScreen.classList.remove('active')}
+    function openTransferRecord(){renderTransferRecords();overviewScreen.classList.add('leaving');overviewScreen.classList.remove('active');transferRecordScreen.classList.add('active');transferRecordScreen.querySelector('.scroll').scrollTop=0}
+    function closeTransferRecord(){overviewScreen.classList.remove('leaving');overviewScreen.classList.add('active');transferRecordScreen.classList.remove('active')}
+    function followRecordsFor(item){if(!item||item.followText==='暂无跟进记录')return[];return[{time:item.followTime&&item.followTime!=='—'?item.followTime:'今天 13:43',kind:'最近跟进',title:'最近跟进',content:item.followText||'已电话沟通，进一步了解用户需求',meta:'跟进人：我'},{time:'08.18 16:20',kind:'电话沟通',title:'电话沟通',content:'已了解用户当前需求，约定后续再次联系。',meta:'跟进人：我'},{time:'08.12 10:35',kind:'首次联系',title:'首次联系',content:'已添加联系方式并发送相关介绍资料。',meta:'跟进人：我'}]}
+    function flowRecordsFor(item){return[{time:item.flowTime||'今天 10:43',kind:'最近流转',title:maskUserNamesInText(item.flowText||'进入当前客户池'),content:'客户归属及跟进关系已同步更新',meta:'系统记录'},{time:'08.18 09:32',kind:'注册来源',title:'通过邀请注册进入平台',content:'完成注册后进入客户池',meta:'系统记录'}]}
+    function browseRecordsFor(item){return[{time:'今天 16:46',kind:'浏览课程',title:'查看课程《优AI英语阅读提升》',content:'停留 3分26秒',meta:'课程详情'},{time:'今天 16:40',kind:'浏览课程',title:'查看课程《优数学素养体验课》',content:'停留 1分48秒',meta:'课程详情'},{time:'昨天 18:26',kind:'浏览教师',title:maskUserNamesInText('查看教师 李老师'),content:'浏览教师介绍及课程评价',meta:'教师详情'}]}
+    function purchaseRecordsFor(item){if(item.deal!=='closed')return[];return[{time:'08.20 14:32',kind:'课程订单',title:'购买《优AI英语阅读提升》',content:'订单已支付 · 已成交',meta:'订单号 YZB202608203286',amount:'¥ 1,280.00'},{time:'07.28 09:24',kind:'会员订单',title:'购买卓越会员',content:'会员权益已生效',meta:'订单号 YZB202607281205',amount:'¥ 399.00'}]}
+    const memberDetailConfig={follow:{title:'跟进动态',empty:'暂无跟进记录',source:followRecordsFor},flow:{title:'流转动态',empty:'暂无流转记录',source:flowRecordsFor},browse:{title:'浏览动态',empty:'暂无浏览记录',source:browseRecordsFor},purchase:{title:'购买动态',empty:'暂无购买记录',source:purchaseRecordsFor}};
+    function renderMemberDetailTab(tabName){const config=memberDetailConfig[tabName]||memberDetailConfig.follow;memberDetailTabs.forEach(tab=>{const active=tab.dataset.memberDetailTab===tabName;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active))});memberDetailListTitle.textContent=config.title;const records=config.source(memberDetailCurrentItem);followRecordCount.textContent=`${records.length} 条记录`;followRecordList.innerHTML=records.length?records.map(record=>`<article class="detail-record-card"><div class="detail-record-top"><span class="detail-record-kind">${record.kind||config.title}</span><time class="detail-record-time">${record.time}</time></div><div class="detail-record-title">${maskUserNamesInText(record.title)}</div><p class="detail-record-content">${maskUserNamesInText(record.content)}</p><div class="detail-record-meta"><span>${maskUserNamesInText(record.meta||'')}</span>${record.amount?`<strong class="detail-record-amount">${record.amount}</strong>`:''}</div></article>`).join(''):`<div class="empty-result">${config.empty}<br>暂无可展示内容</div>`}
+    function renderFollowRecord(item){const dealClosed=item.deal==='closed';const isPublic=item._detailPool==='public';const canTransfer=!isPublic&&Boolean(item.canTransfer);const displayName=maskUserName(item.name);memberDetailCurrentItem=item;followRecordAvatar.textContent=item.name.slice(0,1);followRecordName.textContent=displayName;followRecordLevel.textContent=item.level||'一星';followRecordRole.textContent=item.identityLabel;followRecordCity.textContent=item.city||'陕西·西安';followRecordPhone.textContent=isPublic?maskPhone(item.phone):item.phone;followRecordPhone.classList.toggle('masked',isPublic);if(isPublic){followRecordPhone.removeAttribute('href');followRecordPhone.setAttribute('aria-label',`${displayName}的电话已脱敏`)}else{followRecordPhone.href=`tel:${item.phone}`;followRecordPhone.setAttribute('aria-label',`拨打${displayName}的电话 ${item.phone}`)}followRecordDeal.textContent=dealClosed?'已成交':'未成交';followRecordDeal.classList.toggle('closed',dealClosed);memberDetailProfit.textContent=item.profit||'¥ 0.00';memberDetailToday.textContent='1人';memberDetailTeam.setAttribute('aria-label',`查看${displayName}的团队，团队人数4人，今日新增1人`);memberDetailActions.classList.toggle('single',isPublic);memberDetailActions.classList.toggle('two',!isPublic&&!canTransfer);memberDetailRevisit.hidden=isPublic;memberDetailTransfer.hidden=!canTransfer;memberDetailRelease.hidden=isPublic;memberDetailClaim.hidden=!isPublic;const followText=item.followText||'已电话沟通，进一步了解用户需求';memberDetailLatest.textContent=isPublic||item.followText==='暂无跟进记录'?followText:`${item.days}日未跟进 · ${followText}`;renderMemberDetailTab('follow')}
+    function openMemberDetailTeam(){if(!memberDetailCurrentItem)return;openTeamSheet(memberDetailTeam,{name:memberDetailCurrentItem.name,phone:memberDetailCurrentItem.phone,pool:memberDetailCurrentItem._detailPool,todayAdded:'1'})}
+    function openMemberDetailTransfer(){if(!memberDetailCurrentItem||!memberDetailCurrentItem.canTransfer)return;openFollowTransfer(memberDetailTransfer,{name:memberDetailCurrentItem.name,phone:memberDetailCurrentItem.phone,pool:memberDetailCurrentItem._detailPool})}
+    function releaseMemberFromDetail(){if(!memberDetailCurrentItem)return;showToast(`已将${maskUserName(memberDetailCurrentItem.name)}释放至公海`)}
+    function claimMemberFromDetail(){if(!memberDetailCurrentItem)return;const phone=memberDetailCurrentItem.phone;const card=seaMemberList.querySelector(`.sea-member-card[data-phone="${phone}"]`);if(!card)return;claimSeaMember(card);closeFollowRecord();activatePool('private')}
+    function openFollowRecord(card){const phone=card?.dataset.phone;const pool=card?.dataset.pool;const records=pool==='public'?publicMembers:allMemberRecords();const item=records.find(record=>record.phone===phone&&(pool==='public'||!pool||record.pool===pool));if(!item)return;renderFollowRecord({...item,_detailPool:pool});overviewScreen.classList.add('leaving');overviewScreen.classList.remove('active');followRecordScreen.classList.add('active');followRecordScreen.querySelector('.scroll').scrollTop=0}
+    const renderFollowRecordBase=renderFollowRecord;
+    renderFollowRecord=function(item){renderFollowRecordBase(item);if(item.showInactive===false)memberDetailLatest.textContent=item.followText||'暂无跟进记录'};
+    function openSecondLevelDetail(card){const item=secondLevelMembers[teamMemberCards.indexOf(card)];if(!item)return;cancelAnimationFrame(teamSheetOpenFrame);clearTimeout(teamSheetCloseTimer);teamSheetMask.classList.remove('open');teamHalfSheet.classList.remove('open');teamSheetMask.hidden=true;teamHalfSheet.hidden=true;teamSheetReturnFocus=null;renderFollowRecord({...item,_detailPool:'private'});overviewScreen.classList.add('leaving');overviewScreen.classList.remove('active');followRecordScreen.classList.add('active');followRecordScreen.querySelector('.scroll').scrollTop=0}
+    function closeFollowRecord(){followRecordScreen.classList.remove('active');overviewScreen.classList.remove('leaving');overviewScreen.classList.add('active')}
+    function openDetail(screen,reset){reset();manageScreen.classList.add('leaving');manageScreen.classList.remove('active');screen.classList.add('active');screen.querySelector('.scroll').scrollTop=0}
+    function closeDetail(screen){manageScreen.classList.remove('leaving');manageScreen.classList.add('active');screen.classList.remove('active')}
+    document.querySelector('#openManage').addEventListener('click',openManage);
+    document.querySelector('#closeManage').addEventListener('click',closeManage);
+    document.querySelector('#openBill').addEventListener('click',openBill);
+    document.querySelector('#closeBill').addEventListener('click',closeBill);
+    document.querySelectorAll('[data-open-transfer-record]').forEach(button=>button.addEventListener('click',openTransferRecord));
+    document.querySelector('#closeTransferRecord').addEventListener('click',closeTransferRecord);
+    document.querySelector('#closeFollowRecord').addEventListener('click',closeFollowRecord);
+    memberDetailTeam.addEventListener('click',openMemberDetailTeam);
+    memberDetailRevisit.addEventListener('click',()=>showToast('添加回访'));
+    memberDetailTransfer.addEventListener('click',openMemberDetailTransfer);
+    memberDetailRelease.addEventListener('click',releaseMemberFromDetail);
+    memberDetailClaim.addEventListener('click',claimMemberFromDetail);
+    memberDetailTabs.forEach(tab=>tab.addEventListener('click',()=>renderMemberDetailTab(tab.dataset.memberDetailTab)));
+    document.querySelectorAll('[data-toast]').forEach(button=>button.addEventListener('click',()=>showToast(button.dataset.toast)));
+    document.querySelectorAll('#overviewScreen [data-tab]').forEach(tab=>tab.addEventListener('click',()=>{
+      document.querySelectorAll('#overviewScreen [data-tab]').forEach(item=>item.classList.toggle('active',item===tab));
+      document.querySelectorAll('#overviewScreen [data-view]').forEach(view=>view.hidden=view.dataset.view!==tab.dataset.tab);
+      document.querySelector('#overviewScroll').scrollTop=0;
+    }));
+    const poolTabs=[...document.querySelectorAll('[data-pool]')];
+    function activatePool(pool){
+      poolTabs.forEach(item=>item.classList.toggle('active',item.dataset.pool===pool));
+      document.querySelectorAll('[data-pool-panel]').forEach(panel=>panel.hidden=panel.dataset.poolPanel!==pool);
+      document.querySelector('#overviewScroll').scrollTop=0;
+    }
+    poolTabs.forEach(tab=>tab.addEventListener('click',()=>{if(batchModePool&&batchModePool!==tab.dataset.pool)cancelBatchMode();activatePool(tab.dataset.pool)}));
+    const members=[
+      {name:'张三',phone:'12000000003',identity:'parent',identityLabel:'家长',deal:'closed',days:3,level:'一星',profit:'¥ 12,112.50',pool:'private',canTransfer:true,flowText:'通过 张三 邀请注册，进入私客池',flowTime:'昨天 10:43'},
+      {name:'李明',phone:'12000000007',identity:'partner',identityLabel:'合伙人',deal:'closed',days:7,level:'一星',profit:'¥ 8,920.00',pool:'private',canTransfer:true,flowText:'通过 张三 邀请注册，进入私客池',flowTime:'08.16 10:43'},
+      {name:'王老师',phone:'12000000005',identity:'teacher',identityLabel:'老师',deal:'open',days:14,level:'一星',profit:'¥ 6,580.00',pool:'private',canTransfer:true,flowText:'通过 张三 邀请注册，进入私客池',flowTime:'08.12 10:43'},
+      {name:'赵敏',phone:'12000000006',identity:'parent',identityLabel:'家长',deal:'open',days:30,level:'一星',profit:'¥ 3,260.50',pool:'private',canTransfer:true,flowText:'由公海池领取，进入私客池',flowTime:'07.22 10:43'},
+      {name:'刘洋',phone:'12000000004',identity:'partner',identityLabel:'合伙人',deal:'open',days:3,level:'一星',profit:'¥ 15,680.00',pool:'private',canTransfer:true,flowText:'通过 张三 邀请注册，进入私客池',flowTime:'08.18 10:43'},
+      {name:'陈老师',phone:'12000000008',identity:'teacher',identityLabel:'老师',deal:'closed',days:7,level:'一星',profit:'¥ 10,240.00',pool:'private',canTransfer:true,flowText:'通过 张三 邀请注册，进入私客池',flowTime:'08.15 10:43'},
+      {name:'孙悦',phone:'12000000009',identity:'parent',identityLabel:'家长',deal:'open',days:7,level:'一星',profit:'¥ 2,860.00',pool:'shared',canTransfer:true,flowText:'由王老师转移给我，进入共享池',flowTime:'08.19 16:28'}
+    ];
+    const cooperationMembers=[
+      {name:'周静',phone:'12000000010',identity:'parent',identityLabel:'家长',deal:'closed',days:3,city:'陕西·西安',level:'一星',profit:'¥ 368.40',pool:'cooperation',canTransfer:true,followText:'已确认课程购买信息',followTime:'今天 13:43',flowText:'我邀约客户，由王老师完成成交',flowTime:'今天 14:32'},
+      {name:'陈浩',phone:'12000000011',identity:'parent',identityLabel:'家长',deal:'closed',days:7,city:'陕西·咸阳',level:'一星',profit:'¥ 286.00',pool:'cooperation',canTransfer:true,followText:'已完成体验课回访',followTime:'昨天 16:42',flowText:'李老师邀约客户，由我完成成交',flowTime:'昨天 18:06'},
+      {name:'孙悦',phone:'12000000009',identity:'parent',identityLabel:'家长',deal:'closed',days:3,city:'陕西·西安',level:'一星',profit:'¥ 216.80',pool:'cooperation',canTransfer:true,followText:'已发送正式课程安排',followTime:'昨天 10:20',flowText:'我邀约客户，由赵老师完成成交',flowTime:'昨天 11:28'},
+      {name:'赵敏',phone:'12000000006',identity:'parent',identityLabel:'家长',deal:'closed',days:14,city:'陕西·渭南',level:'一星',profit:'¥ 198.00',pool:'cooperation',canTransfer:true,followText:'家长已确认开课时间',followTime:'08.20 15:18',flowText:'陈老师邀约客户，由我完成成交',flowTime:'08.20 16:52'},
+      {name:'李明',phone:'12000000007',identity:'partner',identityLabel:'合伙人',deal:'closed',days:7,city:'陕西·西安',level:'一星',profit:'¥ 328.60',pool:'cooperation',canTransfer:true,followText:'已同步成交后的服务安排',followTime:'08.19 14:06',flowText:'我邀约客户，由吴老师完成成交',flowTime:'08.19 15:18'},
+      {name:'王芳',phone:'12000000012',identity:'parent',identityLabel:'家长',deal:'closed',days:14,city:'陕西·宝鸡',level:'一星',profit:'¥ 176.40',pool:'cooperation',canTransfer:true,followText:'已电话确认课程需求',followTime:'08.18 09:28',flowText:'周老师邀约客户，由我完成成交',flowTime:'08.18 10:36'},
+      {name:'刘欣',phone:'12000000013',identity:'parent',identityLabel:'家长',deal:'closed',days:7,city:'陕西·西安',level:'一星',profit:'¥ 258.00',pool:'cooperation',canTransfer:true,followText:'已补充学员基础信息',followTime:'08.17 18:32',flowText:'我邀约客户，由方老师完成成交',flowTime:'08.17 19:42'},
+      {name:'何老师',phone:'12000000014',identity:'teacher',identityLabel:'老师',deal:'closed',days:14,city:'陕西·汉中',level:'一星',profit:'¥ 420.00',pool:'cooperation',canTransfer:true,followText:'教师服务关系已确认',followTime:'08.16 13:16',flowText:'郑老师邀约客户，由我完成成交',flowTime:'08.16 14:25'},
+      {name:'方敏',phone:'12000000015',identity:'parent',identityLabel:'家长',deal:'closed',days:14,city:'陕西·西安',level:'一星',profit:'¥ 168.80',pool:'cooperation',canTransfer:true,followText:'已发送课程使用说明',followTime:'08.15 16:30',flowText:'我邀约客户，由唐老师完成成交',flowTime:'08.15 17:48'},
+      {name:'吴桐',phone:'12000000016',identity:'parent',identityLabel:'家长',deal:'closed',days:30,city:'陕西·延安',level:'一星',profit:'¥ 236.00',pool:'cooperation',canTransfer:true,followText:'已完成成交后首次回访',followTime:'08.14 08:42',flowText:'孙老师邀约客户，由我完成成交',flowTime:'08.14 09:52'},
+      {name:'郑凯',phone:'12000000017',identity:'partner',identityLabel:'合伙人',deal:'closed',days:30,city:'陕西·西安',level:'一星',profit:'¥ 398.00',pool:'cooperation',canTransfer:true,followText:'已确认后续服务负责人',followTime:'08.12 15:10',flowText:'我邀约客户，由何老师完成成交',flowTime:'08.12 16:20'},
+      {name:'唐悦',phone:'12000000018',identity:'parent',identityLabel:'家长',deal:'closed',days:30,city:'陕西·安康',level:'一星',profit:'¥ 188.60',pool:'cooperation',canTransfer:true,followText:'已完成购课信息核对',followTime:'08.10 10:36',flowText:'刘老师邀约客户，由我完成成交',flowTime:'08.10 11:46'}
+    ];
+    const publicMembers=[
+      {name:'林小满',phone:'12000000002',identity:'parent',identityLabel:'家长',deal:'open',days:3,level:'一星',profit:'¥ 0.00',city:'陕西·西安',seaSource:'natural',seaEnteredAt:'2026-08-22T09:26:00',followText:'暂无跟进记录',followTime:'—',flowText:'自然流量注册，进入公海',flowTime:'今天 09:26'},
+      {name:'陈雨',phone:'12000000019',identity:'parent',identityLabel:'家长',deal:'open',days:7,level:'一星',profit:'¥ 0.00',city:'陕西·咸阳',seaSource:'released',seaEnteredAt:'2026-08-21T17:08:00',followText:'咨询过英语体验课',followTime:'昨天 16:42',flowText:'由王老师释放，进入公海',flowTime:'昨天 17:08'},
+      {name:'周老师',phone:'12000000020',identity:'teacher',identityLabel:'老师',deal:'open',days:3,level:'一星',profit:'¥ 0.00',city:'陕西·西安',seaSource:'natural',seaEnteredAt:'2026-08-21T11:16:00',followText:'暂无跟进记录',followTime:'—',flowText:'自然流量注册，进入公海',flowTime:'昨天 11:16'},
+      {name:'李欣',phone:'12000000021',identity:'parent',identityLabel:'家长',deal:'open',days:14,level:'一星',profit:'¥ 0.00',city:'陕西·渭南',seaSource:'released',seaEnteredAt:'2026-08-20T10:35:00',followText:'已发送课程资料',followTime:'08.18 14:30',flowText:'由李老师释放，进入公海',flowTime:'08.20 10:35'},
+      {name:'赵凯',phone:'12000000022',identity:'partner',identityLabel:'合伙人',deal:'open',days:7,level:'一星',profit:'¥ 0.00',city:'陕西·西安',seaSource:'natural',seaEnteredAt:'2026-08-19T15:22:00',followText:'暂无跟进记录',followTime:'—',flowText:'自然流量注册，进入公海',flowTime:'08.19 15:22'},
+      {name:'孙萌',phone:'12000000023',identity:'parent',identityLabel:'家长',deal:'open',days:30,level:'一星',profit:'¥ 0.00',city:'陕西·宝鸡',seaSource:'released',seaEnteredAt:'2026-08-18T16:50:00',followText:'暂未确定体验课时间',followTime:'08.12 09:18',flowText:'由赵老师释放，进入公海',flowTime:'08.18 16:50'},
+      {name:'吴桐',phone:'12000000024',identity:'parent',identityLabel:'家长',deal:'open',days:14,level:'一星',profit:'¥ 0.00',city:'陕西·汉中',seaSource:'natural',seaEnteredAt:'2026-08-16T13:06:00',followText:'暂无跟进记录',followTime:'—',flowText:'自然流量注册，进入公海',flowTime:'08.16 13:06'},
+      {name:'郑老师',phone:'12000000025',identity:'teacher',identityLabel:'老师',deal:'open',days:30,level:'一星',profit:'¥ 0.00',city:'陕西·安康',seaSource:'released',seaEnteredAt:'2026-08-15T17:42:00',followText:'教师入驻资料未补全',followTime:'08.08 11:24',flowText:'由陈老师释放，进入公海',flowTime:'08.15 17:42'}
+    ];
+    const secondLevelMembers=[
+      {name:'冯雪',phone:'12000000003',identity:'parent',identityLabel:'家长',deal:'closed',days:0,level:'二星',profit:'¥ 825.62',city:'陕西·西安',pool:'private',canTransfer:true,showInactive:false,followText:'已电话沟通，家长有意向上课',followTime:'今天 13:43',flowText:'通过 张三 邀请注册，进入私客池',flowTime:'今天 10:43'},
+      {name:'潘莉',phone:'12000000004',identity:'partner',identityLabel:'合伙人',deal:'open',days:0,level:'二星',profit:'¥ 617.96',city:'陕西·西安',pool:'private',canTransfer:true,showInactive:false,followText:'已发送课程资料，等待进一步回复',followTime:'今天 12:20',flowText:'由共享池转入张三私客池',flowTime:'今天 10:43'},
+      {name:'许老师',phone:'12000000005',identity:'teacher',identityLabel:'老师',deal:'closed',days:0,level:'二星',profit:'¥ 300.70',city:'陕西·咸阳',pool:'private',canTransfer:true,showInactive:false,followText:'已完成教师入驻资料确认',followTime:'08.20 11:05',flowText:'通过 张三 邀请注册，进入私客池',flowTime:'08.18 09:32'},
+      {name:'周静',phone:'12000000006',identity:'parent',identityLabel:'家长',deal:'open',days:0,level:'二星',profit:'¥ 61.54',city:'陕西·渭南',pool:'private',canTransfer:true,showInactive:false,followText:'家长暂未确定体验课时间',followTime:'08.08 16:18',flowText:'由公海池领取，进入张三私客池',flowTime:'08.03 14:06'}
+    ];
+    const teamMemberCards=[...document.querySelectorAll('.team-member-card')];
+    teamMemberCards.forEach((card,index)=>{const item=secondLevelMembers[index];if(!item)return;const displayName=maskUserName(item.name);card.tabIndex=0;card.setAttribute('role','link');card.setAttribute('aria-label',`查看${displayName}的成员详情`);const entry=document.createElement('button');entry.className='team-member-detail-entry';entry.type='button';entry.dataset.secondFollowRecord='';entry.textContent='跟进记录';entry.setAttribute('aria-label',`查看${displayName}的跟进记录`);card.append(entry)});
+    const transferRecords=[
+      {date:'2026-08-22 10:26:18',memberName:'刘洋',memberPhone:'12000000004',receiverName:'李*',receiverPhone:'12000000026'},
+      {date:'2026-08-20 16:42:09',memberName:'张三',memberPhone:'12000000003',receiverName:'王*',receiverPhone:'12000000027'},
+      {date:'2026-08-16 09:18:32',memberName:'孙悦',memberPhone:'12000000009',receiverName:'陈*',receiverPhone:'12000000028'},
+      {date:'2026-08-08 14:06:51',memberName:'赵敏',memberPhone:'12000000006',receiverName:'周*',receiverPhone:'12000000029'},
+      {date:'2026-07-26 11:35:24',memberName:'王老师',memberPhone:'12000000005',receiverName:'吴*',receiverPhone:'12000000030'}
+    ];
+    function formatTransferDate(date){const pad=value=>String(value).padStart(2,'0');return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`}
+    function renderTransferRecords(){transferRecordList.innerHTML=transferRecords.length?transferRecords.map(item=>`<article class="transfer-record-card"><time class="transfer-record-date" datetime="${item.date.replace(' ','T')}">${item.date}</time><div class="transfer-record-main"><span class="transfer-record-label">跟进用户</span><span class="transfer-record-person">${maskUserName(item.memberName)}<span class="transfer-record-phone">${item.memberPhone}</span></span></div><div class="transfer-record-receiver"><span class="transfer-record-label">接收人</span><span class="transfer-record-person">${maskUserName(item.receiverName)}<span class="transfer-record-phone">${item.receiverPhone}</span></span></div></article>`).join(''):'<div class="empty-result">暂无转移记录</div>'}
+    renderTransferRecords();
+    const identityFilter=document.querySelector('#identityFilter');
+    const dealFilter=document.querySelector('#dealFilter');
+    const followFilter=document.querySelector('#followFilter');
+    const sortFilter=document.querySelector('#sortFilter');
+    const memberList=document.querySelector('#memberList');
+    const cooperationMemberList=document.querySelector('#cooperationMemberList');
+    const sharedMemberList=document.querySelector('#sharedMemberList');
+    const seaMemberList=document.querySelector('#seaMemberList');
+    const memberCount=document.querySelector('#memberCount');
+    function memberCard(item){const displayName=maskUserName(item.name);const dealLabel=item.deal==='closed'?'已成交':'未成交';const selectable=batchModePool===item.pool&&item.canTransfer;const selected=batchSelectedPhones.has(item.phone);const selectButton=selectable?`<button class="batch-select-button" type="button" data-batch-select aria-label="选择${displayName}" aria-pressed="${selected}">${selected?'✓':''}</button>`:'';const transferAction=item.canTransfer?'<button class="card-action transfer-action" type="button" data-transfer-follow-up>转移跟进</button>':'';const city=item.city||'陕西.西安';const followText=item.followText||'已电话沟通，家长有意向上……';const followTime=item.followTime||'今天 13:43';return `<article class="member-card${selectable?' batch-selectable':''}${selected?' batch-selected':''}" data-member="${item.name}" data-phone="${item.phone}" data-pool="${item.pool}" data-days="${item.days}" tabindex="${selectable?'-1':'0'}" role="link" aria-label="查看${displayName}的成员详情">${selectButton}<span class="member-level">${item.level}</span><span class="inactive-days">${item.days}日未跟进</span><div class="member-head"><span class="avatar">${item.name.slice(0,1)}</span><div><div class="member-name">${displayName}<span class="role-tag">${item.identityLabel}</span><span class="deal-tag ${item.deal}">${dealLabel}</span></div><div class="member-meta"><span>${city}</span><a class="phone-link" href="tel:${item.phone}" aria-label="拨打${displayName}的电话 ${item.phone}"><span>${item.phone}</span><svg class="phone-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.8 9 3.2l2 5-1.7 1.4a14 14 0 0 0 5.1 5.1L15.8 13l5 2-.6 2.4c-.3 1.3-1.5 2.2-2.8 2.1A15.8 15.8 0 0 1 4.5 6.6c-.1-1.3.8-2.5 2.1-2.8Z"/></svg></a></div></div><div class="member-profit">累计分润<strong>${item.profit}</strong></div></div><div class="trace"><div class="trace-row"><span>最近跟进</span><span class="trace-copy">${maskUserNamesInText(followText)}</span><span class="trace-time">${followTime}</span></div><div class="trace-row flow-row"><span>最近流转</span><span class="trace-copy">${maskUserNamesInText(item.flowText)}</span><span class="trace-time">${item.flowTime}</span></div></div><button class="team-summary" type="button" data-open-team-sheet aria-label="查看${displayName}的团队人数，团队人数4人，今日新增1人"><span>团队人数 4人　今日新增 1人</span></button><div class="card-actions${item.canTransfer?'':' no-transfer'}">${transferAction}<button class="card-action" type="button" data-toast="添加回访">添加回访</button><button class="card-action" type="button" data-follow-record>跟进记录</button><button class="card-action" type="button" data-toast="释放公海">释放公海</button></div></article>`}
+    function renderMembers(){
+      const identity=identityFilter.dataset.value;
+      const deal=dealFilter.dataset.value;
+      const follow=followFilter.dataset.value;
+      const direction=sortFilter.dataset.value;
+      const visible=members.filter(item=>item.pool==='private'&&(identity==='all'||item.identity===identity)&&(deal==='all'||item.deal===deal)&&(follow==='all'||item.days===Number(follow)));
+      if(direction==='asc')visible.sort((a,b)=>a.days-b.days);
+      if(direction==='desc')visible.sort((a,b)=>b.days-a.days);
+      memberCount.textContent=`${visible.length}人`;
+      memberList.innerHTML=visible.length?visible.map(memberCard).join(''):'<div class="empty-result">暂无符合当前筛选条件的成员<br>请调整筛选项后查看</div>';
+      memberList.querySelectorAll('[data-toast]').forEach(button=>button.addEventListener('click',()=>showToast(button.dataset.toast)));
+    }
+    const poolFilterState={cooperation:{identity:'all',deal:'all',follow:'3',sort:'default'},shared:{identity:'all',deal:'all',follow:'3',sort:'default'}};
+    function getPoolFilteredItems(pool){const state=poolFilterState[pool];const source=pool==='cooperation'?cooperationMembers:allMemberRecords();const visible=source.filter(item=>item.pool===pool&&(state.identity==='all'||item.identity===state.identity)&&(state.deal==='all'||item.deal===state.deal)&&(state.follow==='all'||item.days===Number(state.follow)));if(state.sort==='asc')visible.sort((a,b)=>a.days-b.days);if(state.sort==='desc')visible.sort((a,b)=>b.days-a.days);return visible}
+    function renderCooperationMembers(){const visible=getPoolFilteredItems('cooperation');document.querySelector('#cooperationCount').textContent=`${visible.length}人`;cooperationMemberList.innerHTML=visible.length?visible.map(memberCard).join(''):'<div class="empty-result">合作池暂无符合条件的成员</div>';cooperationMemberList.querySelectorAll('[data-toast]').forEach(button=>button.addEventListener('click',()=>showToast(button.dataset.toast)))}
+    function enhanceFilterSelect(select){
+      const selected=select.options[select.selectedIndex]||select.options[0];
+      const trigger=document.createElement('button');
+      trigger.className=select.className;
+      trigger.type='button';
+      trigger.dataset.value=selected.value;
+      trigger.setAttribute('aria-haspopup','listbox');
+      trigger.setAttribute('aria-expanded','false');
+      if(select.id)trigger.id=select.id;
+      [...select.attributes].forEach(attribute=>{if(attribute.name.startsWith('data-'))trigger.setAttribute(attribute.name,attribute.value)});
+      const label=select.getAttribute('aria-label')||'筛选项';
+      trigger.setAttribute('aria-label',label);
+      const text=document.createElement('span');
+      text.textContent=selected.value==='all'&&select.dataset.defaultText?select.dataset.defaultText:selected.textContent;
+      trigger.append(text);
+      const menu=document.createElement('div');
+      menu.className='filter-menu';
+      menu.role='listbox';
+      menu.setAttribute('aria-label',label);
+      menu.hidden=true;
+      [...select.options].forEach(source=>{
+        const option=document.createElement('button');
+        const active=source.value===selected.value;
+        option.className=`filter-option${active?' active':''}`;
+        option.type='button';
+        option.role='option';
+        option.dataset.optionValue=source.value;
+        option.setAttribute('aria-selected',String(active));
+        option.textContent=source.textContent;
+        menu.append(option);
+      });
+      select.replaceWith(trigger,menu);
+    }
+    document.querySelectorAll('select.filter-select').forEach(enhanceFilterSelect);
+    const seaSearchInput=document.querySelector('#seaSearchInput');
+    const seaSearchClear=document.querySelector('#seaSearchClear');
+    const seaIdentityFilter=document.querySelector('#seaIdentityFilter');
+    const seaCityFilter=document.querySelector('#seaCityFilter');
+    const seaSourceFilter=document.querySelector('#seaSourceFilter');
+    const seaTimeFilter=document.querySelector('#seaTimeFilter');
+    const seaSort=document.querySelector('#seaSort');
+    const seaFilterReset=document.querySelector('#seaFilterReset');
+    const seaReferenceDay=new Date('2026-08-22T00:00:00');
+    let seaSearchComposing=false;
+    function seaMemberCard(item){const displayName=maskUserName(item.name);const dealLabel=item.deal==='closed'?'已成交':'未成交';return `<article class="member-card sea-member-card" data-member="${item.name}" data-phone="${item.phone}" data-pool="public" tabindex="0" role="link" aria-label="查看${displayName}的成员详情"><span class="member-level">${item.level}</span><div class="member-head"><span class="avatar">${item.name.slice(0,1)}</span><div><div class="member-name">${displayName}<span class="role-tag">${item.identityLabel}</span><span class="deal-tag ${item.deal}">${dealLabel}</span></div><div class="member-meta"><span>${item.city}</span><span class="phone-link phone-masked" aria-label="${displayName}的电话已脱敏"><span>${maskPhone(item.phone)}</span></span></div></div><div class="member-profit">累计分润<strong>${item.profit}</strong></div></div><div class="trace"><div class="trace-row"><span>最近跟进</span><span class="trace-copy">${maskUserNamesInText(item.followText)}</span><span class="trace-time">${item.followTime}</span></div><div class="trace-row flow-row"><span>最近流转</span><span class="trace-copy">${maskUserNamesInText(item.flowText)}</span><span class="trace-time">${item.flowTime}</span></div></div><div class="card-actions sea-card-actions"><button class="card-action sea-claim" type="button" data-claim-sea>认领</button><button class="card-action" type="button" data-sea-follow-record>跟进记录</button></div></article>`}
+    function getSeaVisibleMembers(){const query=seaSearchInput.value.trim().toLowerCase();const identity=seaIdentityFilter.dataset.value;const city=seaCityFilter.dataset.value;const source=seaSourceFilter.dataset.value;const time=seaTimeFilter.dataset.value;const visible=publicMembers.filter(item=>{const searchText=`${item.name} ${maskUserName(item.name)} ${item.phone}`.toLowerCase();const enteredDay=new Date(`${item.seaEnteredAt.slice(0,10)}T00:00:00`);const daysAgo=Math.round((seaReferenceDay-enteredDay)/86400000);const timeMatches=time==='all'||(time==='today'&&daysAgo===0)||(time!=='today'&&daysAgo>=0&&daysAgo<Number(time));return (!query||searchText.includes(query))&&(identity==='all'||item.identity===identity)&&(city==='all'||item.city===city)&&(source==='all'||item.seaSource===source)&&timeMatches});visible.sort((a,b)=>seaSort.dataset.value==='oldest'?a.seaEnteredAt.localeCompare(b.seaEnteredAt):b.seaEnteredAt.localeCompare(a.seaEnteredAt));return visible}
+    function updateSeaControlState(){const hasQuery=Boolean(seaSearchInput.value);const hasFilters=hasQuery||seaIdentityFilter.dataset.value!=='all'||seaCityFilter.dataset.value!=='all'||seaSourceFilter.dataset.value!=='all'||seaTimeFilter.dataset.value!=='all'||seaSort.dataset.value!=='newest';seaSearchClear.hidden=!hasQuery;seaFilterReset.hidden=!hasFilters}
+    function renderSeaMembers(){const visible=getSeaVisibleMembers();document.querySelector('#seaMemberCount').textContent=`${visible.length}人`;seaMemberList.innerHTML=visible.length?visible.map(seaMemberCard).join(''):'<div class="empty-result">暂无符合条件的公海客户<br>请清除搜索或调整筛选</div>';updateSeaControlState()}
+    function resetSeaFilters(){seaSearchInput.value='';setFilterValue(filterControlByTrigger.get(seaIdentityFilter),'all',false);setFilterValue(filterControlByTrigger.get(seaCityFilter),'all',false);setFilterValue(filterControlByTrigger.get(seaSourceFilter),'all',false);setFilterValue(filterControlByTrigger.get(seaTimeFilter),'all',false);setFilterValue(filterControlByTrigger.get(seaSort),'newest',false);renderSeaMembers();seaSearchInput.focus()}
+    function claimSeaMember(card){const phone=card?.dataset.phone;const index=publicMembers.findIndex(item=>item.phone===phone);if(index<0)return;const [item]=publicMembers.splice(index,1);members.push({...item,pool:'private',canTransfer:true,claimedFromSea:true,flowText:'由我从公海认领，进入私客池',flowTime:'刚刚'});renderSeaMembers();renderMembers();updatePoolCounts();showToast(`已认领${maskUserName(item.name)}，用户已进入私客池`)}
+    function handleSeaListClick(event){const card=event.target.closest('.sea-member-card');if(!card)return;if(event.target.closest('[data-claim-sea]'))claimSeaMember(card);else if(event.target.closest('[data-sea-follow-record]'))openFollowRecord(card);else if(!event.target.closest('button,a'))openFollowRecord(card)}
+    function allMemberRecords(){return [...members,...cooperationMembers]}
+    function renderSharedMembers(){const visible=getPoolFilteredItems('shared');document.querySelector('#sharedMemberCount').textContent=`${visible.length}人`;sharedMemberList.innerHTML=visible.length?visible.map(memberCard).join(''):'<div class="empty-result">共享池暂无符合条件的成员</div>';sharedMemberList.querySelectorAll('[data-toast]').forEach(button=>button.addEventListener('click',()=>showToast(button.dataset.toast)))}
+    function updatePoolCounts(){const movedFromPrivate=members.filter(item=>item.movedFromPrivateThisSession).length;const movedToShared=allMemberRecords().filter(item=>item.movedToSharedThisSession).length;const claimed=members.filter(item=>item.claimedFromSea).length;document.querySelector('#privatePoolCount').textContent=218-movedFromPrivate+claimed;document.querySelector('#sharedPoolCount').textContent=89+movedToShared}
+    function updateBatchToolbar(){document.querySelectorAll('[data-batch-toolbar]').forEach(toolbar=>{const active=toolbar.dataset.batchToolbar===batchModePool;toolbar.hidden=!active;if(active){toolbar.querySelector('strong').textContent=batchSelectedPhones.size;toolbar.querySelector('[data-open-batch-transfer]').disabled=!batchSelectedPhones.size}});document.querySelectorAll('[data-start-batch]').forEach(button=>button.hidden=button.dataset.startBatch===batchModePool)}
+    function renderBatchPool(){renderMembers();renderCooperationMembers();renderSharedMembers();updateBatchToolbar()}
+    function startBatchMode(pool){batchModePool=pool;batchSelectedPhones.clear();renderBatchPool()}
+    function cancelBatchMode(){batchModePool='';batchSelectedPhones.clear();renderBatchPool()}
+    function toggleBatchMember(card){const phone=card?.dataset.phone;if(!phone)return;if(batchSelectedPhones.has(phone))batchSelectedPhones.delete(phone);else batchSelectedPhones.add(phone);renderBatchPool()}
+    function handleMemberListClick(event){const selectTrigger=event.target.closest('[data-batch-select]');if(selectTrigger){toggleBatchMember(selectTrigger.closest('.member-card'));return}if(batchModePool)return;const card=event.target.closest('.member-card');if(!card)return;const followRecordTrigger=event.target.closest('[data-follow-record]');if(followRecordTrigger){openFollowRecord(card);return}const teamTrigger=event.target.closest('[data-open-team-sheet]');if(teamTrigger){openTeamSheet(teamTrigger);return}const transferTrigger=event.target.closest('[data-transfer-follow-up]');if(transferTrigger){openFollowTransfer(transferTrigger);return}if(event.target.closest('button,a'))return;openFollowRecord(card)}
+    memberList.addEventListener('click',handleMemberListClick);
+    cooperationMemberList.addEventListener('click',handleMemberListClick);
+    sharedMemberList.addEventListener('click',handleMemberListClick);
+    seaMemberList.addEventListener('click',handleSeaListClick);
+    seaSearchInput.addEventListener('compositionstart',()=>{seaSearchComposing=true});
+    seaSearchInput.addEventListener('compositionend',()=>{seaSearchComposing=false;renderSeaMembers()});
+    seaSearchInput.addEventListener('input',()=>{if(!seaSearchComposing)renderSeaMembers()});
+    seaSearchClear.addEventListener('click',()=>{seaSearchInput.value='';renderSeaMembers();seaSearchInput.focus()});
+    seaFilterReset.addEventListener('click',resetSeaFilters);
+    [memberList,cooperationMemberList,sharedMemberList,seaMemberList].forEach(list=>list.addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.matches('.member-card')){event.preventDefault();openFollowRecord(event.target)}}));
+    document.querySelectorAll('[data-start-batch]').forEach(button=>button.addEventListener('click',()=>startBatchMode(button.dataset.startBatch)));
+    document.querySelectorAll('[data-cancel-batch]').forEach(button=>button.addEventListener('click',cancelBatchMode));
+    document.querySelectorAll('[data-open-batch-transfer]').forEach(button=>button.addEventListener('click',()=>openBatchFollowTransfer(button)));
+    teamSheetMask.addEventListener('click',closeTeamSheet);
+    teamSheetClose.addEventListener('click',closeTeamSheet);
+    document.querySelector('.team-member-list').addEventListener('click',event=>{const card=event.target.closest('.team-member-card');if(card)openSecondLevelDetail(card)});
+    document.querySelector('.team-member-list').addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.matches('.team-member-card')){event.preventDefault();openSecondLevelDetail(event.target)}});
+    document.querySelectorAll('[data-team-date-filter]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.teamDateFilter;if(value==='custom'){const today=localDateValue(new Date());setTeamDateActive('custom');teamDateCustom.hidden=false;teamDateStart.value=teamDateStart.value||today;teamDateEnd.value=teamDateEnd.value||today;teamDateMessage.hidden=true;teamDateMessage.textContent='';filterTeamMembers(teamDateStart.value,teamDateEnd.value);teamDateStart.focus()}else applyTeamDatePreset(value)}));
+    document.querySelector('#applyTeamDate').addEventListener('click',()=>{if(!teamDateStart.value||!teamDateEnd.value){teamDateMessage.textContent='请选择完整的注册日期范围';teamDateMessage.hidden=false;(!teamDateStart.value?teamDateStart:teamDateEnd).focus();return}if(teamDateStart.value>teamDateEnd.value){teamDateMessage.textContent='开始日期不能晚于结束日期';teamDateMessage.hidden=false;teamDateStart.focus();return}teamDateMessage.hidden=true;teamDateMessage.textContent='';filterTeamMembers(teamDateStart.value,teamDateEnd.value)});
+    followTransferMask.addEventListener('click',closeFollowTransfer);
+    followTransferClose.addEventListener('click',closeFollowTransfer);
+    document.querySelector('#cancelFollowTransfer').addEventListener('click',closeFollowTransfer);
+    document.querySelector('#queryFollowTransfer').addEventListener('click',queryFollowTransferUser);
+    followTransferPhone.addEventListener('input',()=>{followTransferPhone.value=followTransferPhone.value.replace(/\D/g,'').slice(0,11);followTransferPhone.removeAttribute('aria-invalid');followTransferMessage.textContent='';followTransferResult.hidden=true;confirmFollowTransfer.disabled=true});
+    followTransferPhone.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();queryFollowTransferUser()}});
+    followTransferForm.addEventListener('submit',event=>{event.preventDefault();if(confirmFollowTransfer.disabled)return;const receiver=followTransferResultPhone.textContent;const transferMode=followTransferMode;const transferFromDetail=followTransferFromDetail;const targets=transferMode==='batch'?allMemberRecords().filter(item=>batchSelectedPhones.has(item.phone)&&item.canTransfer):allMemberRecords().filter(item=>item.phone===followTransferCurrentPhone&&(!followTransferCurrentPool||item.pool===followTransferCurrentPool));const targetCount=targets.length;const singleName=maskUserName(targets[0]?.name||followTransferCurrentMember);closeFollowTransfer();setTimeout(()=>{targets.forEach(item=>{const wasPrivate=item.pool==='private';item.pool='shared';item.canTransfer=false;item.movedToSharedThisSession=true;if(wasPrivate)item.movedFromPrivateThisSession=true;item.flowText=`由我转移给李*（${receiver}），进入共享池`;item.flowTime='刚刚';transferRecords.unshift({date:formatTransferDate(new Date()),memberName:item.name,memberPhone:item.phone,receiverName:'李*',receiverPhone:receiver})});batchModePool='';batchSelectedPhones.clear();renderMembers();renderCooperationMembers();renderSharedMembers();renderTransferRecords();updatePoolCounts();updateBatchToolbar();if(transferFromDetail)closeFollowRecord();activatePool('shared');showToast(transferMode==='batch'?`已将${targetCount}名用户批量转移给李*（${receiver}）`:`已将${singleName}转移给李*（${receiver}），用户已进入共享池`)},240)});
+    document.addEventListener('keydown',event=>{if(event.key!=='Escape')return;if(!followTransferDialog.hidden)closeFollowTransfer();else if(!teamHalfSheet.hidden)closeTeamSheet()});
+    const filterControls=[...document.querySelectorAll('.filter-field')].map(field=>({field,trigger:field.querySelector('.filter-select'),menu:field.querySelector('.filter-menu'),text:field.querySelector('.filter-select span')})).filter(control=>control.trigger&&control.menu&&control.text);
+    const filterControlByTrigger=new Map(filterControls.map(control=>[control.trigger,control]));
+    function closeFilterMenu(control,restoreFocus=false){control.menu.hidden=true;control.field.classList.remove('open');control.trigger.setAttribute('aria-expanded','false');if(restoreFocus)control.trigger.focus()}
+    function closeAllFilterMenus(except){filterControls.forEach(control=>{if(control!==except)closeFilterMenu(control)})}
+    function renderFilterResult(control){const poolGroup=control.field.closest('[data-pool-filters]');if(poolGroup){const pool=poolGroup.dataset.poolFilters;poolFilterState[pool][control.trigger.dataset.poolFilter]=control.trigger.dataset.value;pool==='cooperation'?renderCooperationMembers():renderSharedMembers()}else if(control.trigger.id.startsWith('sea'))renderSeaMembers();else renderMembers()}
+    function setFilterValue(control,value,shouldRender=true){const option=control.menu.querySelector(`[data-option-value="${value}"]`);if(!option)return;control.trigger.dataset.value=value;control.text.textContent=value==='all'&&control.trigger.dataset.defaultText?control.trigger.dataset.defaultText:option.textContent;control.menu.querySelectorAll('[data-option-value]').forEach(item=>{const selected=item===option;item.classList.toggle('active',selected);item.setAttribute('aria-selected',String(selected))});closeFilterMenu(control);if(shouldRender)renderFilterResult(control)}
+    function moveFilterFocus(control,direction){const options=[...control.menu.querySelectorAll('[data-option-value]')];const current=options.indexOf(document.activeElement);const next=current<0?(direction>0?0:options.length-1):(current+direction+options.length)%options.length;options[next].focus()}
+    filterControls.forEach(control=>{
+      control.trigger.addEventListener('click',()=>{const opening=control.menu.hidden;closeAllFilterMenus(control);closeCommissionFilterMenu();control.menu.hidden=!opening;control.field.classList.toggle('open',opening);control.trigger.setAttribute('aria-expanded',String(opening));if(opening)control.menu.querySelector('.active').focus()});
+      control.menu.querySelectorAll('[data-option-value]').forEach(option=>option.addEventListener('click',()=>setFilterValue(control,option.dataset.optionValue)));
+      control.field.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeFilterMenu(control,true)}else if(event.key==='ArrowDown'){event.preventDefault();if(control.menu.hidden)control.trigger.click();else moveFilterFocus(control,1)}else if(event.key==='ArrowUp'){event.preventDefault();if(control.menu.hidden)control.trigger.click();else moveFilterFocus(control,-1)}else if(event.key==='Home'&&!control.menu.hidden){event.preventDefault();control.menu.querySelector('[data-option-value]').focus()}else if(event.key==='End'&&!control.menu.hidden){event.preventDefault();[...control.menu.querySelectorAll('[data-option-value]')].at(-1).focus()}else if((event.key==='Enter'||event.key===' ')&&!control.menu.hidden&&document.activeElement.matches('[data-option-value]')){event.preventDefault();setFilterValue(control,document.activeElement.dataset.optionValue);control.trigger.focus()}});
+    });
+    document.addEventListener('click',event=>{const active=filterControls.find(control=>control.field.contains(event.target));closeAllFilterMenus(active)});
+    renderMembers();
+    renderCooperationMembers();
+    renderSeaMembers();
+    renderSharedMembers();
+    updatePoolCounts();
+    const records=[
+      {type:'renew',title:'续费俱乐部',name:'',date:'2026-08-08 12:34:56',change:'+20',operator:'操作人：系统'},
+      {type:'partner',title:'开通名额-合伙人',name:'张三　12000000007',date:'2026-08-08 12:34:56',change:'- 1',operator:'操作人：李四'},
+      {type:'member',title:'开通名额-会员',name:'张三　12000000007',date:'2026-08-08 12:34:56',change:'- 1',operator:'操作人：李四'},
+      {type:'member',title:'开通名额-会员',name:'张三　12000000007',date:'2026-08-08 12:34:56',change:'- 1',operator:'操作人：李四'}
+    ];
+    function renderRecords(type='all'){
+      const visible=type==='all'?records:records.filter(item=>item.type===type);
+      document.querySelector('#recordList').innerHTML=visible.map(item=>`<article class="record"><div><div class="record-title">${item.title}</div>${item.name?`<div class="record-name">${maskUserNamesInText(item.name)}</div>`:''}<div class="record-date">${item.date}</div></div><div class="record-side"><span class="record-change">${item.change}</span><span class="record-operator">${maskUserNamesInText(item.operator)}</span></div></article>`).join('');
+    }
+    renderRecords();
+    document.querySelectorAll('[data-record-filter]').forEach(button=>button.addEventListener('click',()=>{
+      document.querySelectorAll('[data-record-filter]').forEach(item=>item.classList.toggle('active',item===button));
+      renderRecords(button.dataset.recordFilter);
+    }));
+    const commissionRecords=[
+      {type:'member',title:'购买卓越会员',detail:'07.28 09:24 · 来自林*',amount:'120',status:'settled',statusLabel:'已结算',icon:'member'},
+      {type:'trial',title:'购买体验课',detail:'07.28 08:56 · 来自陈* · 购买英语自然拼读体验课',amount:'18',status:'settled',statusLabel:'已结算',icon:'trial'},
+      {type:'teacher',title:'教师入驻',detail:'07.28 08:33 · 来自黄*',amount:'30',status:'pending',statusLabel:'待结算',icon:'teacher'},
+      {type:'consult',title:'预约咨询',detail:'07.27 20:18 · 来自刘* · 升学咨询',amount:'3',status:'settled',statusLabel:'已结算',icon:'consult'},
+      {type:'follow',title:'关注公众号',detail:'07.27 16:42 · 来自王*',amount:'2',status:'settled',statusLabel:'已结算',icon:'follow'},
+      {type:'art',title:'购买艺术课',detail:'07.27 14:06 · 来自赵* · 购买创意美术启蒙课',amount:'68',status:'pending',statusLabel:'待结算',icon:'art'},
+      {type:'psychology',title:'购买心理课',detail:'07.27 10:31 · 来自孙* · 购买儿童情绪管理课',amount:'88',status:'pending',statusLabel:'待结算',icon:'psychology'},
+      {type:'member',title:'购买成长会员',detail:'07.26 19:45 · 来自周*',amount:'60',status:'settled',statusLabel:'已结算',icon:'growth'},
+      {type:'trial',title:'购买体验课',detail:'07.26 15:12 · 来自吴* · 购买数学思维体验课',amount:'18',status:'settled',statusLabel:'已结算',icon:'trial'},
+      {type:'art',title:'购买艺术课',detail:'07.25 18:26 · 来自方* · 购买少儿声乐体验课',amount:'76',status:'settled',statusLabel:'已结算',icon:'art'},
+      {type:'service',title:'购买升学服务',detail:'07.25 15:10 · 来自郑* · 中考升学规划服务',amount:'198',status:'pending',statusLabel:'待结算',icon:'consult'},
+      {type:'teacher',title:'教师入驻',detail:'07.24 11:38 · 来自何*',amount:'30',status:'settled',statusLabel:'已结算',icon:'teacher'},
+      {type:'consult',title:'预约咨询',detail:'07.23 17:22 · 来自唐* · 选科咨询',amount:'3',status:'settled',statusLabel:'已结算',icon:'consult'},
+      {type:'psychology',title:'购买心理课',detail:'07.22 09:16 · 来自宋* · 购买亲子沟通课',amount:'88',status:'settled',statusLabel:'已结算',icon:'psychology'}
+    ];
+    const withdrawRecords=[
+      {method:'提现至银行卡',date:'5月11日 18:11',amount:'906.71',status:'已到账',tone:'done'},
+      {method:'提现至微信零钱',date:'7月24日 17:44',amount:'1018.54',status:'审核中',tone:'reviewing'},
+      {method:'提现至银行卡',date:'6月13日 19:15',amount:'1085.22',status:'已到账',tone:'done'},
+      {method:'提现至银行卡',date:'4月4日 17:08',amount:'231.77',status:'已到账',tone:'done'},
+      {method:'提现至银行卡',date:'4月13日 22:58',amount:'583.18',status:'已到账',tone:'done'}
+    ];
+    const commissionList=document.querySelector('#commissionList');
+    const commissionSummary=document.querySelector('#commissionSummary');
+    const withdrawRecordList=document.querySelector('#withdrawRecordList');
+    const withdrawAmount=document.querySelector('#withdrawAmount');
+    const withdrawMessage=document.querySelector('#withdrawMessage');
+    let payoutMethod='bank';
+    function renderCommissions(filter='all'){
+      const visible=filter==='all'?commissionRecords:commissionRecords.filter(item=>item.type===filter);
+      commissionSummary.textContent=`${visible.length} 笔记录`;
+      commissionList.innerHTML=visible.length?visible.map(item=>`<article class="bill-record-item commission-record-item"><img class="commission-record-icon" src="assets/commission-icons/${item.icon}.png" alt=""><div><div class="bill-record-title">${item.title}</div><div class="bill-record-time commission-record-detail">${maskUserNamesInText(item.detail)}</div></div><div class="bill-record-side"><strong class="bill-record-money">+¥${item.amount}</strong><span class="bill-record-status ${item.status}">${item.statusLabel}</span></div></article>`).join(''):'<div class="empty-result">暂无该业务类型的分佣明细</div>';
+    }
+    function renderWithdrawRecords(){withdrawRecordList.innerHTML=withdrawRecords.map(item=>`<article class="bill-record-item"><div><div class="bill-record-title">${item.method}</div><div class="bill-record-time">${item.date}</div></div><div class="bill-record-side"><strong class="bill-record-money">¥${item.amount}</strong><span class="bill-record-status ${item.tone}">${item.status}</span></div></article>`).join('')}
+    function setBillTab(value){document.querySelectorAll('[data-bill-tab]').forEach(tab=>{const active=tab.dataset.billTab===value;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active))});document.querySelector('#commissionPanel').hidden=value!=='commission';document.querySelector('#withdrawPanel').hidden=value!=='withdraw';commissionFilterWrap.hidden=value!=='commission'}
+    function clearWithdrawError(){withdrawAmount.removeAttribute('aria-invalid');withdrawMessage.hidden=true;withdrawMessage.textContent=''}
+    const commissionFilterWrap=document.querySelector('#commissionFilterWrap');
+    const commissionMoreFilter=document.querySelector('#commissionMoreFilter');
+    const commissionMoreFilterText=document.querySelector('#commissionMoreFilterText');
+    const commissionFilterMenu=document.querySelector('#commissionFilterMenu');
+    const compactCommissionTypes=new Set(['all','member','trial','consult']);
+    function closeCommissionFilterMenu(){commissionFilterMenu.hidden=true;commissionMoreFilter.setAttribute('aria-expanded','false')}
+    function setCommissionFilter(type){const selectedButton=document.querySelector(`[data-commission-filter="${type}"]`);document.querySelectorAll('[data-commission-filter]').forEach(button=>{const active=button===selectedButton;button.classList.toggle('active',active);if(button.getAttribute('role')==='option')button.setAttribute('aria-selected',String(active))});const isMoreType=!compactCommissionTypes.has(type);commissionMoreFilter.classList.toggle('active',isMoreType);commissionMoreFilterText.textContent=isMoreType?selectedButton.textContent:'全部分类';closeCommissionFilterMenu();renderCommissions(type)}
+    function resetBill(){withdrawAmount.value='3678.92';clearWithdrawError();payoutMethod='bank';document.querySelectorAll('[data-payout]').forEach(button=>button.classList.toggle('active',button.dataset.payout==='bank'));setCommissionFilter('all');setBillTab('commission');billScreen.querySelector('.scroll').scrollTop=0}
+    renderCommissions();
+    renderWithdrawRecords();
+    document.querySelectorAll('[data-bill-tab]').forEach(tab=>tab.addEventListener('click',()=>setBillTab(tab.dataset.billTab)));
+    commissionMoreFilter.addEventListener('click',()=>{const open=commissionFilterMenu.hidden;closeAllFilterMenus();commissionFilterMenu.hidden=!open;commissionMoreFilter.setAttribute('aria-expanded',String(open));if(open)(commissionFilterMenu.querySelector('.active')||commissionFilterMenu.querySelector('[role="option"]')).focus()});
+    document.querySelectorAll('[data-commission-filter]').forEach(button=>button.addEventListener('click',()=>setCommissionFilter(button.dataset.commissionFilter)));
+    document.addEventListener('click',event=>{if(!commissionFilterWrap.contains(event.target))closeCommissionFilterMenu()});
+    commissionFilterWrap.addEventListener('keydown',event=>{const options=[...commissionFilterMenu.querySelectorAll('[role="option"]')];const current=options.indexOf(document.activeElement);if(event.key==='Escape'){event.preventDefault();closeCommissionFilterMenu();commissionMoreFilter.focus()}else if((event.key==='ArrowDown'||event.key==='ArrowUp')&&!commissionFilterMenu.hidden){event.preventDefault();const step=event.key==='ArrowDown'?1:-1;const start=current<0?(step>0?-1:0):current;options[(start+step+options.length)%options.length].focus()}else if(event.key==='Home'&&!commissionFilterMenu.hidden){event.preventDefault();options[0].focus()}else if(event.key==='End'&&!commissionFilterMenu.hidden){event.preventDefault();options.at(-1).focus()}else if((event.key==='Enter'||event.key===' ')&&!commissionFilterMenu.hidden&&document.activeElement.matches('.commission-filter-option')){event.preventDefault();setCommissionFilter(document.activeElement.dataset.commissionFilter);commissionMoreFilter.focus()}});
+    document.querySelectorAll('[data-payout]').forEach(button=>button.addEventListener('click',()=>{payoutMethod=button.dataset.payout;document.querySelectorAll('[data-payout]').forEach(item=>item.classList.toggle('active',item===button))}));
+    document.querySelector('#withdrawAll').addEventListener('click',()=>{withdrawAmount.value='3678.92';clearWithdrawError();withdrawAmount.focus()});
+    withdrawAmount.addEventListener('input',()=>{const cleaned=withdrawAmount.value.replace(/[^\d.]/g,'');const parts=cleaned.split('.');withdrawAmount.value=parts.length>1?`${parts.shift()}.${parts.join('').slice(0,2)}`:parts[0];clearWithdrawError()});
+    document.querySelector('#withdrawForm').addEventListener('submit',event=>{event.preventDefault();const value=Number(withdrawAmount.value);let message='';if(!withdrawAmount.value||!Number.isFinite(value))message='请输入提现金额';else if(value<10)message='单笔提现金额不能低于10元';else if(value>3678.92)message='提现金额不能超过可提现佣金';if(message){withdrawAmount.setAttribute('aria-invalid','true');withdrawMessage.textContent=message;withdrawMessage.hidden=false;withdrawAmount.focus();return}showToast(`已提交¥${value.toFixed(2)}至${payoutMethod==='bank'?'银行卡':'微信零钱'}`)});
+    function setupPhoneFlow({screen,phoneId,messageId,resultId,resultPhoneId,queryId,formId,submitMessage,extraReset,extraValidate}){
+      const phone=document.querySelector(`#${phoneId}`);
+      const message=document.querySelector(`#${messageId}`);
+      const result=document.querySelector(`#${resultId}`);
+      const resultPhone=document.querySelector(`#${resultPhoneId}`);
+      const clearQuery=()=>{result.hidden=true;phone.removeAttribute('aria-invalid');message.hidden=true;message.textContent=''};
+      const reset=()=>{phone.value='';clearQuery();if(extraReset)extraReset()};
+      const query=()=>{const valid=/^1\d{10}$/.test(phone.value);if(!valid){clearQuery();phone.setAttribute('aria-invalid','true');message.textContent='请输入正确的11位手机号码';message.hidden=false;phone.focus();return false}resultPhone.textContent=phone.value;result.hidden=false;phone.removeAttribute('aria-invalid');message.hidden=true;return true};
+      phone.addEventListener('input',()=>{phone.value=phone.value.replace(/\D/g,'').slice(0,11);clearQuery()});
+      phone.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();query()}});
+      document.querySelector(`#${queryId}`).addEventListener('click',query);
+      document.querySelector(`#${formId}`).addEventListener('submit',event=>{event.preventDefault();if(result.hidden){message.textContent='请先查询并确认手机号';message.hidden=false;phone.setAttribute('aria-invalid','true');phone.focus();return}if(extraValidate&&!extraValidate())return;showToast(submitMessage(phone.value))});
+      return {screen,reset};
+    }
+    const transferCount=document.querySelector('#transferCount');
+    const transferCountMessage=document.querySelector('#transferCountMessage');
+    function clearTransferCountError(){transferCount.removeAttribute('aria-invalid');transferCountMessage.hidden=true;transferCountMessage.textContent=''}
+    function resetTransferCount(){transferCount.value='';clearTransferCountError()}
+    function validateTransferCount(){
+      const value=Number(transferCount.value);
+      let message='';
+      if(transferCount.value==='')message='请输入转让数量';
+      else if(!Number.isInteger(value)||value<1)message='转让数量至少为1个';
+      else if(value>10)message='当前最多可转让10个名额';
+      if(!message){clearTransferCountError();return true}
+      transferCount.setAttribute('aria-invalid','true');transferCountMessage.textContent=message;transferCountMessage.hidden=false;transferCount.focus();return false;
+    }
+    transferCount.addEventListener('input',()=>{transferCount.value=transferCount.value.replace(/\D/g,'').slice(0,2);clearTransferCountError()});
+    const partnerFlow=setupPhoneFlow({screen:partnerScreen,phoneId:'partnerPhone',messageId:'partnerPhoneMessage',resultId:'partnerQueryResult',resultPhoneId:'partnerResultPhone',queryId:'queryPartner',formId:'partnerForm',submitMessage:phone=>`已为 ${phone} 开通合伙人`});
+    const memberFlow=setupPhoneFlow({screen:memberScreen,phoneId:'memberPhone',messageId:'memberPhoneMessage',resultId:'memberQueryResult',resultPhoneId:'memberResultPhone',queryId:'queryMember',formId:'memberForm',submitMessage:phone=>`已为 ${phone} 开通会员`});
+    const transferFlow=setupPhoneFlow({screen:transferScreen,phoneId:'transferPhone',messageId:'transferPhoneMessage',resultId:'transferQueryResult',resultPhoneId:'transferResultPhone',queryId:'queryTransfer',formId:'transferForm',extraReset:resetTransferCount,extraValidate:validateTransferCount,submitMessage:phone=>`已向 ${phone} 转让 ${transferCount.value} 个名额`});
+    [["openPartner","closePartner",partnerFlow],["openMember","closeMember",memberFlow],["openTransfer","closeTransfer",transferFlow]].forEach(([openId,closeId,flow])=>{document.querySelector(`#${openId}`).addEventListener('click',()=>openDetail(flow.screen,flow.reset));document.querySelector(`#${closeId}`).addEventListener('click',()=>closeDetail(flow.screen))});
+    document.addEventListener('keydown',event=>{if(event.key!=='Escape'||!teamHalfSheet.hidden||!followTransferDialog.hidden)return;if(followRecordScreen.classList.contains('active'))closeFollowRecord();else if(transferRecordScreen.classList.contains('active'))closeTransferRecord();else if(billScreen.classList.contains('active'))closeBill();else{const activeDetail=[memberScreen,transferScreen,partnerScreen].find(screen=>screen.classList.contains('active'));if(activeDetail)closeDetail(activeDetail);else if(manageScreen.classList.contains('active'))closeManage()}});
+  </script>
+</body>
+</html>
