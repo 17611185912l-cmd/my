@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>推广中心 · 小程序与配置后台</title>
+  <title>优坐标 · 个人中心与推广中心统一预览</title>
   <style>
     :root { --nav:#17243a; --nav-muted:#9eacc0; --active:#1976ef; --line:#e1e6ed; }
     * { box-sizing:border-box; }
@@ -30,41 +30,45 @@
     .frame-wrap { min-height:0; position:relative; }
     iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#eef1f5; }
     .mini-frame { background:#e7eaee; }
-    @media(max-width:760px){.preview-shell{min-width:0;grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.sidebar{padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.brand,.nav-label,.sidebar-note{display:none}.nav-item{margin:0}.workspace{min-height:0}.topbar{display:none}}
+    @media(max-width:760px){.preview-shell{min-width:0;grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.sidebar{padding:8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.brand,.nav-label,.sidebar-note{display:none}.nav-item{height:44px;margin:0;padding:0 8px;gap:7px}.nav-copy small{display:none}.workspace{min-height:0}.topbar{display:none}}
   </style>
 </head>
 <body>
   <main class="preview-shell">
     <aside class="sidebar" aria-label="预览页面菜单">
-      <div class="brand"><span class="brand-mark"></span><strong>推广中心工作台</strong></div>
+      <div class="brand"><span class="brand-mark"></span><strong>优坐标原型工作台</strong></div>
       <span class="nav-label">页面预览</span>
-      <button class="nav-item active" type="button" data-view="mini" data-title="小程序 · 推广中心"><span class="nav-icon">小</span><span class="nav-copy"><strong>小程序预览</strong><small>用户素材中心</small></span></button>
-      <button class="nav-item" type="button" data-view="admin" data-title="管理后台 · 推广中心配置"><span class="nav-icon">管</span><span class="nav-copy"><strong>配置后台</strong><small>海报与文案管理</small></span></button>
-      <p class="sidebar-note">一个入口查看用户端呈现与运营配置。后台操作为本地交互原型，不会影响线上数据。</p>
+      <button class="nav-item active" type="button" data-view="personal" data-title="小程序 · 个人中心" data-context="优坐标个人中心原型"><span class="nav-icon">个</span><span class="nav-copy"><strong>个人中心</strong><small>身份与服务入口</small></span></button>
+      <button class="nav-item" type="button" data-view="admin" data-title="管理后台 · 推广中心配置" data-context="优坐标运营后台原型"><span class="nav-icon">管</span><span class="nav-copy"><strong>推广中心配置后台</strong><small>海报与文案管理</small></span></button>
+      <p class="sidebar-note">用户端从个人中心进入推广中心；左侧仅区分用户端与配置后台。点击菜单后地址栏会同步记录当前视图。</p>
     </aside>
     <section class="workspace">
-      <header class="topbar"><strong id="viewTitle">小程序 · 推广中心</strong><span>优坐标用户端原型</span></header>
-      <div class="frame-wrap"><iframe id="previewFrame" class="mini-frame" title="小程序推广中心预览" src="推广中心_页面还原.html"></iframe></div>
+      <header class="topbar"><strong id="viewTitle">小程序 · 个人中心</strong><span id="viewContext">优坐标个人中心原型</span></header>
+      <div class="frame-wrap"><iframe id="previewFrame" class="mini-frame" title="小程序 · 个人中心"></iframe></div>
     </section>
   </main>
   <script>
     const frame = document.querySelector('#previewFrame');
     const title = document.querySelector('#viewTitle');
-    const routes = { mini: '推广中心_页面还原.html', admin: 'promotion-center-admin/推广中心配置_离线预览.html' };
+    const context = document.querySelector('#viewContext');
+    const routes = { personal: '个人中心_页面还原.html', admin: 'promotion-center-admin/推广中心配置_离线预览.html' };
+    const bust = view => routes[view] + (routes[view].includes('?') ? '&' : '?') + 't=' + Date.now();
     document.querySelectorAll('.nav-item').forEach(button => button.addEventListener('click', () => {
       document.querySelector('.nav-item.active')?.classList.remove('active');
       button.classList.add('active');
       const view = button.dataset.view;
-      frame.src = routes[view];
-      frame.classList.toggle('mini-frame', view === 'mini');
+      frame.src = bust(view);
+      frame.classList.toggle('mini-frame', view === 'personal');
       frame.title = button.dataset.title;
       title.textContent = button.dataset.title;
+      context.textContent = button.dataset.context;
       const url = new URL(location.href);
       url.searchParams.set('view', view);
       history.replaceState(null, '', url);
     }));
     const initialView = new URLSearchParams(location.search).get('view');
-    if (initialView === 'admin') document.querySelector('[data-view="admin"]').click();
+    if (routes[initialView] && initialView !== 'personal') document.querySelector(`[data-view="${initialView}"]`).click();
+    else frame.src = bust('personal');
   </script>
 </body>
 </html>

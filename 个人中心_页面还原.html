@@ -187,9 +187,6 @@
     .name-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
     .name-row strong { overflow: hidden; text-overflow: ellipsis; font-size: 17px; line-height: 22px; }
     .role-tag { padding: 2px 6px; border-radius: 4px; color: #535965; background: #f1f3f6; font-size: 14px; }
-    .membership { margin-top: 8px; display: flex; align-items: center; gap: 6px; color: #626572; font-size: 14px; white-space: nowrap; }
-    .membership b { color: #545b66; font-weight: 500; }
-    .membership-divider { width: 1px; height: 14px; background: #b77a3d; }
     .section { margin-top: 12px; padding: 17px 15px 14px; }
     .section-head { height: 23px; display: flex; align-items: center; justify-content: space-between; }
     .section h2 { margin: 0; font-size: 18px; line-height: 23px; font-weight: 700; letter-spacing: 0; }
@@ -504,10 +501,6 @@
     .profile-name-link { display: inline-flex; }
     .name-row strong { color: #592d0b; font-size: 18px; line-height: 24px; }
     .role-tag { padding: 2px 6px; color: var(--ink); background: #fff; font-size: 14px; }
-    .membership { margin-top: 7px; gap: 7px; color: #755d4b; font-size: 14px; }
-    .membership b { color: #a45b08; }
-    .membership-date { color: var(--ink); }
-    .renew-action { margin-left: 2px; padding: 2px 7px; border: 1px solid rgba(164,91,8,.28); border-radius: 4px; color: #a45b08; background: rgba(255,255,255,.78); font-size: 14px; line-height: 20px; white-space: nowrap; }
     .section { padding: 17px 15px 14px; }
     .section h2 { font-size: 14px; }
     .maker {
@@ -674,14 +667,14 @@
       position: absolute;
       top: 0;
       width: 80px;
-      height: 66px;
+      height: 34px;
       overflow: hidden;
     }
-    .tab-art-piece:nth-child(1) { left: 20px; }
-    .tab-art-piece:nth-child(2) { left: 100px; }
+    .tab-art-piece:nth-child(1) { left: 4px; }
+    .tab-art-piece:nth-child(2) { left: 92px; }
     .tab-art-piece:nth-child(3) { left: 180px; }
-    .tab-art-piece:nth-child(4) { left: 260px; }
-    .tab-art-piece:nth-child(5) { left: 340px; }
+    .tab-art-piece:nth-child(4) { left: 268px; }
+    .tab-art-piece:nth-child(5) { left: 356px; }
     .tab-art-piece img {
       position: absolute;
       top: 0;
@@ -710,6 +703,8 @@
     }
     .tab .icon,
     .tab span { display: none; }
+    .tab > span { position: absolute; right: 0; bottom: 7px; left: 0; z-index: 3; display: block; color: #96999d; background: rgba(255,255,255,.96); font-size: 12px; line-height: 16px; text-align: center; }
+    .tab.active > span { color: #c87312; font-weight: 700; }
     .toast { bottom: 100px; }
 
     @media (max-width: 463px) {
@@ -844,7 +839,6 @@
         <a class="avatar-wrap clickable" href="个人资料_页面还原.html" aria-label="查看个人资料"><img class="profile-avatar" src="assets/user-avatar.png" alt="优坐标"></a>
         <div class="profile-copy">
           <div class="name-row"><a class="profile-name-link clickable" href="个人资料_页面还原.html"><strong>张三</strong></a><span class="role-tag">合伙人</span><span class="role-tag">老师</span><span class="role-tag">家长</span></div>
-          <div class="membership"><b>卓越会员</b><span class="membership-divider" aria-hidden="true"></span><span class="membership-date">2027.05.05到期</span><button class="renew-action clickable" type="button" data-action="会员续费">会员续费</button></div>
         </div>
       </section>
 
@@ -898,11 +892,11 @@
           <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
           <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
         </div>
-        <button class="tab clickable" data-tab="首页" aria-label="首页"></button>
-        <button class="tab clickable" data-tab="教员" aria-label="教员"></button>
-        <button class="tab clickable" data-tab="会员" aria-label="会员"></button>
-        <button class="tab clickable" data-tab="消息" aria-label="消息"></button>
-        <button class="tab active clickable" data-tab="我的" aria-label="我的"></button>
+        <button class="tab clickable" data-tab="首页" aria-label="首页"><span>首页</span></button>
+        <button class="tab clickable" data-tab="全部教员" aria-label="全部教员"><span>全部教员</span></button>
+        <button class="tab clickable" data-tab="AI单词" aria-label="AI单词"><span>AI单词</span></button>
+        <button class="tab clickable" data-tab="消息" aria-label="消息"><span>消息</span></button>
+        <button class="tab active clickable" data-tab="我的" aria-label="我的"><span>我的</span></button>
       </nav>
       <div class="home-indicator" aria-hidden="true"></div>
       <div class="toast" role="status" aria-live="polite"></div>
