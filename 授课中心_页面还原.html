@@ -55,30 +55,20 @@
     .review-status[data-state="rejected"] { color: #9d4a41; background: #fff0ee; }
     .entry-label { margin-left: auto; color: var(--blue); font-size: 14px; white-space: nowrap; }
     .chevron { width: 8px; height: 8px; margin-left: 9px; border: solid #a9a3a0; border-width: 1px 1px 0 0; transform: rotate(45deg); }
-    .teacher-shortcuts { margin-top: 8px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
-    .teacher-shortcut { min-width: 0; height: 62px; padding: 0 11px; display: grid; grid-template-columns: 34px minmax(0,1fr) 7px; align-items: center; gap: 8px; border: 1px solid #e1eaf4; transition: border-color .16s ease,background .16s ease,transform .12s ease; }
-    .teacher-shortcut:hover { border-color: #b9cee4; background: #f9fbfe; }
-    .teacher-shortcut:focus-visible { outline: 2px solid rgba(63,114,173,.38); outline-offset: 2px; }
-    .teacher-shortcut:active { transform: scale(.98); }
-    .shortcut-icon { position: relative; width: 34px; height: 34px; border-radius: 9px; color: #3f72ad; background: #edf4ff; }
-    .shortcut-icon::before,.shortcut-icon::after { content: ""; position: absolute; }
-    .shortcut-icon.recruit::before { left: 9px; top: 7px; width: 8px; height: 8px; border: 2px solid currentColor; border-radius: 50%; }
-    .shortcut-icon.recruit::after { left: 6px; bottom: 6px; width: 15px; height: 8px; border: 2px solid currentColor; border-bottom: 0; border-radius: 9px 9px 0 0; box-shadow: 9px -6px 0 -4px #edf4ff,10px -6px 0 -2px currentColor; }
-    .shortcut-icon.manage::before { left: 8px; top: 8px; width: 16px; height: 17px; border: 2px solid currentColor; border-radius: 3px; }
-    .shortcut-icon.manage::after { left: 12px; top: 13px; width: 8px; height: 2px; background: currentColor; box-shadow: 0 5px 0 currentColor; }
-    .shortcut-label { overflow: hidden; font-size: 15px; line-height: 22px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-    .shortcut-arrow { width: 7px; height: 7px; border: solid #8fa4b9; border-width: 1px 1px 0 0; transform: rotate(45deg); }
     .section { margin-top: 8px; padding: 14px; }
     .section-title { margin: 0; font-size: 16px; line-height: 24px; font-weight: 650; }
     .section-heading { display: flex; align-items: center; justify-content: space-between; }
     .month-total { color: #356da9; font-size: 14px; line-height: 22px; }
-    .stats { margin-top: 12px; display: grid; grid-template-columns: repeat(3,1fr); }
+    .stats { margin-top: 12px; display: grid; grid-template-columns: repeat(4,1fr); }
     .teaching-data { padding: 10px 14px; }
     .teaching-data .stats { margin-top: 0; }
     .stat { position: relative; min-width: 0; text-align: center; }
     .stat + .stat::before { content: ""; position: absolute; left: 0; top: 5px; width: 1px; height: 43px; background: var(--line); }
     .stat strong { display: block; color: #356da9; font-size: 24px; line-height: 28px; font-weight: 650; }
-    .stat span { display: block; margin-top: 4px; color: #666a72; font-size: 14px; line-height: 20px; }
+    .stat > span { display: block; margin-top: 4px; color: #666a72; font-size: 14px; line-height: 20px; }
+    .stat-num { position: relative; display: inline-block; }
+    .stat-dot { position: absolute; top: 1px; right: -10px; width: 7px; height: 7px; border-radius: 50%; background: #e5484d; }
+    .stat-dot[hidden] { display: none; }
     .calendar-head { margin-top: 11px; display: flex; align-items: center; justify-content: space-between; }
     .month-switch { width: 32px; height: 32px; border-radius: 50%; color: #547492; font-size: 20px; }
     .month-label { font-size: 15px; font-weight: 600; }
@@ -123,11 +113,17 @@
     @media (max-width: 900px) { .dev-note { display: none; } }
     @media (max-width: 760px) { .review-simulator { left: 12px; top: 12px; min-width: 82px; height: 34px; padding: 0 10px; font-size: 13px; } }
     @media (max-width: 520px) { body { padding: 0; background: #f5f4f6; } .phone-shell { border-color: transparent; box-shadow: none; } .review-simulator { display: none; } }
+    .profile-card { padding: 0; overflow: hidden; }
+    .times-entry { min-height: 46px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); }
+    .times-title { color: var(--blue); font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .times-note { min-width: 0; margin-left: auto; color: var(--muted); font-size: 13px; line-height: 19px; text-align: right; }
+    .day.has-pending::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #e8a33d; }
+    .day.selected.has-pending::after { background: #fff; }
   </style>
 </head>
 <body>
   <button class="review-simulator" id="reviewSimulator" type="button">模拟驳回</button>
-  <aside class="dev-note" aria-label="开发说明"><strong>开发说明 · 授课中心</strong><p id="devNoteText">当前页展示教员信息、教师工作入口、教学数据、排课日历和已排课程。点击入口进入对应预留页面。</p></aside>
+  <aside class="dev-note" aria-label="开发说明"><strong>开发说明 · 授课中心</strong><p id="devNoteText">当前页展示教员信息、教学数据、排课日历和已排课程；本版已移除招募大厅和授课管理入口，预留页面暂不展示入口。</p></aside>
   <main class="phone-shell" aria-label="授课中心页面">
     <div class="dynamic-island" aria-hidden="true"></div>
     <div class="app">
@@ -137,20 +133,24 @@
           <div class="titlebar"><button class="back-button" type="button" aria-label="返回个人中心"></button><h1>教师端 · 授课中心</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="mini-ring"></span></div></div>
         </header>
         <div class="content">
-          <a class="profile-entry card" href="教员资料编辑_页面还原.html">
-            <img class="teacher-avatar" src="assets/user-avatar.png" alt="张三头像">
-            <span class="profile-copy"><span class="teacher-title"><strong>张三</strong><span class="review-status" id="reviewStatus" data-state="approved">审核通过</span></span><span>高中数学·教员资料已完善</span></span>
-            <span class="entry-label">资料管理</span><i class="chevron" aria-hidden="true"></i>
-          </a>
-          <nav class="teacher-shortcuts" aria-label="教师工作入口">
-            <a class="teacher-shortcut card" href="招募大厅_页面还原.html?from=teacher-center"><span class="shortcut-icon recruit" aria-hidden="true"></span><span class="shortcut-label">招募大厅</span><i class="shortcut-arrow" aria-hidden="true"></i></a>
-            <a class="teacher-shortcut card" href="授课管理_页面还原.html?from=teacher-center"><span class="shortcut-icon manage" aria-hidden="true"></span><span class="shortcut-label">授课管理</span><i class="shortcut-arrow" aria-hidden="true"></i></a>
-          </nav>
+          <section class="card profile-card" aria-label="教师资料">
+            <a class="profile-entry" href="教员资料编辑_页面还原.html">
+              <img class="teacher-avatar" src="assets/user-avatar.png" alt="张三头像">
+              <span class="profile-copy"><span class="teacher-title"><strong>张三</strong><span class="review-status" id="reviewStatus" data-state="approved">审核通过</span></span><span>高中数学·教员资料已完善</span></span>
+              <span class="entry-label">资料管理</span><i class="chevron" aria-hidden="true"></i>
+            </a>
+            <a class="times-entry" href="可约时段_页面还原.html">
+              <span class="times-title">可约时段</span>
+              <span class="times-note" id="slotEntryNote">维护四类时间与特殊日期</span>
+              <i class="chevron" aria-hidden="true"></i>
+            </a>
+          </section>
           <section class="section card teaching-data" aria-label="教学数据">
             <div class="stats">
-              <a class="stat" href="授课记录_页面还原.html?filter=all"><strong>128</strong><span>累计授课</span></a>
-              <a class="stat" href="授课记录_页面还原.html?filter=waiting"><strong>2</strong><span>待上课</span></a>
-              <a class="stat" href="授课记录_页面还原.html?filter=feedback"><strong>1</strong><span>待反馈</span></a>
+              <a class="stat" href="授课记录_页面还原.html?filter=all"><strong id="cumulativeStat">128</strong><span>累计授课</span></a>
+              <a class="stat" href="授课记录_页面还原.html?filter=pending"><strong><span class="stat-num"><span id="pendingStat">1</span><i class="stat-dot" id="pendingDot" hidden aria-hidden="true"></i></span></strong><span>待确认</span></a>
+              <a class="stat" href="授课记录_页面还原.html?filter=confirmed"><strong id="waitingStat">1</strong><span>待上课</span></a>
+              <a class="stat" href="授课记录_页面还原.html?filter=attended"><strong id="feedbackStat">1</strong><span>待反馈</span></a>
             </div>
           </section>
 
@@ -179,6 +179,7 @@
       </div>
     </div>
   </main>
+  <script src="约课数据.js?v=20260914-3"></script>
   <script>
     const page = document.querySelector('.page');
     const reviewStates = { approved: '审核通过', pending: '待审核', rejected: '已驳回' };
@@ -205,7 +206,20 @@
     });
     const calendarDays = document.querySelector('.days');
     const calendarToggle = document.querySelector('.calendar-toggle');
-    let calendarExpanded = false;
+    const INITIAL_CALENDAR_MONTH = new Date(2026, 7, 1);
+    const STATIC_COURSES = {
+      '2026-08-10': [
+        { title: '高一数学·函数基础', student: '王子涵', time: '10:00', mode: 'offline', detail: 'function-0810', place: '西安小寨校区' },
+        { title: '高二数学·数列专题', student: '李沐辰', time: '15:30', mode: 'online', detail: 'sequence-0810', place: '西安小寨交付中心' }
+      ],
+      '2026-08-11': [{ title: '高中数学·专题辅导', student: '王子涵', time: '19:00', mode: 'online', detail: 'tutorial', place: '西安小寨交付中心' }],
+      '2026-08-13': [{ title: '高中数学·专题辅导', student: '王子涵', time: '19:00', mode: 'online', detail: 'tutorial', place: '西安小寨交付中心' }],
+      '2026-08-15': [{ title: '高中数学·专题辅导', student: '王子涵', time: '19:00', mode: 'online', detail: 'tutorial', place: '西安小寨交付中心' }]
+    };
+    const MONTH_TOTALS = { '2026-07': '7月已排 10课时', '2026-08': '本月已排 12课时', '2026-09': '9月已排 8课时' };
+    let calendarCursor = new Date(INITIAL_CALENDAR_MONTH), selectedDate = '2026-08-10', calendarExpanded = false;
+    function dateKey(date) { return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'); }
+    function dateLabelOf(key) { const parts = key.split('-'); return Number(parts[1]) + '月' + Number(parts[2]) + '日'; }
     function updateCalendarView() {
       const days = [...calendarDays.querySelectorAll('.day')];
       const selectedIndex = Math.max(0, days.findIndex(day => day.classList.contains('selected')));
@@ -215,27 +229,86 @@
       calendarToggle.textContent = calendarExpanded ? '收起本周' : '查看当月';
       calendarToggle.setAttribute('aria-label', calendarExpanded ? '收起本周' : '查看当月');
     }
+    function bookingCourses(courseDate) {
+      if (!window.YZB) return '';
+      return YZB.forTeacher('zhang', ['pending', 'confirmed']).filter(item => item.date === courseDate).map(item => `<article class="course" role="link" tabindex="0" data-booking="${item.id}" data-status="${item.status}" data-mode="${item.mode === '线下' ? 'offline' : item.mode === '上门' ? 'home' : 'online'}"><div class="course-top"><strong>${item.courseName}</strong><span class="status">${item.status === 'confirmed' ? '待上课' : '待确认'}</span></div><div class="course-meta"><span>${item.student}</span><span>${item.dateLabel} ${item.time}</span><span>${item.grade} · ${item.subject}</span><span>${item.durationLabel || '60分钟'} · ${YZB.lessonsOf(item)}课时</span><span>${item.place}</span></div></article>`).join('');
+    }
+    function renderCourseList(courseDate) {
+      const bookingCourse = bookingCourses(courseDate);
+      const staticCourses = STATIC_COURSES[courseDate] || [];
+      document.querySelector('.course-date').textContent = dateLabelOf(courseDate);
+      document.querySelector('.course-list').innerHTML = bookingCourse || (staticCourses.length ? staticCourses.map(item => `<article class="course" role="link" tabindex="0" data-mode="${item.mode}" data-detail="${item.detail}"><div class="course-top"><strong>${item.title}</strong><span class="status">待上课</span></div><div class="course-meta"><span>${item.student}</span><span>${dateLabelOf(courseDate)} ${item.time}</span><span>陕西省·人教A版</span><span>60分钟</span><span>${item.place}</span></div></article>`).join('') : '<div class="empty">当日暂无排课</div>');
+    }
+    /* 教学数据与授课记录同口径：累计授课 = 历史基数 + 已签到扣减课时 */
+    function updateTeachingStats() {
+      if (!window.YZB) return;
+      const teacher = YZB.teacher('zhang');
+      const base = teacher && Number(teacher.lessons) ? Number(teacher.lessons) : 0;
+      const taught = YZB.forTeacher('zhang').reduce((sum, item) => sum + (item.deducted ? YZB.lessonsOf(item) : 0), base);
+      document.querySelector('#cumulativeStat').textContent = taught;
+      const pending = YZB.forTeacher('zhang', ['pending']).length;
+      document.querySelector('#pendingStat').textContent = pending;
+      document.querySelector('#pendingDot').hidden = !pending;
+      document.querySelector('#waitingStat').textContent = YZB.forTeacher('zhang', ['confirmed']).length;
+      document.querySelector('#feedbackStat').textContent = YZB.forTeacher('zhang', ['attended']).length;
+    }
+    /* 教师资料卡片内的「可约时段」入口，显示当前开放概况 */
+    function updateSlotEntry() {
+      document.querySelector('#slotEntryNote').textContent = window.YZB
+        ? (YZB.specialEnabled('zhang')
+          ? `${YZB.availabilityLabel('zhang')} · 特殊日期 ${YZB.specialCount('zhang')} 天`
+          : YZB.availabilityLabel('zhang'))
+        : '维护四类时间与特殊日期';
+    }
+    function renderCalendar() {
+      const year = calendarCursor.getFullYear(), month = calendarCursor.getMonth();
+      const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const cellCount = Math.ceil((offset + daysInMonth) / 7) * 7;
+      const records = window.YZB ? YZB.forTeacher('zhang', ['pending', 'confirmed']) : [];
+      let html = '';
+      for (let index = 0; index < cellCount; index += 1) {
+        const date = new Date(year, month, index - offset + 1), key = dateKey(date), inMonth = date.getMonth() === month;
+        const matched = records.filter(item => item.date === key), classes = ['day'];
+        if (!inMonth) classes.push('muted');
+        if (key === selectedDate) classes.push('selected');
+        if (inMonth && (STATIC_COURSES[key] || matched.some(item => item.status === 'confirmed'))) classes.push('has-course');
+        if (inMonth && matched.some(item => item.status === 'pending')) classes.push('has-pending');
+        html += `<button class="${classes.join(' ')}" type="button" data-date="${key}"${inMonth ? '' : ' disabled'}>${date.getDate()}</button>`;
+      }
+      calendarDays.innerHTML = html;
+      document.querySelector('.month-label').textContent = year + '年' + (month + 1) + '月';
+      document.querySelector('.month-total').textContent = MONTH_TOTALS[year + '-' + String(month + 1).padStart(2, '0')] || `${month + 1}月已排 0课时`;
+      calendarDays.setAttribute('aria-label', year + '年' + (month + 1) + '月日历');
+      updateCalendarView();
+    }
     calendarToggle.addEventListener('click', () => { calendarExpanded = !calendarExpanded; updateCalendarView(); });
-    document.querySelector('.back-button').addEventListener('click', () => { window.location.href = '个人中心_页面还原.html'; });
-    document.querySelectorAll('.day:not(.muted)').forEach(day => day.addEventListener('click', () => {
-      document.querySelector('.day.selected')?.classList.remove('selected');
+    calendarDays.addEventListener('click', event => {
+      const day = event.target.closest('.day:not(.muted)');
+      if (!day) return;
+      selectedDate = day.dataset.date;
+      calendarDays.querySelector('.day.selected')?.classList.remove('selected');
       day.classList.add('selected');
       updateCalendarView();
-      document.querySelector('.course-date').textContent = day.dataset.date || `8月${day.textContent}日`;
-      const courseDate = day.dataset.date || `8月${day.textContent}日`;
-      document.querySelector('.course-list').innerHTML = day.classList.contains('has-course') ? `<article class="course" role="link" tabindex="0" data-mode="${day.textContent === '10' ? 'offline' : 'online'}" data-detail="${day.textContent === '10' ? 'function-0810' : 'tutorial'}"><div class="course-top"><strong>高中数学·专题辅导</strong><span class="status">待上课</span></div><div class="course-meta"><span>王子涵</span><span>${courseDate} ${day.textContent === '10' ? '10:00' : '19:00'}</span><span>陕西省·人教A版</span><span>60分钟</span><span>${day.textContent === '10' ? '西安小寨校区' : '西安小寨交付中心'}</span></div></article>` : '<div class="empty">当日暂无排课</div>';
-    }));
-    document.querySelector('.course-list').addEventListener('click', event => { const course = event.target.closest('.course[data-detail]'); if (course) location.href = `课程详情_页面还原.html?role=teacher&course=${course.dataset.detail}`; });
+      renderCourseList(selectedDate);
+    });
+    document.querySelector('.back-button').addEventListener('click', () => { window.location.href = '个人中心_页面还原.html'; });
+    document.querySelector('.course-list').addEventListener('click', event => { const booking = event.target.closest('.course[data-booking]'); if (booking) { location.href = '授课记录_页面还原.html?filter=' + (booking.dataset.status === 'confirmed' ? 'confirmed' : 'pending'); return; } const course = event.target.closest('.course[data-detail]'); if (course) location.href = `课程详情_页面还原.html?role=teacher&course=${course.dataset.detail}`; });
     document.querySelector('.course-list').addEventListener('keydown', event => { const course = event.target.closest('.course[data-detail]'); if (course && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); course.click(); } });
     document.querySelectorAll('.month-switch').forEach(button => button.addEventListener('click', () => {
-      const nextMonth = button.dataset.step === '1';
-      document.querySelector('.month-label').textContent = nextMonth ? '2026年9月' : '2026年7月';
-      document.querySelector('.month-total').textContent = nextMonth ? '9月已排 8课时' : '7月已排 10课时';
+      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + Number(button.dataset.step), 1);
+      selectedDate = dateKey(calendarCursor);
+      calendarExpanded = false;
+      renderCalendar();
+      renderCourseList(selectedDate);
     }));
-    updateCalendarView();
+    updateSlotEntry();
+    updateTeachingStats();
+    renderCalendar();
+    renderCourseList(selectedDate);
     function fitFrame() { const scale = Math.min((innerWidth - 32) / 464,(innerHeight - 32) / 980,1); document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2)); }
     fitFrame(); addEventListener('resize',fitFrame,{ passive:true });
   </script>
-<script src="原型开发说明.js"></script>
+<script src="原型开发说明.js?v=20260914-3"></script>
 </body>
 </html>

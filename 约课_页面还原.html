@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="data:,">
+  <title>家长端 · 约课</title>
+<style>
+    :root{--device-scale:1}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100svh;padding:16px;display:grid;place-items:center;overflow:hidden;color:#24262b;background:#e7eaee;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button{padding:0;border:0;color:inherit;font:inherit;background:none;cursor:pointer}.phone-shell{position:relative;isolation:isolate;width:464px;height:980px;padding:11px;border:1px solid #777d84;border-radius:66px;background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e);box-shadow:0 34px 70px rgba(32,38,45,.28),0 10px 22px rgba(32,38,45,.18),inset 0 0 0 1px rgba(255,255,255,.75),inset 0 0 0 3px rgba(33,36,40,.68);transform:scale(var(--device-scale));transform-origin:center}.dynamic-island{position:absolute;z-index:30;top:22px;left:50%;width:126px;height:34px;transform:translateX(-50%);border-radius:20px;background:#050505;pointer-events:none}.dynamic-island:after{content:"";position:absolute;right:12px;top:11px;width:8px;height:8px;border-radius:50%;background:#111a25;box-shadow:inset 0 0 0 2px #080b10,0 0 2px #1a4d79}.app{position:relative;width:440px;height:956px;overflow:hidden;border-radius:54px;background:#f5f4f6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.52)}.page{width:100%;height:100%;background:linear-gradient(to bottom,rgba(245,244,246,0) 188px,#f5f4f6 250px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}header{color:#294966}.statusbar{height:36px;padding:17px 36px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#050505;font-size:15px;line-height:1;font-weight:700}.device-status{display:flex;align-items:center;gap:8px}.signal{width:18px;height:12px;display:flex;align-items:flex-end;gap:2px}.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{position:relative;width:18px;height:13px;overflow:hidden}.wifi:before,.wifi:after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi:before{top:0;width:19px;height:17px}.wifi:after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}.battery{position:relative;width:23px;height:11px;padding:2px;border:1.5px solid #919191;border-radius:3px}.battery:before{content:"";display:block;width:100%;height:100%;border-radius:1px;background:#050505}.battery:after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;border-radius:0 2px 2px 0;background:#b4b4b4}.titlebar{position:relative;height:57px;display:flex;align-items:center}.titlebar h1{width:100%;margin:0;font-size:18px;line-height:26px;font-weight:600;text-align:center}.back{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px}.back:before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #294966;border-width:0 0 2px 2px;transform:rotate(45deg)}.capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(61,105,151,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{height:100%;display:flex;align-items:center;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}.content{height:calc(100% - 93px)}@media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
+	    .page{overflow-y:auto;scrollbar-width:none}.page::-webkit-scrollbar{display:none}header{position:sticky;z-index:10;top:0;background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.content{height:auto;padding:8px 12px 30px}.card{margin-bottom:8px;padding:14px;border-radius:8px;background:#fff;box-shadow:0 2px 10px rgba(47,75,106,.05)}.user-card{min-height:76px;display:flex;align-items:center}.avatar-frame,.student-mark{width:48px;height:48px;border-radius:50%}.avatar-frame{overflow:hidden;display:grid;place-items:center}.user-avatar{width:56px;height:56px;max-width:none;object-fit:cover}.user-copy strong{display:block;font-size:16px;line-height:23px}.user-copy span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:20px}.user-role{margin-left:auto;padding:3px 7px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px}.section-head{display:flex;align-items:center;justify-content:space-between}.section-link{color:inherit;text-decoration:none}.section-link .section-note{margin-left:auto}.section-chevron{width:8px;height:8px;margin-left:9px;border:solid #9aa5b1;border-width:1px 1px 0 0;transform:rotate(45deg)}.section-title{margin:0;font-size:16px;line-height:24px}.section-note{color:#356da9;font-size:14px}.student-card{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:10px}.student-mark{display:grid;place-items:center;color:#356da9;background:#edf4ff;font-size:18px;font-weight:600}.student-copy strong{display:block;font-size:15px;line-height:22px}.student-copy span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:20px}.student-status{padding:3px 7px;border-radius:4px;color:#34705a;background:#eaf7f1;font-size:14px}.record-list{margin-top:9px}.record-row{padding:10px 0;display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:9px}.record-row+.record-row{border-top:1px solid #e5ebf2}.record-time{color:#356da9;font-size:14px;font-weight:600}.record-copy strong{display:block;font-size:15px;line-height:21px}.record-copy span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:19px}.record-state{font-size:14px;color:#34705a}.calendar-head{margin-top:10px;display:flex;align-items:center;justify-content:space-between}.month-switch{width:32px;height:32px;border-radius:50%;color:#547492;font-size:20px}.month-label{font-size:15px;font-weight:600}.week,.days{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}.week{margin-top:7px;color:#99969a;font-size:14px;line-height:24px}.day{position:relative;width:36px;height:36px;justify-self:center;display:grid;place-items:center;border-radius:50%;color:#4e5158;font-size:14px}.day.muted{color:#c9c6c8}.day.has-plan:after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#5b8fc6}.day.selected{color:#fff;background:#4b7fb8}.day.selected:after{background:#fff}.plan{margin-top:10px;padding-top:11px;border-top:1px solid #e5ebf2}.plan-head{display:flex;align-items:center;justify-content:space-between}.plan-head strong{font-size:15px}.plan-date{color:#777a82;font-size:14px}.plan-course{margin-top:9px;padding:10px;border-radius:6px;background:#f7faff;display:flex;align-items:center}.plan-course-time{color:#356da9;font-size:15px;font-weight:600}.plan-course-copy{margin-left:12px}.plan-course-copy strong{display:block;font-size:15px}.plan-course-copy span{display:block;margin-top:3px;color:#777a82;font-size:14px}.empty{padding:18px 0 5px;color:#99969a;font-size:14px;text-align:center}
+    .student-card{margin-top:10px}
+    .content{display:flex;flex-direction:column}
+    .student-card{grid-template-columns:48px minmax(0,1fr)}
+	    	.user-student-card{padding:0}.user-row{min-height:76px;padding:12px 14px;display:grid;grid-template-columns:48px minmax(0,1fr);align-items:center;gap:10px}.student-row{min-height:76px;padding:12px 14px;display:grid;grid-template-columns:48px minmax(0,1fr) auto 8px;align-items:center;gap:10px;color:inherit;text-decoration:none}.student-edit{color:#356da9;font-size:14px}.chevron{width:8px;height:8px;border:solid #9aa5b1;border-width:1px 1px 0 0;transform:rotate(45deg)}
+    .content>.user-student-card{order:1}.content>.course-balance{order:2}.content>.plan-card{order:3}.content>.record-card{order:4}.course-balance{padding:10px 14px}.balance-stats{display:grid;grid-template-columns:repeat(3,1fr)}.balance-stat{position:relative;text-align:center}.balance-stat+.balance-stat:before{content:"";position:absolute;left:0;top:4px;width:1px;height:42px;background:#e5ebf2}.balance-stat strong{display:block;color:#454951;font-size:19px;line-height:26px;font-weight:650}.balance-stat.primary strong{color:#356da9;font-size:24px}.balance-stat small{margin-left:2px;font-size:14px;font-weight:500}.balance-stat span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:20px}.record-row[data-detail],.plan-course[data-detail]{cursor:pointer}.record-row[data-detail]:focus-visible,.plan-course[data-detail]:focus-visible{outline:2px solid rgba(75,127,184,.38);outline-offset:2px}.record-row,.plan-course{display:block}.record-top{display:flex;align-items:flex-start}.record-top strong{min-width:0;flex:1;font-size:15px;line-height:22px}.record-state{margin-left:5px;padding:3px 7px;border-radius:4px;color:#9d5d13;background:#fff4df;font-size:14px;white-space:nowrap}.record-state.waiting{color:#356da9;background:#edf4ff}.record-top::before{order:2;margin-left:10px;padding:3px 7px;border-radius:4px;color:#5e6c7b;background:#f0f3f6;font-size:14px;line-height:20px;white-space:nowrap}.record-state{order:3}.record-row[data-mode="online"] .record-top::before,.plan-course[data-mode="online"] .record-top::before{content:"线上"}.record-row[data-mode="offline"] .record-top::before,.plan-course[data-mode="offline"] .record-top::before{content:"线下"}.record-row[data-mode="home"] .record-top::before,.plan-course[data-mode="home"] .record-top::before{content:"上门"}.record-meta{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#777a82;font-size:14px;line-height:20px}.plan-course{padding:12px;background:#f7faff}.record-row{padding:12px 0}.record-row+.record-row{border-top:1px solid #e5ebf2}
+    .month-center{display:flex;align-items:center}.calendar-toggle{min-width:88px;height:30px;margin:5px auto 0;display:block;color:#356da9;font-size:14px;line-height:30px}.day[hidden]{display:none}.record-row{padding:9px 0}.plan-course{padding:9px 10px}.record-meta{margin-top:5px;display:flex;flex-wrap:wrap;align-items:center;gap:3px 14px;line-height:19px}.record-meta span:nth-child(3){order:1;flex:0 0 100%;color:#596674}.record-meta span:nth-child(1){order:2}.record-meta span:nth-child(2){order:3}.record-meta span:nth-child(4){order:4}.record-meta span:nth-child(n+5){display:none}
+  
+    /* 约课页专用样式：沿用 8.0 的淡蓝体系与卡片规格 */
+    .content{padding-bottom:126px}
+    .step-card{padding:14px}
+    .step-head{display:flex;gap:10px;align-items:flex-start}
+    .step-index{flex:0 0 auto;width:22px;height:22px;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:#fff;background:#4b7fb8;font-size:14px;font-weight:600}
+    .step-head strong{display:block;font-size:16px;line-height:22px}
+    .step-note{display:block;margin-top:2px;color:#777a82;font-size:14px;line-height:20px}
+    .bk-student{margin-top:10px;padding:10px;display:flex;align-items:center;gap:10px;border-radius:6px;background:#f7faff}
+    .bk-mark{width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;border-radius:50%;color:#356da9;background:#edf4ff;font-size:16px;font-weight:600}
+    .bk-student strong{display:block;font-size:15px;line-height:21px}
+    .bk-student span{display:block;margin-top:2px;color:#777a82;font-size:14px;line-height:19px}
+    .bk-student .bk-default{margin:0 0 0 auto;padding:3px 7px;color:#356da9;background:#edf4ff;font-size:13px;line-height:18px;white-space:nowrap}
+    .bk-course-list,.bk-teacher-list{margin-top:10px;display:grid;gap:8px}
+    .bk-course,.bk-teacher{width:100%;padding:11px 12px;display:flex;align-items:center;gap:10px;border:1px solid #e5ebf2;border-radius:6px;background:#fff;text-align:left}
+    .bk-course.active,.bk-teacher.active{border-color:#4b7fb8;background:#f7faff;box-shadow:0 0 0 2px rgba(75,127,184,.12)}
+    .bk-course strong,.bk-teacher strong{display:block;font-size:15px;line-height:21px}
+    .bk-course span,.bk-teacher span{display:block;margin-top:2px;color:#777a82;font-size:14px;line-height:19px}
+    .bk-course .bk-course-duration{color:#356da9}
+    .bk-teacher .bk-mark{width:36px;height:36px;font-size:15px}
+    .bk-teacher-copy{min-width:0;flex:1}
+    .bk-badge{flex:0 0 auto;padding:3px 7px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px}
+    .bk-badge b{font-size:15px;font-weight:650}
+    .bk-badge.warn{color:#9d5d13;background:#fff4df}
+    .bk-hours{margin-top:10px;padding:9px 10px;border-radius:6px;color:#356da9;background:#edf4ff;font-size:14px;line-height:20px}
+    .bk-hours b{font-size:15px}
+    .bk-day-tabs{margin-top:10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+    .bk-day-tabs::-webkit-scrollbar{display:none}
+    .bk-day{flex:0 0 auto;min-width:62px;padding:7px 8px;border:1px solid #e5ebf2;border-radius:6px;background:#fff;text-align:center}
+    .bk-day.active{border-color:#4b7fb8;background:#edf4ff;color:#356da9}
+    .bk-day strong{display:block;font-size:14px;line-height:19px}
+    .bk-day span{display:block;margin-top:2px;color:#8c9199;font-size:14px;line-height:18px}
+    .bk-day.active span{color:#356da9}
+    .bk-slots{margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .bk-slot{min-height:52px;padding:7px 8px;border:1px solid #e5ebf2;border-radius:6px;background:#fff;color:#454951;font-size:14px;line-height:18px}
+    .bk-slot small{display:block;margin-top:2px;color:#9aa5b1;font-size:14px}
+    .bk-slot.active{border-color:#4b7fb8;background:#4b7fb8;color:#fff}
+    .bk-slot.active small{color:rgba(255,255,255,.82)}
+    .bk-slot[disabled]{color:#c2c7cd;background:#f6f7f9;cursor:not-allowed}
+    .bk-modes{margin-top:12px;display:flex;gap:7px}
+    .bk-mode{flex:1;height:36px;border:1px solid #e5ebf2;border-radius:6px;background:#fff;color:#454951;font-size:14px}
+    .bk-mode.active{border-color:#356da9;color:#356da9;background:#edf4ff}
+    .bk-place{margin-top:9px;padding:8px 10px;border-radius:6px;color:#3f5a76;background:#f7faff;font-size:14px;line-height:20px}.bk-empty{padding:18px 0;color:#99969a;font-size:14px;text-align:center}
+    .bk-remark{width:100%;min-height:66px;margin-top:8px;padding:10px;border:1px solid #d8e1eb;border-radius:6px;outline:none;resize:none;font-size:14px;line-height:20px}
+    .bk-remark:focus{border-color:#4b7fb8;box-shadow:0 0 0 2px rgba(75,127,184,.1)}
+    .label{display:block;margin:12px 0 0;font-size:14px;font-weight:600}
+    .actionbar{position:absolute;z-index:20;left:0;right:0;bottom:0;padding:10px 16px 22px;background:linear-gradient(to top,#fff 72%,rgba(255,255,255,.86));box-shadow:0 -2px 12px rgba(47,75,106,.06)}
+    .actionbar .summary{color:#777a82;font-size:14px;line-height:20px}
+    .actionbar .summary b{color:#356da9}
+    .submit{margin-top:8px;width:100%;height:46px;border-radius:6px;color:#fff;background:#4b7fb8;font-size:16px;font-weight:600}
+    .submit[disabled]{background:#c2ccd8;cursor:not-allowed}
+    .toast{position:absolute;z-index:30;left:50%;bottom:132px;padding:9px 14px;border-radius:5px;color:#fff;background:rgba(27,28,31,.88);font-size:14px;transform:translate(-50%,10px);opacity:0;transition:.2s}
+    .toast.show{transform:translate(-50%,0);opacity:1}
+
+    .bk-day[disabled]{color:#c2c7cd;background:#f6f7f9;cursor:not-allowed}
+    .bk-day[disabled] span{color:#c2c7cd}
+    .bk-slot[data-state="booked"] small{color:#9d5d13}
+    .bk-teacher[hidden],.bk-teacher-list[hidden],.bk-batch[hidden]{display:none}
+    .bk-reason{margin-left:6px;padding:2px 6px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px;font-style:normal;font-weight:400;white-space:nowrap}
+    .bk-change{flex:0 0 auto;align-self:center;padding:6px 10px;border:1px solid #d8e1eb;border-radius:6px;color:#356da9;background:#fff;font-size:14px;line-height:20px}
+    .bk-repeat-note{margin-top:8px;color:#777a82;font-size:14px;line-height:19px}
+    .bk-batch{margin-top:10px;padding:10px 11px;border:1px solid #e5ebf2;border-radius:6px;background:#f7faff}
+    .bk-batch-head{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#356da9;font-size:14px;line-height:20px;font-weight:600}
+    .bk-batch-row{margin-top:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;line-height:20px}
+    .bk-batch-row b{font-weight:600}
+    .bk-batch-row.skip{color:#a0a4ad}
+    .bk-batch-row.skip b{color:#9d5d13;font-weight:400}
+    .bk-batch-foot{margin-top:8px;padding-top:8px;border-top:1px dashed #dbe5ef;color:#3f5a76;font-size:14px;line-height:20px}
+  </style>
+</head>
+<body><main class="phone-shell" aria-label="约课页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header>
+  <div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div>
+      <div class="titlebar"><button class="back" type="button" aria-label="返回学习中心"></button><h1>家长端 · 约课</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div>
+    </header><div class="content">
+      <section class="card step-card" data-step="1">
+        <div class="step-head"><span class="step-index">1</span><div><strong>确认学员与课程</strong><span class="step-note">学员已默认；每节 1.5 小时 = 2 课时</span></div></div>
+        <div class="bk-student"><span class="bk-mark">王</span><span><strong>王子涵 · 男</strong><span>西安高新一中 · 高一</span></span><span class="bk-default">默认学员</span></div>
+        <div class="bk-course-list" id="courseList"></div>
+        <div class="bk-hours" id="hoursNote"></div>
+      </section>
+
+      <section class="card step-card" data-step="2">
+        <div class="step-head"><span class="step-index">2</span><div><strong>确认上课老师</strong><span class="step-note">默认推荐，可更换</span></div></div>
+        <div class="bk-teacher" id="teacherCard">
+          <span class="bk-mark" id="teacherAvatar">张</span>
+          <span class="bk-teacher-copy">
+            <strong><span id="teacherName">张三老师</span><em class="bk-reason" id="teacherReason">推荐</em></strong>
+            <span id="teacherMeta"></span>
+            <span id="teacherOpen"></span>
+          </span>
+          <button class="bk-change" id="switchTeacher" type="button">更换</button>
+        </div>
+        <div class="bk-teacher-list" id="teacherList" hidden></div>
+      </section>
+
+      <section class="card step-card" data-step="3">
+        <div class="step-head"><span class="step-index">3</span><div><strong>选择上课时间</strong><span class="step-note">支持每周 / 每天批量预约</span></div></div>
+        <div class="bk-modes" id="repeatTabs" aria-label="预约方式">
+          <button class="bk-mode active" type="button" data-repeat="once">单次</button>
+          <button class="bk-mode" type="button" data-repeat="weekly">每周 4 次</button>
+          <button class="bk-mode" type="button" data-repeat="daily">每天 7 天</button>
+        </div>
+        <div class="bk-repeat-note" id="repeatNote">选择一天和一个时刻，只约这一次</div>
+        <div class="bk-day-tabs" id="dayList" aria-label="可约日期"></div>
+        <div class="bk-slots" id="slotList" aria-live="polite"></div>
+        <div class="bk-batch" id="batchPreview" hidden></div>
+        <div class="bk-place" id="placeNote"></div>
+      </section>
+
+    <div class="actionbar">
+      <div class="summary" id="summary">请选择上课日期和具体时间</div>
+      <button class="submit" id="submit" type="button" disabled>提交约课</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div></div></main>
+
+  <script src="约课数据.js?v=20260914-3"></script>
+  <script>
+    const STUDENT = '王子涵';
+    const state = { courseId: 'function', defaultTeacherId: '', defaultReason: '', historyCount: 0, teacherId: '', switching: false, repeat: 'once', date: '', time: '' };
+    const CLASS_MINUTES = YZB.DEFAULT_CLASS_MINUTES;
+    const CLASS_LESSONS = YZB.DEFAULT_CLASS_LESSONS;
+    const CLASS_LABEL = '1.5 小时';
+    const REPEAT_NOTE = { once: '选择一天和一个时刻，只约这一次', weekly: '从所选日期起，每周同一天同一时间，连约 4 次', daily: '从所选日期起，连续 7 天同一时间' };
+    const courseList = document.querySelector('#courseList');
+    const teacherCard = document.querySelector('#teacherCard');
+    const teacherList = document.querySelector('#teacherList');
+    const switchTeacher = document.querySelector('#switchTeacher');
+    const dayList = document.querySelector('#dayList');
+    const slotList = document.querySelector('#slotList');
+    const repeatTabs = document.querySelector('#repeatTabs');
+    const repeatNote = document.querySelector('#repeatNote');
+    const batchPreview = document.querySelector('#batchPreview');
+    const placeNote = document.querySelector('#placeNote');
+    const summary = document.querySelector('#summary');
+    const submit = document.querySelector('#submit');
+    const toast = document.querySelector('#toast');
+
+    document.querySelector('.back').onclick = () => location.href = '学习中心_页面还原.html';
+
+    function showToast(text) { toast.textContent = text; toast.classList.add('show'); }
+    function courseById(id) { return YZB.courses().filter(item => item.id === id)[0]; }
+    function clearTime() { state.date = ''; state.time = ''; }
+
+    function renderHours() {
+      const hours = YZB.hours();
+      document.querySelector('#hoursNote').innerHTML =
+        `本课程剩余 <b>${hours.available}</b> 课时 · 本次约 <b>${CLASS_LABEL}</b>（<b>${CLASS_LESSONS}</b> 课时）<br>老师确认后冻结，签到成功后扣减`;
+    }
+
+    function renderCourses() {
+      const hours = YZB.hours();
+      courseList.innerHTML = YZB.courses().map(course => `
+        <button class="bk-course ${course.id === state.courseId ? 'active' : ''}" type="button" data-course="${course.id}">
+          <span class="bk-teacher-copy"><strong>${course.name}</strong><span>${course.grade} · ${course.subject} · ${course.mode}</span><span class="bk-course-duration">每节 ${CLASS_LABEL} · 消耗 ${CLASS_LESSONS} 课时</span></span>
+          <span class="bk-badge">剩余 <b>${hours.available}</b> 课时</span>
+        </button>`).join('');
+    }
+
+    function renderTeacher() {
+      const options = YZB.teachersFor(state.courseId);
+      if (!options.some(item => item.id === state.teacherId)) {
+        const recommend = YZB.recommendTeacher(STUDENT, state.courseId);
+        state.defaultTeacherId = recommend ? recommend.teacherId : '';
+        state.defaultReason = recommend ? recommend.reason : '';
+        state.historyCount = recommend ? recommend.count : 0;
+        state.teacherId = state.defaultTeacherId;
+        clearTime();
+      }
+      const teacher = YZB.teacher(state.teacherId);
+      if (!teacher) {
+        teacherCard.hidden = true;
+        teacherList.hidden = true;
+        switchTeacher.hidden = true;
+        return;
+      }
+      teacherCard.hidden = false;
+      switchTeacher.hidden = false;
+      const isDefault = state.teacherId === state.defaultTeacherId;
+      const reason = isDefault
+        ? (state.defaultReason === 'history' ? `曾给${STUDENT}上过 ${state.historyCount} 次这门课` : '首次约课 · 系统自动匹配')
+        : '手动更换';
+      document.querySelector('#teacherAvatar').textContent = teacher.avatar;
+      document.querySelector('#teacherName').textContent = teacher.name;
+      document.querySelector('#teacherReason').textContent = reason;
+      document.querySelector('#teacherMeta').textContent = `${teacher.intro} · ${teacher.years} 年教学 · ${teacher.score} 分`;
+      document.querySelector('#teacherOpen').textContent = `空闲时间：${YZB.availabilityLabel(teacher.id)} · 未来 4 周可约 ${YZB.teacherFreeCount(teacher.id)} 个时段`;
+      switchTeacher.textContent = state.switching ? '收起' : '更换';
+      teacherList.hidden = !state.switching;
+      teacherList.innerHTML = options.map(item => {
+        const tag = item.id === state.defaultTeacherId ? '<em class="bk-reason">推荐</em>' : '';
+        return `
+        <button class="bk-teacher ${item.id === state.teacherId ? 'active' : ''}" type="button" data-teacher="${item.id}">
+          <span class="bk-mark">${item.avatar}</span>
+          <span class="bk-teacher-copy"><strong>${item.name}${tag}</strong><span>${item.intro} · ${item.score} 分</span><span>空闲时间：${YZB.availabilityLabel(item.id)}</span></span>
+          <span class="bk-badge">${YZB.teacherFreeCount(item.id)} 个时段</span>
+        </button>`;
+      }).join('');
+    }
+
+    function renderDays() {
+      const days = YZB.teacherDayOptions(state.teacherId);
+      if (!days.some(day => day.date === state.date && day.count)) {
+        clearTime();
+        const first = days.filter(day => day.count)[0];
+        if (first) state.date = first.date;
+      }
+      dayList.innerHTML = days.map(day => `
+        <button class="bk-day ${day.date === state.date ? 'active' : ''}" type="button" data-date="${day.date}"${day.count ? '' : ' disabled'}>
+          <strong>${day.label}</strong>
+          <span>${day.week} · ${day.count ? day.count + ' 个时段' : '不可约'}</span>
+        </button>`).join('');
+    }
+
+    function renderSlots() {
+      if (!state.date) { slotList.innerHTML = '<div class="bk-empty">该老师未来 4 周暂无可约时段</div>'; return; }
+      const slots = YZB.teacherSlotOptions(state.teacherId, state.date);
+      if (!slots.some(slot => slot.time === state.time && slot.state === 'open')) state.time = '';
+      slotList.innerHTML = slots.map(slot => {
+        const note = slot.state === 'open' ? '可约' : slot.state === 'booked' ? '已被约' : '未开放';
+        return `
+        <button class="bk-slot" type="button" data-state="${slot.state}" data-time="${slot.time}"${slot.state === 'open' ? '' : ' disabled'}>
+          ${slot.time}<small>${note}</small>
+        </button>`;
+      }).join('');
+      slotList.querySelectorAll('.bk-slot[data-state="open"]').forEach(button => {
+        if (button.dataset.time === state.time) button.classList.add('active');
+      });
+    }
+
+    function currentSessions() {
+      if (!state.date || !state.time) return [];
+      return YZB.batchSessions({ teacherId: state.teacherId, date: state.date, time: state.time, mode: state.repeat });
+    }
+
+    function renderBatch() {
+      repeatNote.textContent = REPEAT_NOTE[state.repeat];
+      repeatTabs.querySelectorAll('.bk-mode').forEach(button => {
+        button.classList.toggle('active', button.dataset.repeat === state.repeat);
+      });
+      if (state.repeat === 'once' || !state.date || !state.time) { batchPreview.hidden = true; return; }
+      const sessions = currentSessions();
+      const bookable = sessions.filter(item => item.ok).length;
+      const day = YZB.dayInfo(state.date);
+      const pattern = state.repeat === 'weekly' ? `每${day.week} ${state.time}` : `每天 ${state.time}`;
+      batchPreview.hidden = false;
+      batchPreview.innerHTML = `
+        <div class="bk-batch-head"><span>批量预览：${pattern}</span><span>可提交 ${bookable}/${sessions.length} 次</span></div>
+        ${sessions.map(item => `
+          <div class="bk-batch-row${item.ok ? '' : ' skip'}">
+            <span>${item.label} ${item.week} ${item.time}</span>
+            <b>${item.ok ? '可约' : item.state === 'booked' ? '已被约 · 跳过' : '未开放 · 跳过'}</b>
+          </div>`).join('')}
+        <div class="bk-batch-foot">${bookable === sessions.length ? `所选日期均可约，提交后生成 ${sessions.length} 条约课` : `不可约的日期自动跳过，只提交可约的 ${bookable} 条`}</div>`;
+    }
+
+    function renderPlace() {
+      const course = courseById(state.courseId);
+      placeNote.textContent = `上课方式：${course.mode} · ${course.place}；提交后老师确认，签到成功后按课时扣减。`;
+    }
+
+    function renderSummary() {
+      const teacher = YZB.teacher(state.teacherId);
+      const hours = YZB.hours();
+      const ready = !!(teacher && state.date && state.time);
+      const sessions = ready && state.repeat !== 'once' ? currentSessions() : [];
+      const bookable = state.repeat === 'once' ? (ready ? 1 : 0) : sessions.filter(item => item.ok).length;
+      const totalLessons = CLASS_LESSONS * bookable;
+      if (!ready) summary.textContent = '请选择老师、上课日期和具体时间';
+      else if (!bookable) summary.textContent = '所选时段都不可约，请重新选择日期或时间';
+      else if (hours.available < totalLessons) summary.textContent = `剩余 ${hours.available} 课时，本次共需 ${totalLessons} 课时`;
+      else {
+        const day = YZB.dayInfo(state.date);
+        if (state.repeat === 'once') summary.innerHTML = `${day.label} ${day.week} ${state.time} · ${teacher.name} · 确认后冻结 <b>${totalLessons}</b> 课时`;
+        else {
+          const pattern = state.repeat === 'weekly' ? `每${day.week} ${state.time}` : `每天 ${state.time}`;
+          const skip = sessions.length - bookable;
+          summary.innerHTML = `${teacher.name} · ${pattern} · 连约 <b>${bookable}</b> 次${skip ? `（${skip} 个不可约已跳过）` : ''} · 确认后冻结 <b>${totalLessons}</b> 课时`;
+        }
+      }
+      submit.disabled = !ready || !bookable || hours.available < totalLessons;
+    }
+
+    function refreshAll() { renderCourses(); renderTeacher(); renderDays(); renderSlots(); renderBatch(); renderPlace(); renderSummary(); renderHours(); }
+
+    courseList.addEventListener('click', event => {
+      const button = event.target.closest('[data-course]');
+      if (!button) return;
+      state.courseId = button.dataset.course;
+      state.teacherId = '';
+      state.switching = false;
+      clearTime();
+      refreshAll();
+    });
+
+    switchTeacher.addEventListener('click', () => {
+      state.switching = !state.switching;
+      renderTeacher();
+    });
+
+    teacherList.addEventListener('click', event => {
+      const button = event.target.closest('[data-teacher]');
+      if (!button) return;
+      state.teacherId = button.dataset.teacher;
+      state.switching = false;
+      clearTime();
+      refreshAll();
+    });
+
+    repeatTabs.addEventListener('click', event => {
+      const button = event.target.closest('[data-repeat]');
+      if (!button) return;
+      state.repeat = button.dataset.repeat;
+      renderBatch();
+      renderSummary();
+    });
+
+    dayList.addEventListener('click', event => {
+      const button = event.target.closest('[data-date]');
+      if (!button || button.disabled) return;
+      state.date = button.dataset.date;
+      state.time = '';
+      renderDays(); renderSlots(); renderBatch(); renderSummary();
+    });
+
+    slotList.addEventListener('click', event => {
+      const button = event.target.closest('.bk-slot');
+      if (!button || button.disabled) return;
+      state.time = button.dataset.time;
+      renderSlots(); renderBatch(); renderSummary();
+    });
+
+    submit.addEventListener('click', () => {
+      const course = courseById(state.courseId);
+      const teacher = YZB.teacher(state.teacherId);
+      const hours = YZB.hours();
+      if (!teacher || !state.date || !state.time) { showToast('请先确认老师和上课时间'); return; }
+      const anchor = YZB.dayInfo(state.date);
+      const sessions = state.repeat === 'once'
+        ? [{ date: state.date, label: anchor.label, week: anchor.week, time: state.time, ok: true }]
+        : currentSessions().filter(item => item.ok);
+      if (!sessions.length) { showToast('所选时段都不可约，请重新选择'); return; }
+      const totalLessons = CLASS_LESSONS * sessions.length;
+      if (hours.available < totalLessons) { showToast(`剩余课时不足，本次约课共需 ${totalLessons} 课时`); return; }
+      const batchId = sessions.length > 1 ? YZB.makeId() : '';
+      const pattern = sessions.length > 1 ? (state.repeat === 'weekly' ? `每${anchor.week} ${state.time}` : `每天 ${state.time}`) : '';
+      sessions.forEach((session, index) => {
+        const day = YZB.dayInfo(session.date);
+        YZB.add({
+          id: YZB.makeId(), student: STUDENT, courseId: course.id, courseName: course.name, subject: course.subject, grade: course.grade,
+          lessons: CLASS_LESSONS, lessonMinutes: CLASS_MINUTES, durationLabel: CLASS_LABEL,
+          teacherId: teacher.id, teacherName: teacher.name, date: session.date, dateLabel: day.label, time: session.time,
+          mode: course.mode, place: course.place, remark: '', status: 'pending',
+          createdAt: '8月10日 22:30', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: '',
+          batchId: batchId, batchIndex: index + 1, batchTotal: sessions.length, batchLabel: pattern
+        });
+      });
+      showToast(sessions.length > 1 ? `已提交 ${sessions.length} 条约课，等待老师确认` : `约课已提交：${sessions[0].label} ${state.time} 等待老师确认`);
+      setTimeout(() => { location.href = '上课记录_页面还原.html?filter=pending'; }, 900);
+    });
+
+    refreshAll();
+    function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
+    fit(); addEventListener('resize', fit, { passive: true });
+  </script>
+  </script>
+<script src="原型开发说明.js?v=20260914-3"></script></body></html>

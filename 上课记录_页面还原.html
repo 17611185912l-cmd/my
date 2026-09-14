@@ -3,43 +3,278 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#edf4ff"><title>家长端 · 上课记录</title>
   <style>
-    :root{--device-scale:1;--blue:#356da9;--line:#e5ebf2}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100svh;padding:16px;display:grid;place-items:center;overflow:hidden;color:#24262b;background:#e7eaee;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{padding:0;border:0;color:inherit;background:none;cursor:pointer}.phone-shell{position:relative;isolation:isolate;width:464px;height:980px;padding:11px;border:1px solid #777d84;border-radius:66px;background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e);box-shadow:0 34px 70px rgba(32,38,45,.28),inset 0 0 0 3px rgba(33,36,40,.68);transform:scale(var(--device-scale));transform-origin:center}.dynamic-island{position:absolute;z-index:30;top:22px;left:50%;width:126px;height:34px;transform:translateX(-50%);border-radius:20px;background:#050505;pointer-events:none}.dynamic-island:after{content:"";position:absolute;right:12px;top:11px;width:8px;height:8px;border-radius:50%;background:#111a25}.app{position:relative;width:440px;height:956px;overflow:hidden;border-radius:54px;background:#f5f4f6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.52)}.page{height:100%;overflow-y:auto;scrollbar-width:none;background:linear-gradient(to bottom,rgba(245,244,246,0) 148px,#f5f4f6 218px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.page::-webkit-scrollbar{display:none}header{position:sticky;z-index:10;top:0;color:#294966;background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.statusbar{height:36px;padding:17px 36px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#050505;font-size:15px;line-height:1;font-weight:700}.device-status{display:flex;align-items:center;gap:8px}.signal{width:18px;height:12px;display:flex;align-items:flex-end;gap:2px}.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{position:relative;width:18px;height:13px;overflow:hidden}.wifi:before,.wifi:after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi:before{top:0;width:19px;height:17px}.wifi:after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}.battery{position:relative;width:23px;height:11px;padding:2px;border:1.5px solid #919191;border-radius:3px}.battery:before{content:"";display:block;width:100%;height:100%;border-radius:1px;background:#050505}.battery:after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;background:#b4b4b4}.titlebar{position:relative;height:57px;display:flex;align-items:center}.titlebar h1{width:100%;margin:0;font-size:18px;line-height:26px;font-weight:600;text-align:center}.back{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px}.back:before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #294966;border-width:0 0 2px 2px;transform:rotate(45deg)}.capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(61,105,151,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{height:100%;display:flex;align-items:center;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}.tabs{position:sticky;z-index:9;top:93px;height:54px;padding:0 12px;display:grid;grid-template-columns:repeat(3,1fr);background:#fff}.tab{position:relative;color:#777a82;font-size:14px}.tab.active{color:var(--blue);font-weight:650}.tab.active:after{content:"";position:absolute;left:50%;bottom:0;width:22px;height:3px;border-radius:2px;background:#4b7fb8;transform:translateX(-50%)}.content{padding:8px 12px 30px}.filter-bar{padding:12px 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;border-radius:8px;background:#fff}.filter-item{min-width:0}.filter-item label{display:block;margin-bottom:6px;color:#777a82;font-size:14px}.filter-item select{width:100%;height:36px;padding:0 28px 0 9px;border:1px solid #d8e1eb;border-radius:5px;outline:none;color:var(--blue);background:#f7faff;font-size:14px}.mode-filter{grid-column:1/-1}.mode-options{height:36px;padding:3px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border:1px solid #d8e1eb;border-radius:5px;background:#f7faff}.mode-option{min-width:0;border-radius:3px;color:#777a82;font-size:14px;line-height:28px}.mode-option.active{color:#fff;font-weight:600;background:#4b7fb8;box-shadow:0 1px 3px rgba(53,109,169,.18)}.summary{height:66px;margin-top:8px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-radius:8px;background:#fff}.summary span{color:#777a82;font-size:14px}.summary strong{color:var(--blue);font-size:22px}.record-list{margin-top:8px}.record{position:relative;margin-bottom:8px;padding:14px;border-radius:8px;background:#fff}.record-top{display:flex;align-items:flex-start}.record-top strong{min-width:0;flex:1;font-size:15px;line-height:22px}.record-side{margin-left:10px;display:flex;flex-direction:column;align-items:flex-end}.badge{padding:3px 7px;border-radius:4px;color:var(--blue);background:#edf4ff;font-size:14px;white-space:nowrap}.badge.done{color:#34705a;background:#eaf7f1}.badge.review{color:#9d5d13;background:#fff4df}.review-action{position:absolute;right:14px;top:56%;padding:3px 8px;border:1px solid #4b7fb8;border-radius:4px;color:var(--blue);background:#fff;font-size:14px;line-height:20px;text-decoration:none;white-space:nowrap;transform:translateY(-50%)}.meta{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#777a82;font-size:14px;line-height:20px}.empty{padding:80px 0;color:#99969a;font-size:14px;text-align:center}@media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
-    .record{cursor:pointer}.record:focus-visible{outline:2px solid rgba(75,127,184,.38);outline-offset:2px}.record[data-status="review"] .meta{padding-right:70px}.record-summary{margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}.summary-row{min-width:0;display:grid;grid-template-columns:68px minmax(0,1fr);gap:8px;color:#777a82;font-size:14px;line-height:20px}.summary-row+.summary-row{margin-top:5px}.summary-row strong{color:#565b64;font-weight:600}.summary-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.summary-row.pending span{color:#aaa}.review-action{top:55px;right:14px;left:auto;bottom:auto;min-width:58px;height:26px;padding:0 7px;line-height:24px;text-align:center;transform:none}
+    :root{--device-scale:1;--blue:#356da9;--line:#e5ebf2}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100svh;padding:16px;display:grid;place-items:center;overflow:hidden;color:#24262b;background:#e7eaee;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{padding:0;border:0;color:inherit;background:none;cursor:pointer}.phone-shell{position:relative;isolation:isolate;width:464px;height:980px;padding:11px;border:1px solid #777d84;border-radius:66px;background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e);box-shadow:0 34px 70px rgba(32,38,45,.28),inset 0 0 0 3px rgba(33,36,40,.68);transform:scale(var(--device-scale));transform-origin:center}.dynamic-island{position:absolute;z-index:30;top:22px;left:50%;width:126px;height:34px;transform:translateX(-50%);border-radius:20px;background:#050505;pointer-events:none}.dynamic-island:after{content:"";position:absolute;right:12px;top:11px;width:8px;height:8px;border-radius:50%;background:#111a25}.app{position:relative;width:440px;height:956px;overflow:hidden;border-radius:54px;background:#f5f4f6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.52)}.page{height:100%;overflow-y:auto;scrollbar-width:none;background:linear-gradient(to bottom,rgba(245,244,246,0) 148px,#f5f4f6 218px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.page::-webkit-scrollbar{display:none}header{position:sticky;z-index:10;top:0;color:#294966;background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.statusbar{height:36px;padding:17px 36px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#050505;font-size:15px;line-height:1;font-weight:700}.device-status{display:flex;align-items:center;gap:8px}.signal{width:18px;height:12px;display:flex;align-items:flex-end;gap:2px}.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{position:relative;width:18px;height:13px;overflow:hidden}.wifi:before,.wifi:after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi:before{top:0;width:19px;height:17px}.wifi:after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}.battery{position:relative;width:23px;height:11px;padding:2px;border:1.5px solid #919191;border-radius:3px}.battery:before{content:"";display:block;width:100%;height:100%;border-radius:1px;background:#050505}.battery:after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;background:#b4b4b4}.titlebar{position:relative;height:57px;display:flex;align-items:center}.titlebar h1{width:100%;margin:0;font-size:18px;line-height:26px;font-weight:600;text-align:center}.back{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px}.back:before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #294966;border-width:0 0 2px 2px;transform:rotate(45deg)}.capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(61,105,151,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{height:100%;display:flex;align-items:center;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}.tabs{position:sticky;z-index:9;top:93px;height:54px;padding:0 12px;display:grid;grid-template-columns:repeat(6,1fr);background:#fff}.tab{position:relative;color:#777a82;font-size:14px}.tab.active{color:var(--blue);font-weight:650}.tab.active:after{content:"";position:absolute;left:50%;bottom:0;width:22px;height:3px;border-radius:2px;background:#4b7fb8;transform:translateX(-50%)}.content{padding:8px 12px 30px}.filter-bar{padding:12px 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;border-radius:8px;background:#fff}.filter-item{min-width:0}.filter-item label{display:block;margin-bottom:6px;color:#777a82;font-size:14px}.filter-item select{width:100%;height:36px;padding:0 28px 0 9px;border:1px solid #d8e1eb;border-radius:5px;outline:none;color:var(--blue);background:#f7faff;font-size:14px}.mode-filter{grid-column:1/-1}.mode-options{height:36px;padding:3px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border:1px solid #d8e1eb;border-radius:5px;background:#f7faff}.mode-option{min-width:0;border-radius:3px;color:#777a82;font-size:14px;line-height:28px}.mode-option.active{color:#fff;font-weight:600;background:#4b7fb8;box-shadow:0 1px 3px rgba(53,109,169,.18)}.summary{height:66px;margin-top:8px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-radius:8px;background:#fff}.summary span{color:#777a82;font-size:14px}.summary strong{color:var(--blue);font-size:22px}.record-list{margin-top:8px}.record{position:relative;margin-bottom:8px;padding:14px;border-radius:8px;background:#fff}.record-top{display:flex;align-items:flex-start}.record-top strong{min-width:0;flex:1;font-size:15px;line-height:22px}.record-side{margin-left:10px;display:flex;flex-direction:column;align-items:flex-end}.badge{padding:3px 7px;border-radius:4px;color:var(--blue);background:#edf4ff;font-size:14px;white-space:nowrap}.badge.done{color:#34705a;background:#eaf7f1}.badge.review{color:#9d5d13;background:#fff4df}.review-action{position:absolute;right:14px;top:56%;padding:3px 8px;border:1px solid #4b7fb8;border-radius:4px;color:var(--blue);background:#fff;font-size:14px;line-height:20px;text-decoration:none;white-space:nowrap;transform:translateY(-50%)}.meta{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#777a82;font-size:14px;line-height:20px}.empty{padding:80px 0;color:#99969a;font-size:14px;text-align:center}@media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
+    .record{cursor:pointer}.record:focus-visible{outline:2px solid rgba(75,127,184,.38);outline-offset:2px}.record[data-status="review"] .meta{padding-right:0}.record-summary{margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}.summary-row{min-width:0;display:grid;grid-template-columns:68px minmax(0,1fr);gap:8px;color:#777a82;font-size:14px;line-height:20px}.summary-row+.summary-row{margin-top:5px}.summary-row strong{color:#565b64;font-weight:600}.summary-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.summary-row.pending span{color:#aaa}.review-action{top:55px;right:14px;left:auto;bottom:auto;min-width:58px;height:26px;padding:0 7px;line-height:24px;text-align:center;transform:none}
     .record-side{flex-direction:row;align-items:center;gap:5px}.record-side::before{padding:3px 7px;border-radius:4px;color:#5e6c7b;background:#f0f3f6;font-size:14px;line-height:20px;white-space:nowrap}.record[data-mode="online"] .record-side::before{content:"线上"}.record[data-mode="offline"] .record-side::before{content:"线下"}.record[data-mode="home"] .record-side::before{content:"上门"}.record{padding:11px 14px}.meta{margin-top:5px;display:flex;flex-wrap:wrap;align-items:center;gap:3px 14px;line-height:19px}.meta span:nth-child(3){order:1;flex:0 0 100%;color:#596674}.meta span:nth-child(1){order:2}.meta span:nth-child(2){order:3}.meta span:nth-child(4){order:4}.meta span:nth-child(n+5){display:none}
+    /* 融合「我的约课」后新增：课时统计、按钮、批量标记、取消抽屉与提示 */
+    .summary{height:52px}
+    .filter-bar{padding:10px 12px}
+    .filter-item label{margin-bottom:4px}
+    .hours-card{padding:10px 14px}
+    .hours-stats{display:grid;grid-template-columns:repeat(3,1fr)}
+    .hours-stat{position:relative;text-align:center}
+    .hours-stat+.hours-stat:before{content:"";position:absolute;left:0;top:4px;width:1px;height:42px;background:var(--line)}
+    .hours-stat strong{display:block;color:#454951;font-size:19px;line-height:26px;font-weight:650}
+    .hours-stat.primary strong{color:var(--blue);font-size:24px}
+    .hours-stat small{margin-left:2px;font-size:14px;font-weight:500}
+    .hours-stat span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:20px}
+    .hours-note{margin-top:9px;padding:8px 10px;border-radius:6px;color:var(--blue);background:#edf4ff;font-size:14px;line-height:20px}
+    .hours-note.frozen{color:#9d5d13;background:#fff4df}
+    .btn{flex:0 0 auto;height:34px;padding:0 14px;border-radius:6px;font-size:14px;line-height:34px;text-decoration:none;white-space:nowrap}
+    .btn.primary{color:#fff;background:#4b7fb8}
+    .btn.ghost{color:var(--blue);background:#edf4ff}
+    .btn.plain{color:#5e6c7b;border:1px solid var(--line);background:#fff}
+    .btn[disabled]{opacity:.45}
+    .hours-cta{display:block;height:40px;margin-top:10px;text-align:center;font-size:15px;line-height:40px}
+    .tabs{padding:0 12px;grid-template-columns:repeat(6,1fr)}
+    .badge.pending{color:#9d5d13;background:#fff4df}
+    .badge.waiting{color:var(--blue);background:#edf4ff}
+    .badge.cancelled{color:#777a82;background:#f0f3f6}
+    .batch-tag{padding:3px 7px;border-radius:4px;color:var(--blue);background:#edf4ff;font-size:14px;line-height:20px;white-space:nowrap}
+    .record.static{cursor:default}
+    .record-remark{margin-top:8px;padding:8px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
+    .record-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px}
+    .record-tip{min-width:0;flex:1;color:#777a82;font-size:14px;line-height:20px}
+    .record-tip.frozen{color:#9d5d13}
+    .record-tip.deducted{color:#34705a}
+    .sheet-mask{position:absolute;z-index:25;inset:0;background:rgba(24,32,42,.34);opacity:0;visibility:hidden;transition:.2s}
+    .sheet-mask.show{opacity:1;visibility:visible}
+    .sheet{position:absolute;z-index:26;left:0;right:0;bottom:0;padding:16px 16px 22px;border-radius:14px 14px 0 0;background:#fff;box-shadow:0 -8px 24px rgba(47,75,106,.16);transform:translateY(102%);visibility:hidden;transition:transform .24s,visibility .24s}
+    .sheet.show{transform:translateY(0);visibility:visible}
+    .sheet h2{margin:0;font-size:16px;line-height:24px;font-weight:650}
+    .sheet-note{display:block;margin-top:4px;color:#777a82;font-size:14px;line-height:20px}
+    .reason-list{margin-top:10px;display:grid;gap:7px}
+    .reason{width:100%;height:40px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#454951;font-size:14px;text-align:left}
+    .reason.active{border-color:#4b7fb8;color:var(--blue);background:#edf4ff}
+    .sheet-actions{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .sheet-actions .btn{width:100%}
+    .toast{position:absolute;z-index:30;left:50%;bottom:96px;padding:9px 14px;border-radius:5px;color:#fff;background:rgba(27,28,31,.88);font-size:14px;transform:translate(-50%,10px);opacity:0;transition:.2s}
+    .toast.show{transform:translate(-50%,0);opacity:1}
+    @media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
   </style>
 </head>
 <body><main class="phone-shell" aria-label="上课记录页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header><div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div><div class="titlebar"><button class="back" type="button" aria-label="返回学习中心"></button><h1>家长端 · 上课记录</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div></header>
-  <nav class="tabs" aria-label="上课记录筛选"><button class="tab" data-filter="all">全部课程</button><button class="tab" data-filter="waiting">待上课</button><button class="tab" data-filter="review">待评价</button></nav>
-  <div class="content"><div class="filter-bar"><div class="filter-item"><label for="monthFilter">上课月份</label><select id="monthFilter"><option value="all">全部月份</option><option value="2026-08">2026年8月</option><option value="2026-07">2026年7月</option><option value="2026-06">2026年6月</option></select></div><div class="filter-item"><label for="courseFilter">课程</label><select id="courseFilter"><option value="all">全部课程</option><option value="function">函数基础</option><option value="sequence">数列专题</option><option value="trigonometry">三角函数</option><option value="geometry">立体几何</option><option value="probability">概率基础</option><option value="analytic">解析几何</option></select></div><div class="filter-item mode-filter"><label>授课方式</label><div class="mode-options" role="group" aria-label="授课方式"><button class="mode-option active" type="button" data-mode="all">全部</button><button class="mode-option" type="button" data-mode="online">线上</button><button class="mode-option" type="button" data-mode="offline">线下</button><button class="mode-option" type="button" data-mode="home">上门</button></div></div></div><section class="summary"><span class="summary-label">累计上课</span><strong class="summary-value">36课时</strong></section><div class="record-list">
-    <article class="record" role="link" tabindex="0" data-detail="function-0810" data-status="waiting" data-month="2026-08" data-course="function" data-mode="offline" data-teacher="zhang"><div class="record-top"><strong>高一数学·函数基础</strong><span class="record-side"><span class="badge">待上课</span></span></div><div class="meta"><span>张三老师</span><span>8月10日 10:00</span><span>陕西省·人教A版</span><span>60分钟</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="sequence-0815" data-status="waiting" data-month="2026-08" data-course="sequence" data-mode="online" data-teacher="li"><div class="record-top"><strong>高一数学·数列专题</strong><span class="record-side"><span class="badge">待上课</span></span></div><div class="meta"><span>李明老师</span><span>8月15日 19:00</span><span>陕西省·人教A版</span><span>60分钟</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="trigonometry-0808" data-status="review" data-month="2026-08" data-course="trigonometry" data-mode="offline" data-teacher="zhang"><div class="record-top"><strong>高一数学·三角函数</strong><span class="record-side"><span class="badge review">待评价</span><a class="review-action" href="课程评价_页面还原.html?course=trigonometry">去评价</a></span></div><div class="meta"><span>张三老师</span><span>8月8日 16:00</span><span>陕西省·人教A版</span><span>60分钟</span></div><div class="record-summary"><div class="summary-row"><strong>课程反馈</strong><span>知识点掌握较好，诱导公式符号判断还需加强</span></div><div class="summary-row"><strong>课后作业</strong><span>完成教材第32页练习1-6题，整理易混淆符号</span></div></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="function-0803" data-status="review" data-month="2026-08" data-course="function" data-mode="online" data-teacher="wang"><div class="record-top"><strong>高一数学·函数基础</strong><span class="record-side"><span class="badge review">待评价</span><a class="review-action" href="课程评价_页面还原.html?course=function">去评价</a></span></div><div class="meta"><span>王静老师</span><span>8月3日 14:00</span><span>陕西省·人教A版</span><span>60分钟</span></div><div class="record-summary"><div class="summary-row"><strong>课程反馈</strong><span>课堂参与度高，复合函数定义域需要增加练习</span></div><div class="summary-row"><strong>课后作业</strong><span>完成8道定义域专项题，并标注限制条件</span></div></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="geometry-0724" data-status="done" data-month="2026-07" data-course="geometry" data-mode="offline" data-teacher="li"><div class="record-top"><strong>高一数学·立体几何</strong><span class="record-side"><span class="badge done">已评价</span></span></div><div class="meta"><span>李明老师</span><span>7月24日 18:30</span><span>陕西省·人教A版</span><span>60分钟</span></div><div class="record-summary"><div class="summary-row"><strong>课程反馈</strong><span>空间位置关系识别准确，证明步骤需更规范</span></div><div class="summary-row"><strong>课后作业</strong><span>完成讲义第2章第5-10题，写明所用定理</span></div></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="probability-0718" data-status="done" data-month="2026-07" data-course="probability" data-mode="online" data-teacher="wang"><div class="record-top"><strong>高一数学·概率基础</strong><span class="record-side"><span class="badge done">已评价</span></span></div><div class="meta"><span>王静老师</span><span>7月18日 16:00</span><span>陕西省·人教A版</span><span>60分钟</span></div><div class="record-summary"><div class="summary-row"><strong>课程反馈</strong><span>古典概型掌握较好，复杂情境需注意分类讨论</span></div><div class="summary-row"><strong>课后作业</strong><span>完成讲义第18-24题，写出基本事件数量</span></div></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="analytic-0626" data-status="done" data-month="2026-06" data-course="analytic" data-mode="offline" data-teacher="zhang"><div class="record-top"><strong>高一数学·解析几何</strong><span class="record-side"><span class="badge done">已评价</span></span></div><div class="meta"><span>张三老师</span><span>6月26日 19:00</span><span>陕西省·人教A版</span><span>60分钟</span></div><div class="record-summary"><div class="summary-row"><strong>课程反馈</strong><span>计算更加熟练，需继续检查参数范围</span></div><div class="summary-row"><strong>课后作业</strong><span>完成综合练习第3、5、7题并订正错题</span></div></div></article>
-  </div><div class="empty" hidden>暂无符合条件的上课记录</div></div></div></div></main>
+  <nav class="tabs" aria-label="上课记录筛选"><button class="tab" data-filter="all">全部课程</button><button class="tab" data-filter="waiting">待上课</button><button class="tab" data-filter="pending">待确认</button><button class="tab" data-filter="review">待评价</button><button class="tab" data-filter="done">已完成</button><button class="tab" data-filter="cancelled">已取消</button></nav>
+  <div class="content">
+    <section class="card hours-card" aria-label="课时统计"><div class="hours-stats"><div class="hours-stat primary"><strong><b id="availableHours">17</b><small>课时</small></strong><span>剩余可用</span></div><div class="hours-stat"><strong><b id="frozenHours">2</b><small>课时</small></strong><span>冻结中</span></div><div class="hours-stat"><strong><b id="usedHours">41</b><small>课时</small></strong><span>已上课时</span></div></div><div class="hours-note" id="hoursNote">老师确认后按课程时长冻结课时，签到成功后扣减（1 课时 = 45 分钟）</div><a class="btn primary hours-cta" href="约课_页面还原.html">去约课</a></section>
+    <section class="summary"><span class="summary-label">累计上课</span><strong class="summary-value">41课时</strong></section>
+    <div class="filter-bar"><div class="filter-item"><label for="monthFilter">上课月份</label><select id="monthFilter"><option value="all">全部月份</option></select></div><div class="filter-item"><label for="courseFilter">课程</label><select id="courseFilter"><option value="all">全部课程</option></select></div><div class="filter-item mode-filter"><label>授课方式</label><div class="mode-options" role="group" aria-label="授课方式"><button class="mode-option active" type="button" data-mode="all">全部</button><button class="mode-option" type="button" data-mode="online">线上</button><button class="mode-option" type="button" data-mode="offline">线下</button><button class="mode-option" type="button" data-mode="home">上门</button></div></div></div>
+    <div class="record-list" id="recordList"></div>
+    <div class="empty" hidden>暂无符合条件的上课记录</div>
+  </div>
+  <div class="sheet-mask" id="sheetMask"></div>
+  <div class="sheet" id="cancelSheet" role="dialog" aria-label="取消约课原因">
+    <h2>取消这个约课？</h2>
+    <span class="sheet-note" id="sheetNote">取消后可重新选择上课时间，冻结的课时会立即释放</span>
+    <div class="reason-list" id="reasonList"></div>
+    <div class="sheet-actions"><button class="btn plain" type="button" id="cancelAbort">再想想</button><button class="btn primary" type="button" id="cancelConfirm" disabled>确认取消</button></div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div></div></main>
+  <script src="约课数据.js?v=20260914-3"></script>
   <script>
-    const labels={all:['累计上课','36课时'],waiting:['待上课','2课时'],review:['待评价','2课时']};
-    let activeFilter=new URLSearchParams(location.search).get('filter')||'all';
-    if(!labels[activeFilter]) activeFilter='all';
-    function applyFilters(){
-      const month=document.querySelector('#monthFilter').value;
-      const course=document.querySelector('#courseFilter').value;
-      const mode=document.querySelector('.mode-option.active').dataset.mode;
-      let visibleCount=0;
-      document.querySelectorAll('.record').forEach(record=>{const visible=(activeFilter==='all'||record.dataset.status===activeFilter)&&(month==='all'||record.dataset.month===month)&&(course==='all'||record.dataset.course===course)&&(mode==='all'||record.dataset.mode===mode);record.hidden=!visible;if(visible)visibleCount++});
-      document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.filter===activeFilter));
-      const hasExtraFilter=[month,course,mode].some(value=>value!=='all');
-      document.querySelector('.summary-label').textContent=hasExtraFilter?'筛选结果':labels[activeFilter][0];
-      document.querySelector('.summary-value').textContent=hasExtraFilter?`${visibleCount}课时`:labels[activeFilter][1];
-      document.querySelector('.empty').hidden=visibleCount!==0;
+    const TABS = [
+      { key: 'all', label: '全部课程', states: null },
+      { key: 'waiting', label: '待上课', states: ['confirmed'] },
+      { key: 'pending', label: '待确认', states: ['pending'] },
+      { key: 'review', label: '待评价', states: ['attended'] },
+      { key: 'done', label: '已完成', states: ['done'] },
+      { key: 'cancelled', label: '已取消', states: ['cancelled'] }
+    ];
+    const STATE_TEXT = { pending: '待确认', confirmed: '待上课', attended: '待评价', done: '已完成', cancelled: '已取消' };
+    const STATUS_KEY = { pending: 'pending', confirmed: 'waiting', attended: 'review', done: 'done', cancelled: 'cancelled' };
+    const DETAIL_SLUG = { 'function': 'function-0803', sequence: 'sequence-0815', trigonometry: 'trigonometry-0808', tutorial: 'tutorial', geometry: 'geometry-0724' };
+    const REVIEW_COURSE = { trigonometry: 'trigonometry', 'function': 'function' };
+    const FEEDBACK = {
+      trigonometry: { feedback: '知识点掌握较好，诱导公式符号判断还需加强', homework: '完成教材第32页练习1-6题，整理易混淆符号' },
+      'function': { feedback: '课堂参与度高，基础概念理解准确，复合函数定义域还需增加练习', homework: '完成8道定义域专项题，并标注每题的限制条件' },
+      geometry: { feedback: '能够正确识别空间位置关系，证明题的步骤书写还需更规范', homework: '完成讲义第2章第5-10题，证明过程需写明所用定理' }
+    };
+    const REASONS = ['时间冲突', '孩子临时有事', '想更换上课时间', '想更换老师'];
+    let activeFilter = new URLSearchParams(location.search).get('filter') || 'all';
+    if (!TABS.some(tab => tab.key === activeFilter)) activeFilter = 'all';
+    let cancelTarget = '', cancelReason = '';
+
+    const store = window.YZB || null;
+    const monthSelect = document.querySelector('#monthFilter');
+    const courseSelect = document.querySelector('#courseFilter');
+    const recordList = document.querySelector('#recordList');
+    const emptyBox = document.querySelector('.empty');
+    const toast = document.querySelector('#toast');
+    const sheet = document.querySelector('#cancelSheet');
+    const sheetMask = document.querySelector('#sheetMask');
+    const sheetNote = document.querySelector('#sheetNote');
+    const reasonList = document.querySelector('#reasonList');
+    const cancelConfirm = document.querySelector('#cancelConfirm');
+
+    function modeKey(mode) { return mode === '线下' ? 'offline' : mode === '上门' ? 'home' : 'online'; }
+    function stampOf(item) { return (item.date || '') + ' ' + (item.time || ''); }
+    function lessonsOf(item) { return store ? store.lessonsOf(item) : 1; }
+    function slugOf(item) { return DETAIL_SLUG[item.courseId] || 'function-0803'; }
+
+    /* 未来的约课升序排在前，历史记录按时间倒序 */
+    function orderOf(a, b) {
+      const upcoming = ['pending', 'confirmed'];
+      const aFuture = upcoming.indexOf(a.status) > -1, bFuture = upcoming.indexOf(b.status) > -1;
+      if (aFuture !== bFuture) return aFuture ? -1 : 1;
+      return aFuture ? stampOf(a).localeCompare(stampOf(b)) : stampOf(b).localeCompare(stampOf(a));
     }
-    document.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{activeFilter=tab.dataset.filter;applyFilters()});
-    document.querySelectorAll('.filter-bar select').forEach(select=>select.onchange=applyFilters);
-    document.querySelectorAll('.mode-option').forEach(option=>option.onclick=()=>{document.querySelector('.mode-option.active').classList.remove('active');option.classList.add('active');applyFilters()});
-    document.querySelectorAll('.record[data-detail]').forEach(record=>{record.onclick=event=>{if(event.target.closest('a,button'))return;location.href=`课程详情_页面还原.html?role=parent&course=${record.dataset.detail}`};record.onkeydown=event=>{if((event.key==='Enter'||event.key===' ')&&!event.target.closest('a,button')){event.preventDefault();record.click()}}});
-    document.querySelector('.back').onclick=()=>location.href='学习中心_页面还原.html';
-    function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});applyFilters();
+
+    /* 反馈优先取「课程反馈」页写入的本地缓存，其次用演示文案 */
+    function feedbackOf(item) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('course-detail:' + slugOf(item)) || 'null');
+        if (saved && (saved.feedback || saved.homework || saved.requirement)) return { feedback: saved.feedback || '', homework: saved.homework || saved.requirement || '' };
+      } catch (error) { /* 忽略演示数据的缓存异常 */ }
+      return FEEDBACK[item.courseId] || null;
+    }
+
+    function summaryOf(item) {
+      if (item.status !== 'done' && item.status !== 'attended') return '';
+      const info = feedbackOf(item);
+      if (!info) return '';
+      const rows = [];
+      if (info.feedback) rows.push('<div class="summary-row"><strong>课程反馈</strong><span>' + info.feedback + '</span></div>');
+      if (info.homework) rows.push('<div class="summary-row"><strong>课后作业</strong><span>' + info.homework + '</span></div>');
+      return rows.length ? '<div class="record-summary">' + rows.join('') + '</div>' : '';
+    }
+
+    function tipOf(item) {
+      const lessons = lessonsOf(item);
+      if (item.status === 'pending') return '<span class="record-tip">' + (item.createdAt || '') + ' 提交 · 等待老师确认排课</span>';
+      if (item.status === 'confirmed') return '<span class="record-tip frozen">已冻结 ' + lessons + ' 课时 · ' + (item.confirmedAt || '') + ' 老师已确认，签到成功后扣减</span>';
+      if (item.status === 'attended') return '<span class="record-tip deducted">签到成功 · 已扣 ' + lessons + ' 课时，等待老师提交课后反馈</span>';
+      if (item.status === 'done') return '<span class="record-tip deducted">课程已完成 · 已扣 ' + lessons + ' 课时</span>';
+      return '<span class="record-tip">' + (item.cancelledBy === 'teacher' ? '老师' : '家长') + '取消 · ' + (item.cancelReason || '未填写原因') + '</span>';
+    }
+
+    function actionsOf(item) {
+      if (item.status === 'pending') return '<button class="btn plain" type="button" data-cancel="' + item.id + '">取消约课</button>';
+      if (item.status === 'confirmed') return '<button class="btn ghost" type="button" data-cancel="' + item.id + '">取消改约</button>';
+      if (item.status === 'attended') return '<a class="btn primary" href="课程评价_页面还原.html?course=' + (REVIEW_COURSE[item.courseId] || 'trigonometry') + '">去评价</a>';
+      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=parent&course=' + slugOf(item) + '">查看详情</a>';
+      return '<a class="btn primary" href="约课_页面还原.html">重新约课</a>';
+    }
+
+    function cardOf(item) {
+      const key = STATUS_KEY[item.status] || 'pending';
+      const detail = item.status === 'cancelled' ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '"';
+      const batch = item.batchTotal > 1 ? '<span class="batch-tag">批量 ' + item.batchIndex + '/' + item.batchTotal + '</span>' : '';
+      const remark = item.remark ? '<div class="record-remark">备注：' + item.remark + '</div>' : '';
+      return '<article class="record' + (detail ? '' : ' static') + '"' + detail + ' data-status="' + key + '" data-month="' + (item.date || '').slice(0, 7) + '" data-course="' + item.courseId + '" data-mode="' + modeKey(item.mode) + '">' +
+        '<div class="record-top"><strong>' + item.courseName + '</strong><span class="record-side">' + batch + '<span class="badge ' + key + '">' + STATE_TEXT[item.status] + '</span></span></div>' +
+        '<div class="meta"><span>' + item.teacherName + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.place + '</span><span>' + (item.durationLabel || (lessonsOf(item) * 45) + '分钟') + ' · ' + lessonsOf(item) + '课时</span></div>' +
+        remark + summaryOf(item) +
+        '<div class="record-foot">' + tipOf(item) + actionsOf(item) + '</div>' +
+      '</article>';
+    }
+
+    function renderRecords() {
+      recordList.innerHTML = store ? store.list().slice().sort(orderOf).map(cardOf).join('') : '';
+    }
+
+    /* 月份 / 课程下拉按当前演示数据生成，避免写死选项与数据不一致 */
+    function fillFilters() {
+      const records = store ? store.list() : [], months = [], courses = [];
+      records.forEach(item => {
+        const key = (item.date || '').slice(0, 7);
+        if (key && months.indexOf(key) === -1) months.push(key);
+        if (item.courseId && !courses.some(course => course.id === item.courseId)) courses.push({ id: item.courseId, name: (item.courseName || '').split('·').pop() });
+      });
+      months.sort().reverse();
+      monthSelect.innerHTML = '<option value="all">全部月份</option>' + months.map(key => '<option value="' + key + '">' + key.slice(0, 4) + '年' + Number(key.slice(5, 7)) + '月</option>').join('');
+      courseSelect.innerHTML = '<option value="all">全部课程</option>' + courses.map(course => '<option value="' + course.id + '">' + course.name + '</option>').join('');
+    }
+
+    function renderHours() {
+      if (!store) return;
+      const hours = store.hours();
+      document.querySelector('#availableHours').textContent = hours.available;
+      document.querySelector('#frozenHours').textContent = hours.frozen;
+      document.querySelector('#usedHours').textContent = hours.used;
+      const pending = store.countByStatus('pending'), confirmed = store.countByStatus('confirmed');
+      const note = document.querySelector('#hoursNote');
+      note.textContent = pending || confirmed
+        ? '待确认 ' + pending + ' 节 · 已确认待上课 ' + confirmed + ' 节 · 1 课时 = 45 分钟'
+        : '老师确认后按课程时长冻结课时，签到成功后扣减（1 课时 = 45 分钟）';
+      note.classList.toggle('frozen', !!(pending || confirmed));
+    }
+
+    function applyFilters() {
+      const month = monthSelect.value, course = courseSelect.value, mode = document.querySelector('.mode-option.active').dataset.mode;
+      const tab = TABS.filter(item => item.key === activeFilter)[0];
+      let visibleCount = 0;
+      document.querySelectorAll('.record').forEach(record => {
+        const visible = (activeFilter === 'all' || record.dataset.status === activeFilter) && (month === 'all' || record.dataset.month === month) && (course === 'all' || record.dataset.course === course) && (mode === 'all' || record.dataset.mode === mode);
+        record.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+      document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item.dataset.filter === activeFilter));
+      const hasExtraFilter = [month, course, mode].some(value => value !== 'all');
+      const isAll = activeFilter === 'all' && !hasExtraFilter;
+      document.querySelector('.summary-label').textContent = isAll ? '累计上课' : (activeFilter === 'all' ? '筛选结果' : tab.label);
+      document.querySelector('.summary-value').textContent = isAll ? (store ? store.hours().used : 0) + '课时' : visibleCount + ' 节';
+      emptyBox.hidden = visibleCount !== 0;
+      emptyBox.textContent = activeFilter === 'all' ? '暂无符合条件的上课记录' : '暂无' + tab.label + '的记录';
+    }
+
+    function refresh() { renderHours(); renderRecords(); applyFilters(); }
+
+    function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
+    function openSheet(id) {
+      const item = store ? store.byId(id) : null;
+      if (!item) return;
+      cancelTarget = id;
+      cancelReason = '';
+      cancelConfirm.disabled = true;
+      sheetNote.textContent = item.status === 'confirmed'
+        ? '当前已冻结 ' + lessonsOf(item) + ' 课时，取消后立即释放；可重新选择时间约课'
+        : '取消后可重新选择上课时间，冻结的课时会立即释放';
+      reasonList.innerHTML = REASONS.map(reason => '<button class="reason" type="button" data-reason="' + reason + '">' + reason + '</button>').join('');
+      sheet.classList.add('show');
+      sheetMask.classList.add('show');
+    }
+    function closeSheet() { sheet.classList.remove('show'); sheetMask.classList.remove('show'); cancelTarget = ''; }
+
+    document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => { activeFilter = tab.dataset.filter; applyFilters(); });
+    monthSelect.onchange = applyFilters;
+    courseSelect.onchange = applyFilters;
+    document.querySelectorAll('.mode-option').forEach(option => option.onclick = () => { document.querySelector('.mode-option.active').classList.remove('active'); option.classList.add('active'); applyFilters(); });
+    recordList.addEventListener('click', event => {
+      const cancelButton = event.target.closest('[data-cancel]');
+      if (cancelButton) { openSheet(cancelButton.dataset.cancel); return; }
+      if (event.target.closest('a,button')) return;
+      const card = event.target.closest('.record[data-detail]');
+      if (card) location.href = '课程详情_页面还原.html?role=parent&course=' + card.dataset.detail;
+    });
+    recordList.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const card = event.target.closest('.record[data-detail]');
+      if (!card || event.target.closest('a,button')) return;
+      event.preventDefault();
+      card.click();
+    });
+    reasonList.addEventListener('click', event => {
+      const button = event.target.closest('[data-reason]');
+      if (!button) return;
+      cancelReason = button.dataset.reason;
+      reasonList.querySelectorAll('.reason').forEach(item => item.classList.toggle('active', item === button));
+      cancelConfirm.disabled = false;
+    });
+    document.querySelector('#cancelAbort').onclick = closeSheet;
+    sheetMask.onclick = closeSheet;
+    cancelConfirm.onclick = () => {
+      if (!cancelTarget || !cancelReason || !store) return;
+      store.cancel(cancelTarget, cancelReason);
+      closeSheet();
+      refresh();
+      showToast('已取消约课，冻结课时已释放');
+    };
+    document.querySelector('.back').onclick = () => location.href = '学习中心_页面还原.html';
+
+    fillFilters();
+    refresh();
+    function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
+    fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js"></script></body></html>
+<script src="原型开发说明.js?v=20260914-3"></script></body></html>

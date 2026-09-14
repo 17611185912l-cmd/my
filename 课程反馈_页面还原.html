@@ -15,16 +15,18 @@
   <section class="card course"><div class="course-top" data-mode="上门"><h2 id="courseName">高三数学·导数应用</h2><span class="course-status">待反馈</span></div><div class="course-meta"><span id="courseStudent">陈思语</span><span id="courseTime">8月9日 19:00</span><span>陕西省·人教A版</span><span>60分钟</span><span id="coursePlace">上门</span></div></section>
   <section class="card"><h2 class="section-title">课程内容</h2><textarea class="feedback-text" id="courseContent" aria-label="课程内容" placeholder="请填写本节课讲授的知识点和主要内容"></textarea><div class="homework-fields"><label class="homework-field" for="feedbackText"><span>课后反馈</span><textarea id="feedbackText" placeholder="请填写本节课的学习情况、学生表现和课后建议"></textarea></label><label class="homework-field" for="homeworkRequirement"><span>作业要求</span><textarea id="homeworkRequirement" placeholder="请输入作业要求"></textarea></label></div></section>
   </div></div><button class="submit">提交反馈</button><div class="toast">反馈已提交</div></div></main>
+  <script src="约课数据.js?v=20260914-3"></script>
   <script>
     const feedbackCourses={
       'derivative-0809':{name:'高三数学·导数应用',student:'陈思语',time:'8月9日 19:00',mode:'上门',place:'上门'},
       'trigonometry-0808':{name:'高一数学·三角函数',student:'周子轩',time:'8月8日 16:00',mode:'线下',place:'西安小寨校区'}
     };
-    const courseId=new URLSearchParams(location.search).get('course')||'derivative-0809',course=feedbackCourses[courseId]||feedbackCourses['derivative-0809'];
+    const params=new URLSearchParams(location.search),bookingId=params.get('booking')||'',booking=bookingId&&window.YZB?YZB.byId(bookingId):null;
+    const courseId=params.get('course')||'derivative-0809',course=booking?{name:booking.courseName,student:booking.student,time:booking.timeRangeLabel||`${booking.dateLabel} ${booking.time}`,mode:booking.mode,place:booking.place}:(feedbackCourses[courseId]||feedbackCourses['derivative-0809']);
     document.querySelector('.course-top').dataset.mode=course.mode;document.querySelector('#courseName').textContent=course.name;document.querySelector('#courseStudent').textContent=course.student;document.querySelector('#courseTime').textContent=course.time;document.querySelector('#coursePlace').textContent=course.place;
     try{const saved=JSON.parse(localStorage.getItem(`course-detail:${courseId}`)||'null');if(saved){document.querySelector('#courseContent').value=saved.content||'';document.querySelector('#feedbackText').value=saved.feedback||'';document.querySelector('#homeworkRequirement').value=saved.homework||''}}catch{}
-    document.querySelector('.back').onclick=()=>location.href='授课记录_页面还原.html?filter=feedback';
-    document.querySelector('.submit').onclick=()=>{const toast=document.querySelector('.toast'),detail={content:document.querySelector('#courseContent').value.trim(),feedback:document.querySelector('#feedbackText').value.trim(),homework:document.querySelector('#homeworkRequirement').value.trim()};try{localStorage.setItem(`course-detail:${courseId}`,JSON.stringify(detail))}catch{}toast.textContent='反馈已提交';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');location.href=`课程详情_页面还原.html?role=teacher&course=${courseId}`},900)};
+    document.querySelector('.back').onclick=()=>location.href='授课记录_页面还原.html?filter=attended';
+    document.querySelector('.submit').onclick=()=>{const toast=document.querySelector('.toast'),detail={content:document.querySelector('#courseContent').value.trim(),feedback:document.querySelector('#feedbackText').value.trim(),homework:document.querySelector('#homeworkRequirement').value.trim()};try{localStorage.setItem(`course-detail:${courseId}`,JSON.stringify(detail))}catch{}if(booking&&window.YZB)YZB.markDone(booking.id);toast.textContent='反馈已提交';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');location.href=booking?'授课记录_页面还原.html?filter=attended':`课程详情_页面还原.html?role=teacher&course=${courseId}`},900)};
     function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
   </script>
-<script src="原型开发说明.js"></script></body></html>
+<script src="原型开发说明.js?v=20260914-3"></script></body></html>

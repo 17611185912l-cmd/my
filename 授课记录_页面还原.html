@@ -1,80 +1,306 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>教师端 · 授课记录</title>
-  <style>
-    :root{--device-scale:1;--gold:#a75d13;--line:#ece8e3}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100svh;padding:16px;display:grid;place-items:center;overflow:hidden;color:#24262b;background:#e7eaee;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button{padding:0;border:0;color:inherit;font:inherit;background:none;cursor:pointer}.phone-shell{position:relative;isolation:isolate;width:464px;height:980px;padding:11px;border:1px solid #777d84;border-radius:66px;background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e);box-shadow:0 34px 70px rgba(32,38,45,.28),inset 0 0 0 3px rgba(33,36,40,.68);transform:scale(var(--device-scale));transform-origin:center}.dynamic-island{position:absolute;z-index:30;top:22px;left:50%;width:126px;height:34px;transform:translateX(-50%);border-radius:20px;background:#050505}.dynamic-island:after{content:"";position:absolute;right:12px;top:11px;width:8px;height:8px;border-radius:50%;background:#111a25}.app{position:relative;width:440px;height:956px;overflow:hidden;border-radius:54px;background:#f5f4f6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.52)}.page{height:100%;overflow-y:auto;scrollbar-width:none;background:linear-gradient(to bottom,rgba(245,244,246,0) 148px,#f5f4f6 218px),linear-gradient(118deg,#fff0d2,#f5cf98 50%,#e9ad62)}.page::-webkit-scrollbar{display:none}header{position:sticky;z-index:10;top:0;color:#3e250f;background:linear-gradient(118deg,#fff0d2,#f5cf98 50%,#e9ad62)}.statusbar{height:36px;padding:17px 36px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#050505;font-size:15px;line-height:1;font-weight:700}.device-status{display:flex;align-items:center;gap:8px}.signal{width:18px;height:12px;display:flex;align-items:flex-end;gap:2px}.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{position:relative;width:18px;height:13px;overflow:hidden}.wifi:before,.wifi:after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi:before{top:0;width:19px;height:17px}.wifi:after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}.battery{position:relative;width:23px;height:11px;padding:2px;border:1.5px solid #919191;border-radius:3px}.battery:before{content:"";display:block;width:100%;height:100%;background:#050505}.battery:after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;background:#b4b4b4}.titlebar{position:relative;height:57px;display:flex;align-items:center}.titlebar h1{width:100%;margin:0;font-size:18px;text-align:center}.back{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px}.back:before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #3e250f;border-width:0 0 2px 2px;transform:rotate(45deg)}.capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(153,89,20,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{display:flex;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}.tabs{position:sticky;z-index:9;top:93px;height:54px;padding:0 12px;display:grid;grid-template-columns:repeat(3,1fr);background:#fff}.tab{position:relative;color:#777a82;font-size:14px}.tab.active{color:#8f4e12;font-weight:650}.tab.active:after{content:"";position:absolute;left:50%;bottom:0;width:22px;height:3px;border-radius:2px;background:#b66b20;transform:translateX(-50%)}.content{padding:8px 12px 30px}.summary{height:66px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-radius:8px;background:#fff}.summary span{color:#777a82;font-size:14px}.summary strong{color:#8f4e12;font-size:22px}.record-list{margin-top:8px}.record{margin-bottom:8px;padding:14px;border-radius:8px;background:#fff}.record-top{display:flex;align-items:flex-start}.record-top strong{font-size:15px;line-height:22px}.badge{margin-left:auto;padding:3px 7px;border-radius:4px;color:#8c5617;background:#fff3df;font-size:14px}.badge.done{color:#34705a;background:#eaf7f1}.badge.feedback{color:#9d4a41;background:#fff0ee}.meta{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#777a82;font-size:14px;line-height:20px}.empty{padding:80px 0;color:#999;text-align:center;font-size:14px}@media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
-    :root { --gold: #3f72ad; --line: #e5ebf2; }
-    .page { background: linear-gradient(to bottom,rgba(245,244,246,0) 148px,#f5f4f6 218px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
-    header { color: #294966; background: linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%); }
-    .back:before { border-color: transparent transparent #294966 #294966; }
-    .capsule { border-color: rgba(61,105,151,.18); }
-    .tab.active,.summary strong { color: #356da9; }
-    .summary { margin-bottom:8px; }
-    .tab.active:after { background: #4b7fb8; }
-    .badge { color: #356da9; background: #edf4ff; }
-    .record { position:relative; cursor:pointer; }
-    .record:focus-visible { outline:2px solid rgba(75,127,184,.38); outline-offset:2px; }
-    .record-top strong { min-width:0; flex:1; }
-    .record-labels { margin-left:10px; display:flex; align-items:center; gap:5px; }
-    .mode-badge { padding:3px 7px; border-radius:4px; color:#5e6c7b; background:#f0f3f6; font-size:14px; line-height:20px; white-space:nowrap; }
-    .record-labels .badge { margin-left:0; }
-    .feedback-action { position:absolute; right:14px; bottom:10px; min-width:58px; height:26px; padding:0 7px; border:1px solid #4b7fb8; border-radius:4px; color:#356da9; background:#fff; font-size:14px; line-height:24px; text-align:center; text-decoration:none; white-space:nowrap; }
-    .filter-bar { margin-bottom:8px; padding:12px 14px; display:grid; grid-template-columns:1fr; gap:10px; border-radius:8px; background:#fff; }
-    .filter-row { display:flex; align-items:center; justify-content:space-between; }
-    .filter-bar label { color:#777a82; font-size:14px; }
-    .filter-bar select { min-width:132px; height:34px; padding:0 30px 0 10px; border:1px solid #d8e1eb; border-radius:5px; outline:none; color:#356da9; background:#f7faff; font:14px -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
-    .mode-filter label { display:block; margin-bottom:6px; }
-    .mode-options { height:36px; padding:3px; display:grid; grid-template-columns:repeat(4,1fr); gap:2px; border:1px solid #d8e1eb; border-radius:5px; background:#f7faff; }
-    .mode-option { min-width:0; border-radius:3px; color:#777a82; font-size:14px; line-height:28px; }
-    .mode-option.active { color:#fff; font-weight:600; background:#4b7fb8; box-shadow:0 1px 3px rgba(53,109,169,.18); }
-    .record { padding:11px 14px; }
-    .meta { margin-top:5px; display:flex; flex-wrap:wrap; align-items:center; gap:3px 14px; line-height:19px; }
-    .meta span:nth-child(3) { order:1; flex:0 0 100%; color:#596674; }
-    .meta span:nth-child(1) { order:2; }
-    .meta span:nth-child(2) { order:3; }
-    .meta span:nth-child(4) { order:4; }
-    .meta span:nth-child(5) { order:5; flex:0 0 100%; }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="data:,">
+  <title>教师端 · 授课记录</title>
+<style>
+    :root{--device-scale:1}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100svh;padding:16px;display:grid;place-items:center;overflow:hidden;color:#24262b;background:#e7eaee;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{padding:0;border:0;color:inherit;background:none;cursor:pointer}.phone-shell{position:relative;isolation:isolate;width:464px;height:980px;padding:11px;border:1px solid #777d84;border-radius:66px;background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e);box-shadow:0 34px 70px rgba(32,38,45,.28),0 10px 22px rgba(32,38,45,.18),inset 0 0 0 1px rgba(255,255,255,.75),inset 0 0 0 3px rgba(33,36,40,.68);transform:scale(var(--device-scale));transform-origin:center}.dynamic-island{position:absolute;z-index:30;top:22px;left:50%;width:126px;height:34px;transform:translateX(-50%);border-radius:20px;background:#050505;pointer-events:none}.dynamic-island:after{content:"";position:absolute;right:12px;top:11px;width:8px;height:8px;border-radius:50%;background:#111a25;box-shadow:inset 0 0 0 2px #080b10,0 0 2px #1a4d79}.app{position:relative;width:440px;height:956px;overflow:hidden;border-radius:54px;background:#f5f4f6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.52)}.page{width:100%;height:100%;background:linear-gradient(to bottom,rgba(245,244,246,0) 188px,#f5f4f6 250px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}header{color:#294966}.statusbar{height:36px;padding:17px 36px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#050505;font-size:15px;line-height:1;font-weight:700}.device-status{display:flex;align-items:center;gap:8px}.signal{width:18px;height:12px;display:flex;align-items:flex-end;gap:2px}.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{position:relative;width:18px;height:13px;overflow:hidden}.wifi:before,.wifi:after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi:before{top:0;width:19px;height:17px}.wifi:after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}.battery{position:relative;width:23px;height:11px;padding:2px;border:1.5px solid #919191;border-radius:3px}.battery:before{content:"";display:block;width:100%;height:100%;border-radius:1px;background:#050505}.battery:after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;border-radius:0 2px 2px 0;background:#b4b4b4}.titlebar{position:relative;height:57px;display:flex;align-items:center}.titlebar h1{width:100%;margin:0;font-size:18px;line-height:26px;font-weight:600;text-align:center}.back{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px}.back:before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #294966;border-width:0 0 2px 2px;transform:rotate(45deg)}.capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(61,105,151,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{height:100%;display:flex;align-items:center;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}.content{height:calc(100% - 93px)}@media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
+    .page{overflow-y:auto;scrollbar-width:none}.page::-webkit-scrollbar{display:none}header{position:sticky;z-index:10;top:0;background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}
+    .tabs{position:sticky;z-index:9;top:93px;height:54px;padding:0 12px;display:grid;grid-template-columns:repeat(5,1fr);background:#fff}
+    .tab{position:relative;color:#777a82;font-size:14px;white-space:nowrap}
+    .tab b{margin-left:3px;font-weight:600}
+    .tab.active{color:#356da9;font-weight:650}
+    .tab.active:after{content:"";position:absolute;left:50%;bottom:0;width:22px;height:3px;border-radius:2px;background:#4b7fb8;transform:translateX(-50%)}
+    .tab .dot{display:inline-block;width:6px;height:6px;margin:0 0 2px 4px;border-radius:50%;background:#e8a33d}
+    .content{height:auto;padding:8px 12px 30px}.card{margin-bottom:8px;padding:14px;border-radius:8px;background:#fff;box-shadow:0 2px 10px rgba(47,75,106,.05)}
+    .summary{height:66px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-radius:8px;background:#fff}
+    .summary span{color:#777a82;font-size:14px}
+    .summary strong{color:#356da9;font-size:22px}
+    .filter-bar{margin-top:8px;padding:12px 14px;display:grid;grid-template-columns:1fr;gap:10px;border-radius:8px;background:#fff}
+    .filter-row{display:flex;align-items:center;justify-content:space-between}
+    .filter-bar label{color:#777a82;font-size:14px}
+    .filter-bar select{min-width:132px;height:34px;padding:0 30px 0 10px;border:1px solid #d8e1eb;border-radius:5px;outline:none;color:#356da9;background:#f7faff;font-size:14px}
+    .mode-filter label{display:block;margin-bottom:6px}
+    .mode-options{height:36px;padding:3px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border:1px solid #d8e1eb;border-radius:5px;background:#f7faff}
+    .mode-option{min-width:0;border-radius:3px;color:#777a82;font-size:14px;line-height:28px}
+    .mode-option.active{color:#fff;font-weight:600;background:#4b7fb8;box-shadow:0 1px 3px rgba(53,109,169,.18)}
+    .list{margin-top:8px}
+    .bk-card{padding:14px}
+    .bk-head{display:flex;align-items:flex-start;gap:6px}
+    .bk-head strong{min-width:0;flex:1;font-size:16px;line-height:22px;font-weight:650}
+    .bk-state{margin-left:auto;padding:3px 7px;border-radius:4px;font-size:14px;line-height:20px;white-space:nowrap}
+    .bk-state.pending{color:#9d5d13;background:#fff4df}
+    .bk-state.confirmed{color:#356da9;background:#edf4ff}
+    .bk-state.attended{color:#34705a;background:#eaf7f1}
+    .bk-state.done{color:#34705a;background:#eaf7f1}
+    .bk-state.cancelled{color:#777a82;background:#f0f3f6}
+    .bk-batch-tag{padding:3px 7px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px;line-height:20px;white-space:nowrap}
+    .bk-meta{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:#777a82;font-size:14px;line-height:20px}
+    .bk-meta span:nth-child(4){flex:0 0 100%;color:#596674}
+    .bk-remark{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
+    .bk-foot{margin-top:10px;padding-top:10px;border-top:1px solid #e5ebf2;display:flex;align-items:center;gap:8px}
+    .bk-tip{min-width:0;flex:1;color:#777a82;font-size:14px;line-height:20px}
+    .bk-tip.frozen{color:#9d5d13}
+    .bk-tip.deducted{color:#34705a}
+    .btn{flex:0 0 auto;height:34px;padding:0 14px;border-radius:6px;font-size:14px;line-height:34px;text-decoration:none}
+    .btn.primary{color:#fff;background:#4b7fb8}
+    .btn.ghost{color:#356da9;background:#edf4ff}
+    .btn.plain{color:#5e6c7b;border:1px solid #e5ebf2;background:#fff}
+    .empty{padding:34px 0;color:#99969a;font-size:14px;line-height:22px;text-align:center}
+    .sheet-mask{position:absolute;z-index:25;inset:0;background:rgba(24,32,42,.34);opacity:0;visibility:hidden;transition:.2s}
+    .sheet-mask.show{opacity:1;visibility:visible}
+    .sheet{position:absolute;z-index:26;left:0;right:0;bottom:0;padding:16px 16px 22px;border-radius:14px 14px 0 0;background:#fff;box-shadow:0 -8px 24px rgba(47,75,106,.16);transform:translateY(102%);visibility:hidden;transition:transform .24s,visibility .24s}
+    .sheet.show{transform:translateY(0);visibility:visible}
+    .sheet h2{margin:0;font-size:16px;line-height:24px;font-weight:650}
+    .sheet-note{display:block;margin-top:4px;color:#777a82;font-size:14px;line-height:20px}
+    .reason-list{margin-top:10px;display:grid;gap:7px}
+    .reason{width:100%;height:40px;padding:0 12px;border:1px solid #e5ebf2;border-radius:6px;background:#fff;color:#454951;font-size:14px;text-align:left}
+    .reason.active{border-color:#4b7fb8;color:#356da9;background:#edf4ff}
+    .sheet-actions{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .sheet-actions .btn{width:100%}
+    .toast{position:absolute;z-index:30;left:50%;bottom:96px;padding:9px 14px;border-radius:5px;color:#fff;background:rgba(27,28,31,.88);font-size:14px;transform:translate(-50%,10px);opacity:0;transition:.2s}
+    .toast.show{transform:translate(-50%,0);opacity:1}
+    .dev-sim{position:fixed;z-index:40;left:calc(50% - 366px);min-width:112px;height:38px;padding:0 14px;border:1px solid #d9e5f2;border-radius:8px;color:#356da9;background:rgba(255,255,255,.96);box-shadow:0 6px 18px rgba(47,75,106,.12);font-size:14px;font-weight:600}
+    .dev-sim:hover{border-color:#9dbadb;background:#f7faff}
+    .dev-sim[data-position="1"]{top:calc(50% - 455px)}
+    .dev-sim[data-position="2"]{top:calc(50% - 407px)}
+    @media (max-width:760px){.dev-sim{left:12px;min-width:86px;height:34px;padding:0 10px;font-size:13px}.dev-sim[data-position="1"]{top:12px}.dev-sim[data-position="2"]{top:54px}}
+    @media (max-width:520px){.dev-sim{display:none}}
   </style>
 </head>
-<body><main class="phone-shell"><div class="dynamic-island"></div><div class="app"><div class="page"><header><div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div><div class="titlebar"><button class="back" aria-label="返回"></button><h1>教师端 · 授课记录</h1><div class="capsule"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div></header>
-  <nav class="tabs" aria-label="授课记录筛选"><button class="tab" data-filter="all">累计授课</button><button class="tab" data-filter="waiting">待上课</button><button class="tab" data-filter="feedback">待反馈</button></nav>
-  <div class="content"><div class="filter-bar"><div class="filter-row"><label for="monthFilter">授课月份</label><select id="monthFilter"><option value="all">全部月份</option><option value="2026-08">2026年8月</option><option value="2026-07">2026年7月</option><option value="2026-06">2026年6月</option></select></div><div class="mode-filter"><label>授课方式</label><div class="mode-options" role="group" aria-label="授课方式"><button class="mode-option active" type="button" data-mode="all">全部</button><button class="mode-option" type="button" data-mode="online">线上</button><button class="mode-option" type="button" data-mode="offline">线下</button><button class="mode-option" type="button" data-mode="home">上门</button></div></div></div><section class="summary"><span class="summary-label">累计完成授课</span><strong class="summary-value">128课时</strong></section><div class="record-list">
-    <article class="record" role="link" tabindex="0" data-detail="function-0810" data-status="waiting" data-month="2026-08" data-mode="offline"><div class="record-top"><strong>高一数学·函数基础</strong><span class="record-labels"><span class="mode-badge">线下</span><span class="badge">待上课</span></span></div><div class="meta"><span>王子涵</span><span>8月10日 10:00</span><span>陕西省·人教A版</span><span>60分钟</span><span>西安小寨校区</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="sequence-0810" data-status="waiting" data-month="2026-08" data-mode="online"><div class="record-top"><strong>高二数学·数列专题</strong><span class="record-labels"><span class="mode-badge">线上</span><span class="badge">待上课</span></span></div><div class="meta"><span>李沐辰</span><span>8月10日 15:30</span><span>陕西省·人教A版</span><span>60分钟</span><span>西安小寨交付中心</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="derivative-0809" data-status="feedback" data-month="2026-08" data-mode="home"><div class="record-top"><strong>高三数学·导数应用</strong><span class="record-labels"><span class="mode-badge">上门</span><span class="badge feedback">待反馈</span></span></div><div class="meta"><span>陈思语</span><span>8月9日 19:00</span><span>陕西省·人教A版</span><span>60分钟</span><span>上门</span></div><a class="feedback-action" href="课程反馈_页面还原.html?course=derivative-0809">去反馈</a></article>
-    <article class="record" role="link" tabindex="0" data-detail="trigonometry-0808" data-status="done" data-month="2026-08" data-mode="offline"><div class="record-top"><strong>高一数学·三角函数</strong><span class="record-labels"><span class="mode-badge">线下</span><span class="badge done">已完成</span></span></div><div class="meta"><span>周子轩</span><span>8月8日 16:00</span><span>陕西省·人教A版</span><span>60分钟</span><span>西安小寨校区</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="geometry-0724" data-status="done" data-month="2026-07" data-mode="offline"><div class="record-top"><strong>高二数学·立体几何</strong><span class="record-labels"><span class="mode-badge">线下</span><span class="badge done">已完成</span></span></div><div class="meta"><span>林子谦</span><span>7月24日 18:30</span><span>陕西省·人教A版</span><span>60分钟</span><span>西安小寨校区</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="probability-0718" data-status="done" data-month="2026-07" data-mode="online"><div class="record-top"><strong>高一数学·概率基础</strong><span class="record-labels"><span class="mode-badge">线上</span><span class="badge done">已完成</span></span></div><div class="meta"><span>赵欣怡</span><span>7月18日 16:00</span><span>陕西省·人教A版</span><span>60分钟</span><span>西安小寨交付中心</span></div></article>
-    <article class="record" role="link" tabindex="0" data-detail="analytic-0626" data-status="done" data-month="2026-06" data-mode="home"><div class="record-top"><strong>高三数学·解析几何</strong><span class="record-labels"><span class="mode-badge">上门</span><span class="badge done">已完成</span></span></div><div class="meta"><span>孙若溪</span><span>6月26日 19:00</span><span>陕西省·人教A版</span><span>60分钟</span><span>上门</span></div></article>
-  </div><div class="empty" hidden>暂无符合条件的授课记录</div></div></div></div></main>
+<body>
+  <button class="dev-sim" data-position="1" type="button" id="teacherSwitch">演示老师：张三</button>
+  <button class="dev-sim" data-position="2" type="button" id="checkinSim">模拟签到回调</button>
+  <main class="phone-shell" aria-label="授课记录页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header>
+      <div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div>
+      <div class="titlebar"><button class="back" type="button" aria-label="返回授课中心"></button><h1>教师端 · 授课记录</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div>
+    </header>
+    <nav class="tabs" id="tabs" aria-label="授课记录筛选"></nav>
+    <div class="content">
+      <section class="summary" aria-label="授课汇总"><span class="summary-label" id="summaryLabel">累计授课</span><strong class="summary-value" id="summaryValue">0课时</strong></section>
+      <div class="filter-bar">
+        <div class="filter-row"><label for="monthFilter">授课月份</label><select id="monthFilter"><option value="all">全部月份</option></select></div>
+        <div class="mode-filter"><label>授课方式</label><div class="mode-options" role="group" aria-label="授课方式"><button class="mode-option active" type="button" data-mode="all">全部</button><button class="mode-option" type="button" data-mode="online">线上</button><button class="mode-option" type="button" data-mode="offline">线下</button><button class="mode-option" type="button" data-mode="home">上门</button></div></div>
+      </div>
+      <section class="list" id="list" aria-live="polite"></section>
+      <div class="card empty" id="emptyBox" hidden>暂无符合条件的授课记录</div>
+    </div>
+
+    <div class="sheet-mask" id="sheetMask"></div>
+    <div class="sheet" id="rejectSheet" role="dialog" aria-label="拒绝约课原因">
+      <h2>拒绝这次约课？</h2>
+      <span class="sheet-note" id="rejectNote">拒绝后家长会收到结果，可重新选择其他时间</span>
+      <div class="reason-list" id="reasonList"></div>
+      <div class="sheet-actions">
+        <button class="btn plain" type="button" id="rejectAbort">再想想</button>
+        <button class="btn primary" type="button" id="rejectConfirm" disabled>确认拒绝</button>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div></div></main>
+
+  <script src="约课数据.js?v=20260914-3"></script>
   <script>
-    const labels={all:['累计完成授课','128课时'],waiting:['待上课','2课时'],feedback:['待提交反馈','1课时']};
-    const monthLabels={'2026-08':'2026年8月','2026-07':'2026年7月','2026-06':'2026年6月'};
-    let activeFilter=new URLSearchParams(location.search).get('filter')||'all';
-    if(!labels[activeFilter]) activeFilter='all';
-    function applyFilters(){
-      const month=document.querySelector('#monthFilter').value;
-      const mode=document.querySelector('.mode-option.active').dataset.mode;
-      let visibleCount=0;
-      document.querySelectorAll('.record').forEach(record=>{
-        const statusMatch=activeFilter==='all'||record.dataset.status===activeFilter;
-        const monthMatch=month==='all'||record.dataset.month===month;
-        const modeMatch=mode==='all'||record.dataset.mode===mode;
-        record.hidden=!(statusMatch&&monthMatch&&modeMatch);
-        if(!record.hidden) visibleCount++;
-      });
-      document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.filter===activeFilter));
-      const hasExtraFilter=month!=='all'||mode!=='all';
-      document.querySelector('.summary-label').textContent=hasExtraFilter?'筛选结果':labels[activeFilter][0];
-      document.querySelector('.summary-value').textContent=hasExtraFilter?`${visibleCount}课时`:labels[activeFilter][1];
-      document.querySelector('.empty').hidden=visibleCount!==0;
+    const TEACHER_ORDER = ['zhang', 'liming', 'wangjing'];
+    /* 教师端授课记录 = 原「约课管理」+ 原「授课记录」：五个状态与家长端一一对应 */
+    const TABS = [
+      { key: 'all', label: '累计授课', states: null },
+      { key: 'pending', label: '待确认', states: ['pending'] },
+      { key: 'confirmed', label: '待上课', states: ['confirmed'] },
+      { key: 'attended', label: '待反馈', states: ['attended'] },
+      { key: 'done', label: '已完成', states: ['done'] }
+    ];
+    /* 兼容旧链接：waiting / feedback / review / finished / cancelled */
+    const FILTER_ALIAS = { waiting: 'confirmed', review: 'attended', feedback: 'attended', finished: 'done', cancelled: 'all' };
+    const STATE_TEXT = { pending: '待确认', confirmed: '待上课', attended: '待反馈', done: '已完成', cancelled: '已取消' };
+    const FEEDBACK_COURSE = { trigonometry: 'trigonometry', 'function': 'derivative-0809', sequence: 'derivative-0809', tutorial: 'derivative-0809' };
+    const REASONS = ['时间冲突', '该时段已被约满', '需要调整上课方式', '教学内容不匹配'];
+    const params = new URLSearchParams(location.search);
+    const requested = FILTER_ALIAS[params.get('filter') || ''] || params.get('filter') || '';
+    let activeTab = TABS.some(tab => tab.key === requested) ? requested : 'all';
+    let teacherId = 'zhang';
+    let rejectTarget = '';
+    let rejectReason = '';
+
+    const listBox = document.querySelector('#list');
+    const tabs = document.querySelector('#tabs');
+    const toast = document.querySelector('#toast');
+    const sheet = document.querySelector('#rejectSheet');
+    const sheetMask = document.querySelector('#sheetMask');
+    const reasonList = document.querySelector('#reasonList');
+    const rejectConfirm = document.querySelector('#rejectConfirm');
+    const monthSelect = document.querySelector('#monthFilter');
+    const emptyBox = document.querySelector('#emptyBox');
+
+    document.querySelector('.back').onclick = () => location.href = '授课中心_页面还原.html';
+    document.querySelector('#teacherSwitch').onclick = () => {
+      const next = (TEACHER_ORDER.indexOf(teacherId) + 1) % TEACHER_ORDER.length;
+      teacherId = TEACHER_ORDER[next];
+      document.querySelector('#teacherSwitch').textContent = '演示老师：' + YZB.teacher(teacherId).name.replace('老师', '');
+      monthSelect.value = 'all';
+      if (!recordsOf(TABS.filter(tab => tab.key === activeTab)[0]).length) activeTab = 'all';
+      refresh();
+      showToast('已切换到 ' + YZB.teacher(teacherId).name + ' 的授课记录');
+    };
+    document.querySelector('#checkinSim').onclick = () => {
+      const target = YZB.forTeacher(teacherId, ['confirmed'])[0];
+      if (!target) { showToast('当前老师没有待上课的约课'); return; }
+      const lessons = YZB.lessonsOf(target);
+      YZB.checkin(target.id);
+      refresh();
+      showToast('签到回调成功，已扣减 ' + lessons + ' 课时，待填写反馈');
+    };
+
+    function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
+    function modeKey(mode) { return mode === '线下' ? 'offline' : mode === '上门' ? 'home' : 'online'; }
+    function stampOf(item) { return (item.date || '') + ' ' + (item.time || ''); }
+    function recordsOf(tab) { return YZB.forTeacher(teacherId, tab.states); }
+    /* 未来的约课升序排在前，历史记录按时间倒序 */
+    function orderOf(a, b) {
+      const upcoming = ['pending', 'confirmed'];
+      const aFuture = upcoming.indexOf(a.status) > -1, bFuture = upcoming.indexOf(b.status) > -1;
+      if (aFuture !== bFuture) return aFuture ? -1 : 1;
+      return aFuture ? stampOf(a).localeCompare(stampOf(b)) : stampOf(b).localeCompare(stampOf(a));
     }
-    document.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{activeFilter=tab.dataset.filter;applyFilters()});
-    document.querySelector('#monthFilter').onchange=applyFilters;
-    document.querySelectorAll('.mode-option').forEach(option=>option.onclick=()=>{document.querySelector('.mode-option.active').classList.remove('active');option.classList.add('active');applyFilters()});
-    document.querySelectorAll('.record[data-detail]').forEach(record=>{record.onclick=event=>{if(event.target.closest('a,button'))return;location.href=`课程详情_页面还原.html?role=teacher&course=${record.dataset.detail}`};record.onkeydown=event=>{if((event.key==='Enter'||event.key===' ')&&!event.target.closest('a,button')){event.preventDefault();record.click()}}});
-    applyFilters();
-    document.querySelector('.back').onclick=()=>location.href='授课中心_页面还原.html';function fit(){const s=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(s,.2))}fit();addEventListener('resize',fit,{passive:true});
+    /* 累计授课课时 = 老师历史基数 + 已签到扣减的课时（与家长端「已上课时」同口径） */
+    function taughtLessons() {
+      const teacher = YZB.teacher(teacherId);
+      const base = teacher && Number(teacher.lessons) ? Number(teacher.lessons) : 0;
+      return YZB.forTeacher(teacherId).reduce((sum, item) => sum + (item.deducted ? YZB.lessonsOf(item) : 0), base);
+    }
+
+    function tipOf(item) {
+      if (item.status === 'pending') return '<span class="bk-tip frozen">' + item.createdAt + ' 家长提交 · 等待确认</span>';
+      if (item.status === 'confirmed') return '<span class="bk-tip frozen">已确认接单 · 冻结家长 ' + YZB.lessonsOf(item) + ' 课时，请按时上课</span>';
+      if (item.status === 'attended') return '<span class="bk-tip deducted">签到回调成功 · 已扣减 ' + YZB.lessonsOf(item) + ' 课时，待提交课后反馈</span>';
+      if (item.status === 'done') return '<span class="bk-tip deducted">课程已完成 · 反馈已提交</span>';
+      const who = item.cancelledBy === 'teacher' ? '已拒绝' : '家长取消';
+      return '<span class="bk-tip">' + who + ' · ' + (item.cancelReason || '未填写原因') + '</span>';
+    }
+
+    function actionsOf(item) {
+      if (item.status === 'pending') {
+        return '<button class="btn plain" type="button" data-reject="' + item.id + '">拒绝</button>' +
+               '<button class="btn primary" type="button" data-confirm="' + item.id + '">确认接单</button>';
+      }
+      if (item.status === 'confirmed') return '<a class="btn ghost" href="家长群聊_页面还原.html">联系家长</a>';
+      if (item.status === 'attended') return '<a class="btn primary" href="课程反馈_页面还原.html?booking=' + item.id + '&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">填写反馈</a>';
+      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=teacher&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">查看课程</a>';
+      return '';
+    }
+
+    function cardOf(item) {
+      const remark = item.remark ? '<div class="bk-remark">家长备注：' + item.remark + '</div>' : '';
+      return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + (item.date || '').slice(0, 7) + '" data-mode="' + modeKey(item.mode) + '">' +
+        '<div class="bk-head"><strong>' + item.courseName + '</strong>' + (item.batchTotal > 1 ? '<span class="bk-batch-tag">批量 ' + item.batchIndex + '/' + item.batchTotal + '</span>' : '') + '<span class="bk-state ' + item.status + '">' + STATE_TEXT[item.status] + '</span></div>' +
+        '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>' +
+        remark +
+        '<div class="bk-foot">' + tipOf(item) + actionsOf(item) + '</div>' +
+      '</article>';
+    }
+
+    function renderTabs() {
+      tabs.innerHTML = TABS.map(tab => {
+        const count = tab.key === 'all' ? 0 : recordsOf(tab).length;
+        const badge = count ? '<b>' + count + '</b>' : '';
+        const dot = tab.key === 'pending' && count ? '<span class="dot"></span>' : '';
+        return '<button class="tab' + (tab.key === activeTab ? ' active' : '') + '" type="button" data-tab="' + tab.key + '">' + tab.label + badge + dot + '</button>';
+      }).join('');
+    }
+
+    function renderRecords() {
+      listBox.innerHTML = YZB.forTeacher(teacherId).slice().sort(orderOf).map(cardOf).join('');
+    }
+
+    /* 月份下拉按当前老师的演示数据生成，避免写死选项与数据不一致 */
+    function fillFilters() {
+      const months = [];
+      YZB.forTeacher(teacherId).forEach(item => {
+        const key = (item.date || '').slice(0, 7);
+        if (key && months.indexOf(key) === -1) months.push(key);
+      });
+      months.sort().reverse();
+      const current = monthSelect.value;
+      monthSelect.innerHTML = '<option value="all">全部月份</option>' + months.map(key => '<option value="' + key + '">' + key.slice(0, 4) + '年' + Number(key.slice(5, 7)) + '月</option>').join('');
+      monthSelect.value = months.indexOf(current) > -1 ? current : 'all';
+    }
+
+    function applyFilters() {
+      const month = monthSelect.value;
+      const mode = document.querySelector('.mode-option.active').dataset.mode;
+      const tab = TABS.filter(item => item.key === activeTab)[0];
+      let visibleCount = 0;
+      document.querySelectorAll('.bk-card').forEach(card => {
+        const visible = (activeTab === 'all' || card.dataset.status === activeTab) && (month === 'all' || card.dataset.month === month) && (mode === 'all' || card.dataset.mode === mode);
+        card.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+      tabs.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item.dataset.tab === activeTab));
+      const hasExtraFilter = month !== 'all' || mode !== 'all';
+      const isAll = activeTab === 'all' && !hasExtraFilter;
+      document.querySelector('#summaryLabel').textContent = isAll ? '累计授课' : (activeTab === 'all' ? '筛选结果' : tab.label);
+      document.querySelector('#summaryValue').textContent = isAll ? taughtLessons() + '课时' : visibleCount + ' 节';
+      emptyBox.hidden = visibleCount !== 0;
+      emptyBox.textContent = activeTab === 'pending' ? '当前没有待确认的约课' : '暂无' + tab.label + '的授课记录';
+    }
+
+    function refresh() { renderTabs(); renderRecords(); fillFilters(); applyFilters(); }
+
+    function openSheet(id) {
+      rejectTarget = id; rejectReason = ''; rejectConfirm.disabled = true;
+      document.querySelector('#rejectNote').textContent = '将拒绝 ' + YZB.byId(id).student + ' 的约课申请，拒绝后家长可重新选择其他时间';
+      reasonList.innerHTML = REASONS.map(reason => '<button class="reason" type="button" data-reason="' + reason + '">' + reason + '</button>').join('');
+      sheet.classList.add('show'); sheetMask.classList.add('show');
+    }
+    function closeSheet() { sheet.classList.remove('show'); sheetMask.classList.remove('show'); rejectTarget = ''; }
+
+    tabs.addEventListener('click', event => {
+      const button = event.target.closest('[data-tab]');
+      if (!button) return;
+      activeTab = button.dataset.tab;
+      applyFilters();
+    });
+    monthSelect.onchange = applyFilters;
+    document.querySelectorAll('.mode-option').forEach(option => option.onclick = () => {
+      document.querySelector('.mode-option.active').classList.remove('active');
+      option.classList.add('active');
+      applyFilters();
+    });
+
+    listBox.addEventListener('click', event => {
+      const confirmButton = event.target.closest('[data-confirm]');
+      if (confirmButton) {
+        YZB.confirm(confirmButton.dataset.confirm);
+        activeTab = 'confirmed';
+        refresh();
+        showToast('已确认接单，家长课时进入冻结');
+        return;
+      }
+      const rejectButton = event.target.closest('[data-reject]');
+      if (rejectButton) openSheet(rejectButton.dataset.reject);
+    });
+
+    reasonList.addEventListener('click', event => {
+      const button = event.target.closest('[data-reason]');
+      if (!button) return;
+      rejectReason = button.dataset.reason;
+      reasonList.querySelectorAll('.reason').forEach(item => item.classList.toggle('active', item === button));
+      rejectConfirm.disabled = false;
+    });
+    document.querySelector('#rejectAbort').onclick = closeSheet;
+    sheetMask.onclick = closeSheet;
+    rejectConfirm.onclick = () => {
+      if (!rejectTarget || !rejectReason) return;
+      YZB.reject(rejectTarget, rejectReason);
+      closeSheet();
+      refresh();
+      showToast('已拒绝该约课，记录保留在累计授课');
+    };
+
+    refresh();
+    function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
+    fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js"></script></body></html>
+<script src="原型开发说明.js?v=20260914-3"></script></body></html>
