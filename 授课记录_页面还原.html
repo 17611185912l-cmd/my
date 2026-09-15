@@ -40,7 +40,10 @@
     .bk-meta{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:#777a82;font-size:14px;line-height:20px}
     .bk-meta span:nth-child(4){flex:0 0 100%;color:#596674}
     .bk-remark{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
-    .bk-foot{margin-top:10px;padding-top:10px;border-top:1px solid #e5ebf2;display:flex;align-items:center;gap:8px}
+    .bk-foot{margin-top:10px;padding-top:10px;border-top:1px solid #e5ebf2;display:flex;align-items:center;gap:8px;justify-content:flex-end}
+    .bk-row{margin-top:8px;display:flex;align-items:center;gap:10px}
+    .bk-row .bk-meta{margin-top:0;flex:1;min-width:0}
+    .bk-side{flex:0 0 auto}
     .bk-tip{min-width:0;flex:1;color:#777a82;font-size:14px;line-height:20px}
     .bk-tip.frozen{color:#9d5d13}
     .bk-tip.deducted{color:#34705a}
@@ -173,8 +176,8 @@
 
     function tipOf(item) {
       if (item.status === 'pending') return '<span class="bk-tip frozen">' + item.createdAt + ' 家长提交 · 等待确认</span>';
-      if (item.status === 'confirmed') return '<span class="bk-tip frozen">已确认接单 · 冻结家长 ' + YZB.lessonsOf(item) + ' 课时，请按时上课</span>';
-      if (item.status === 'attended') return '<span class="bk-tip deducted">签到回调成功 · 已扣减 ' + YZB.lessonsOf(item) + ' 课时，待提交课后反馈</span>';
+      if (item.status === 'confirmed') return '';
+      if (item.status === 'attended') return '';
       if (item.status === 'done') return '<span class="bk-tip deducted">课程已完成 · 反馈已提交</span>';
       const who = item.cancelledBy === 'teacher' ? '已拒绝' : '家长取消';
       return '<span class="bk-tip">' + who + ' · ' + (item.cancelReason || '未填写原因') + '</span>';
@@ -185,19 +188,21 @@
         return '<button class="btn plain" type="button" data-reject="' + item.id + '">拒绝</button>' +
                '<button class="btn primary" type="button" data-confirm="' + item.id + '">确认接单</button>';
       }
-      if (item.status === 'confirmed') return '<a class="btn ghost" href="家长群聊_页面还原.html">联系家长</a>';
+      if (item.status === 'confirmed') return '';
       if (item.status === 'attended') return '<a class="btn primary" href="课程反馈_页面还原.html?booking=' + item.id + '&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">填写反馈</a>';
       if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=teacher&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">查看课程</a>';
       return '';
     }
 
     function cardOf(item) {
-      const remark = item.remark ? '<div class="bk-remark">家长备注：' + item.remark + '</div>' : '';
+      const meta = '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
+      /* 待反馈：填写反馈按钮移到卡片右侧、与信息区同高 */
+      const side = item.status === 'attended' ? '<div class="bk-side">' + actionsOf(item) + '</div>' : '';
+      const foot = tipOf(item) + (side ? '' : actionsOf(item));
       return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + (item.date || '').slice(0, 7) + '" data-mode="' + modeKey(item.mode) + '">' +
         '<div class="bk-head"><strong>' + item.courseName + '</strong>' + (item.batchTotal > 1 ? '<span class="bk-batch-tag">批量 ' + item.batchIndex + '/' + item.batchTotal + '</span>' : '') + '<span class="bk-state ' + item.status + '">' + STATE_TEXT[item.status] + '</span></div>' +
-        '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>' +
-        remark +
-        '<div class="bk-foot">' + tipOf(item) + actionsOf(item) + '</div>' +
+        (side ? '<div class="bk-row">' + meta + side + '</div>' : meta) +
+        (foot ? '<div class="bk-foot">' + foot + '</div>' : '') +
       '</article>';
     }
 

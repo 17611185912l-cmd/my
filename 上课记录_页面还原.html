@@ -33,7 +33,7 @@
     .batch-tag{padding:3px 7px;border-radius:4px;color:var(--blue);background:#edf4ff;font-size:14px;line-height:20px;white-space:nowrap}
     .record.static{cursor:default}
     .record-remark{margin-top:8px;padding:8px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
-    .record-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px}
+    .record-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;justify-content:flex-end}
     .record-tip{min-width:0;flex:1;color:#777a82;font-size:14px;line-height:20px}
     .record-tip.frozen{color:#9d5d13}
     .record-tip.deducted{color:#34705a}
@@ -140,9 +140,9 @@
     function tipOf(item) {
       const lessons = lessonsOf(item);
       if (item.status === 'pending') return '<span class="record-tip">' + (item.createdAt || '') + ' 提交 · 等待老师确认排课</span>';
-      if (item.status === 'confirmed') return '<span class="record-tip frozen">已冻结 ' + lessons + ' 课时 · ' + (item.confirmedAt || '') + ' 老师已确认，签到成功后扣减</span>';
-      if (item.status === 'attended') return '<span class="record-tip deducted">签到成功 · 已扣 ' + lessons + ' 课时，等待老师提交课后反馈</span>';
-      if (item.status === 'done') return '<span class="record-tip deducted">课程已完成 · 已扣 ' + lessons + ' 课时</span>';
+      if (item.status === 'confirmed') return '';
+      if (item.status === 'attended') return '';
+      if (item.status === 'done') return '';
       return '<span class="record-tip">' + (item.cancelledBy === 'teacher' ? '老师' : '家长') + '取消 · ' + (item.cancelReason || '未填写原因') + '</span>';
     }
 
@@ -158,12 +158,12 @@
       const key = STATUS_KEY[item.status] || 'pending';
       const detail = item.status === 'cancelled' ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '"';
       const batch = item.batchTotal > 1 ? '<span class="batch-tag">批量 ' + item.batchIndex + '/' + item.batchTotal + '</span>' : '';
-      const remark = item.remark ? '<div class="record-remark">备注：' + item.remark + '</div>' : '';
+      const foot = tipOf(item) + actionsOf(item);
       return '<article class="record' + (detail ? '' : ' static') + '"' + detail + ' data-status="' + key + '" data-month="' + (item.date || '').slice(0, 7) + '" data-course="' + item.courseId + '" data-mode="' + modeKey(item.mode) + '">' +
         '<div class="record-top"><strong>' + item.courseName + '</strong><span class="record-side">' + batch + '<span class="badge ' + key + '">' + STATE_TEXT[item.status] + '</span></span></div>' +
         '<div class="meta"><span>' + item.teacherName + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.place + '</span><span>' + (item.durationLabel || (lessonsOf(item) * 45) + '分钟') + ' · ' + lessonsOf(item) + '课时</span></div>' +
-        remark + summaryOf(item) +
-        '<div class="record-foot">' + tipOf(item) + actionsOf(item) + '</div>' +
+        summaryOf(item) +
+        (foot ? '<div class="record-foot">' + foot + '</div>' : '') +
       '</article>';
     }
 
