@@ -148,7 +148,7 @@
 
     function actionsOf(item) {
       if (item.status === 'pending') return '<button class="btn plain" type="button" data-cancel="' + item.id + '">取消约课</button>';
-      if (item.status === 'confirmed') return '<button class="btn ghost" type="button" data-cancel="' + item.id + '">取消改约</button>';
+      if (item.status === 'confirmed') return '';
       if (item.status === 'attended') return '<a class="btn primary" href="课程评价_页面还原.html?course=' + (REVIEW_COURSE[item.courseId] || 'trigonometry') + '">去评价</a>';
       if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=parent&course=' + slugOf(item) + '">查看详情</a>';
       return '<a class="btn primary" href="约课_页面还原.html">重新约课</a>';
