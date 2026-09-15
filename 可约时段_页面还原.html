@@ -140,15 +140,12 @@
             <button class="mini-btn" type="button" id="specialNone">当天不开放</button>
           </div>
           <div class="day-actions">
-            <button class="mini-btn" type="button" id="specialReset">恢复四类时间</button>
             <button class="mini-btn primary" type="button" id="specialSave">保存当天时段</button>
           </div>
-          <p class="editor-note">每天 08:00 - 23:30、每 30 分钟一档；点时段可多选，不选时段表示当天不开放。没有设置过的日期会先带出四类时间的时段，保存后家长端立即按当天设置展示。</p>
         </div>
         <p class="editor-note" id="specialOffNote" hidden>特殊日期已关闭：家长端只按四类时间展示；重新开启后，已保存的特殊日期继续生效。</p>
       </section>
 
-      <p class="page-tip">特殊日期优先于四类时间；已提交的约课不受影响；关闭某类时间后，家长端不再展示对应时段。</p>
     </div>
     <div class="toast" id="toast"></div>
   </div></div></main>
@@ -281,14 +278,6 @@
       const day = YZB.dayInfo(date);
       render(date);
       showToast(draftTimes.length ? `已保存 ${day.label} 的 ${draftTimes.length} 个时段` : `${day.label} 已设为当天不开放`);
-    };
-
-    document.querySelector('#specialReset').onclick = () => {
-      const date = specialDateSelect.value;
-      const cleared = YZB.clearSpecialDate(teacherId, date);
-      const day = YZB.dayInfo(date);
-      render(date);
-      showToast(cleared ? `${day.label} 已跟随四类时间` : `${day.label} 本来就跟随四类时间`);
     };
 
     specialSwitch.onclick = () => {

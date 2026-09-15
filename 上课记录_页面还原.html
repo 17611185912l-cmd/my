@@ -54,10 +54,8 @@
   </style>
 </head>
 <body><main class="phone-shell" aria-label="上课记录页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header><div class="statusbar"><span>23:58</span><div class="device-status"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"><i></i></span><span class="battery"></span></div></div><div class="titlebar"><button class="back" type="button" aria-label="返回学习中心"></button><h1>家长端 · 上课记录</h1><div class="capsule" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="ring"></span></div></div></header>
-  <nav class="tabs" aria-label="上课记录筛选"><button class="tab" data-filter="all">全部课程</button><button class="tab" data-filter="waiting">待上课</button><button class="tab" data-filter="pending">待确认</button><button class="tab" data-filter="review">待评价</button><button class="tab" data-filter="done">已完成</button><button class="tab" data-filter="cancelled">已取消</button></nav>
+  <nav class="tabs" aria-label="上课记录筛选"><button class="tab" data-filter="all">全部课程</button><button class="tab" data-filter="pending">待确认</button><button class="tab" data-filter="waiting">待上课</button><button class="tab" data-filter="review">待评价</button><button class="tab" data-filter="done">已完成</button><button class="tab" data-filter="cancelled">已取消</button></nav>
   <div class="content">
-    <section class="card hours-card" aria-label="课时统计"><div class="hours-stats"><div class="hours-stat primary"><strong><b id="availableHours">17</b><small>课时</small></strong><span>剩余可用</span></div><div class="hours-stat"><strong><b id="frozenHours">2</b><small>课时</small></strong><span>冻结中</span></div><div class="hours-stat"><strong><b id="usedHours">41</b><small>课时</small></strong><span>已上课时</span></div></div><div class="hours-note" id="hoursNote">老师确认后按课程时长冻结课时，签到成功后扣减（1 课时 = 45 分钟）</div><a class="btn primary hours-cta" href="约课_页面还原.html">去约课</a></section>
-    <section class="summary"><span class="summary-label">累计上课</span><strong class="summary-value">41课时</strong></section>
     <div class="filter-bar"><div class="filter-item"><label for="monthFilter">上课月份</label><select id="monthFilter"><option value="all">全部月份</option></select></div><div class="filter-item"><label for="courseFilter">课程</label><select id="courseFilter"><option value="all">全部课程</option></select></div><div class="filter-item mode-filter"><label>授课方式</label><div class="mode-options" role="group" aria-label="授课方式"><button class="mode-option active" type="button" data-mode="all">全部</button><button class="mode-option" type="button" data-mode="online">线上</button><button class="mode-option" type="button" data-mode="offline">线下</button><button class="mode-option" type="button" data-mode="home">上门</button></div></div></div>
     <div class="record-list" id="recordList"></div>
     <div class="empty" hidden>暂无符合条件的上课记录</div>
@@ -75,8 +73,8 @@
   <script>
     const TABS = [
       { key: 'all', label: '全部课程', states: null },
-      { key: 'waiting', label: '待上课', states: ['confirmed'] },
       { key: 'pending', label: '待确认', states: ['pending'] },
+      { key: 'waiting', label: '待上课', states: ['confirmed'] },
       { key: 'review', label: '待评价', states: ['attended'] },
       { key: 'done', label: '已完成', states: ['done'] },
       { key: 'cancelled', label: '已取消', states: ['cancelled'] }
@@ -186,20 +184,6 @@
       courseSelect.innerHTML = '<option value="all">全部课程</option>' + courses.map(course => '<option value="' + course.id + '">' + course.name + '</option>').join('');
     }
 
-    function renderHours() {
-      if (!store) return;
-      const hours = store.hours();
-      document.querySelector('#availableHours').textContent = hours.available;
-      document.querySelector('#frozenHours').textContent = hours.frozen;
-      document.querySelector('#usedHours').textContent = hours.used;
-      const pending = store.countByStatus('pending'), confirmed = store.countByStatus('confirmed');
-      const note = document.querySelector('#hoursNote');
-      note.textContent = pending || confirmed
-        ? '待确认 ' + pending + ' 节 · 已确认待上课 ' + confirmed + ' 节 · 1 课时 = 45 分钟'
-        : '老师确认后按课程时长冻结课时，签到成功后扣减（1 课时 = 45 分钟）';
-      note.classList.toggle('frozen', !!(pending || confirmed));
-    }
-
     function applyFilters() {
       const month = monthSelect.value, course = courseSelect.value, mode = document.querySelector('.mode-option.active').dataset.mode;
       const tab = TABS.filter(item => item.key === activeFilter)[0];
@@ -210,15 +194,11 @@
         if (visible) visibleCount += 1;
       });
       document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item.dataset.filter === activeFilter));
-      const hasExtraFilter = [month, course, mode].some(value => value !== 'all');
-      const isAll = activeFilter === 'all' && !hasExtraFilter;
-      document.querySelector('.summary-label').textContent = isAll ? '累计上课' : (activeFilter === 'all' ? '筛选结果' : tab.label);
-      document.querySelector('.summary-value').textContent = isAll ? (store ? store.hours().used : 0) + '课时' : visibleCount + ' 节';
       emptyBox.hidden = visibleCount !== 0;
       emptyBox.textContent = activeFilter === 'all' ? '暂无符合条件的上课记录' : '暂无' + tab.label + '的记录';
     }
 
-    function refresh() { renderHours(); renderRecords(); applyFilters(); }
+    function refresh() { renderRecords(); applyFilters(); }
 
     function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     function openSheet(id) {
