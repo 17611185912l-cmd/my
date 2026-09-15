@@ -110,11 +110,11 @@
       </section>
 
       <section class="card step-card" data-step="3">
-        <div class="step-head"><span class="step-index">3</span><div><strong>选择上课时间</strong><span class="step-note">支持每周 / 每天批量预约</span></div></div>
+        <div class="step-head"><span class="step-index">3</span><div><strong>选择上课时间</strong><span class="step-note">支持每天 / 每周批量预约</span></div></div>
         <div class="bk-modes" id="repeatTabs" aria-label="预约方式">
           <button class="bk-mode active" type="button" data-repeat="once">单次</button>
-          <button class="bk-mode" type="button" data-repeat="weekly">每周 4 次</button>
-          <button class="bk-mode" type="button" data-repeat="daily">每天 7 天</button>
+          <button class="bk-mode" type="button" data-repeat="daily">每天</button>
+          <button class="bk-mode" type="button" data-repeat="weekly">每周</button>
         </div>
         <div class="bk-repeat-note" id="repeatNote">选择一天和一个时刻，只约这一次</div>
         <div class="bk-day-tabs" id="dayList" aria-label="可约日期"></div>
@@ -137,7 +137,7 @@
     const CLASS_MINUTES = YZB.DEFAULT_CLASS_MINUTES;
     const CLASS_LESSONS = YZB.DEFAULT_CLASS_LESSONS;
     const CLASS_LABEL = '1.5 小时';
-    const REPEAT_NOTE = { once: '选择一天和一个时刻，只约这一次', weekly: '从所选日期起，每周同一天同一时间，连约 4 次', daily: '从所选日期起，连续 7 天同一时间' };
+    const REPEAT_NOTE = { once: '选择一天和一个时刻，只约这一次', daily: '从所选日期起，接下去一周每天同一时刻，共 7 次', weekly: '从所选日期起，接下去一个月每周同一天同一时刻，共 4 次' };
     const courseList = document.querySelector('#courseList');
     const teacherCard = document.querySelector('#teacherCard');
     const teacherList = document.querySelector('#teacherList');
