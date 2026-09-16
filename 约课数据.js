@@ -25,13 +25,15 @@
     { id: 'liming',   name: '李明老师', avatar: '李', subjects: ['数学'], grades: ['高一', '高二'],        years: 6,  score: 4.8, lessons: 96,  modes: ['线上', '线下'],        intro: '高中数学 · 立体几何与解析几何' },
     { id: 'wangjing', name: '王静老师', avatar: '王', subjects: ['数学'], grades: ['高一'],                years: 5,  score: 4.9, lessons: 78,  modes: ['线上', '线下'],        intro: '高中数学 · 概率统计与基础巩固' },
     { id: 'zhaolei',  name: '赵磊老师', avatar: '赵', subjects: ['数学'], grades: ['高二', '高三'],        years: 10, score: 4.7, lessons: 210, modes: ['线上', '线下', '上门'], intro: '高中数学 · 导数与高考冲刺' },
-    { id: 'chenyu',   name: '陈雨老师', avatar: '陈', subjects: ['数学'], grades: ['初一', '初二', '初三'], years: 4,  score: 4.8, lessons: 64,  modes: ['线下'],                intro: '初中数学 · 同步提高' }
+    { id: 'chenyu',   name: '陈雨老师', avatar: '陈', subjects: ['数学'], grades: ['初一', '初二', '初三'], years: 4,  score: 4.8, lessons: 64,  modes: ['线下'],                intro: '初中数学 · 同步提高' },
+    { id: 'liuwen',   name: '刘文老师', avatar: '刘', subjects: ['语文'], grades: ['高一'],                years: 7,  score: 4.9, lessons: 112, modes: ['线上', '线下'],        intro: '高中语文 · 阅读与写作' },
+    { id: 'zhoumin',  name: '周敏老师', avatar: '周', subjects: ['英语'], grades: ['高一'],                years: 6,  score: 4.8, lessons: 98,  modes: ['线上', '上门'],        intro: '高中英语 · 语法与阅读' }
   ];
 
   var COURSES = [
-    { id: 'function', name: '高一数学·函数基础', subject: '数学', grade: '高一', mode: '线下', place: '西安小寨校区' },
-    { id: 'sequence', name: '高一数学·数列专题', subject: '数学', grade: '高一', mode: '线上', place: '西安小寨交付中心' },
-    { id: 'tutorial', name: '高中数学·专题辅导', subject: '数学', grade: '高一', mode: '上门', place: '上门' }
+    { id: 'function', name: '高中数学', subject: '数学', grade: '高一', mode: '线下', place: '西安小寨校区' },
+    { id: 'sequence', name: '高中语文', subject: '语文', grade: '高一', mode: '线上', place: '西安小寨交付中心' },
+    { id: 'tutorial', name: '高中英语', subject: '英语', grade: '高一', mode: '上门', place: '上门' }
   ];
 
   var MODE_PLACE = { '线上': '西安小寨交付中心', '线下': '西安小寨校区', '上门': '上门' };
@@ -463,8 +465,11 @@
 
   // 老师推荐：优先“以前给该学员上过这门课”的老师；首次约课按评分、授课量自动匹配
   function recommendTeacher(student, courseId) {
+    var candidates = teachersFor(courseId).slice().sort(function (a, b) { return (b.score - a.score) || (b.lessons - a.lessons); });
+    if (!candidates.length) return null;
+    var candidateIds = candidates.map(function (item) { return item.id; });
     var records = list().filter(function (item) {
-      return item.student === student && item.courseId === courseId && item.teacherId && item.status !== 'cancelled';
+      return item.student === student && item.courseId === courseId && item.teacherId && item.status !== 'cancelled' && candidateIds.indexOf(item.teacherId) > -1;
     });
     if (records.length) {
       records.sort(function (a, b) { return String(b.date + ' ' + b.time).localeCompare(String(a.date + ' ' + a.time)); });
@@ -475,8 +480,6 @@
         count: records.filter(function (item) { return item.teacherId === teacherId; }).length
       };
     }
-    var candidates = teachersFor(courseId).slice().sort(function (a, b) { return (b.score - a.score) || (b.lessons - a.lessons); });
-    if (!candidates.length) return null;
     return { teacherId: candidates[0].id, reason: 'auto', count: 0 };
   }
 

@@ -330,17 +330,14 @@
       const teacher = YZB.teacher(state.teacherId);
       const sessions = selectedSessions();
       if (!teacher || !sessions.length) { closeConfirm(); showToast('请选择上课时间'); return; }
-      const batchId = sessions.length > 1 ? YZB.makeId() : '';
-      const pattern = sessions.length > 1 ? '自由选择 ' + sessions.length + ' 节' : '';
-      sessions.forEach((session, index) => {
+      sessions.forEach(session => {
         const day = YZB.dayInfo(session.date);
         YZB.add({
           id: YZB.makeId(), student: STUDENT, courseId: course.id, courseName: course.name, subject: course.subject, grade: course.grade,
           lessons: CLASS_LESSONS, lessonMinutes: CLASS_MINUTES, durationLabel: CLASS_LABEL,
           teacherId: teacher.id, teacherName: teacher.name, date: session.date, dateLabel: day.label, time: session.time,
           mode: course.mode, place: course.place, remark: '', status: 'pending',
-          createdAt: '8月10日 22:30', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: '',
-          batchId: batchId, batchIndex: index + 1, batchTotal: sessions.length, batchLabel: pattern
+          createdAt: '8月10日 22:30', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
         });
       });
       closeConfirm();

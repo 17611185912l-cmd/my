@@ -36,7 +36,6 @@
     .bk-state.attended{color:#34705a;background:#eaf7f1}
     .bk-state.done{color:#34705a;background:#eaf7f1}
     .bk-state.cancelled{color:#777a82;background:#f0f3f6}
-    .bk-batch-tag{padding:3px 7px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px;line-height:20px;white-space:nowrap}
     .bk-meta{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:#777a82;font-size:14px;line-height:20px}
     .bk-meta span:nth-child(4){flex:0 0 100%;color:#596674}
     .bk-remark{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
@@ -200,7 +199,7 @@
       const side = item.status === 'attended' ? '<div class="bk-side">' + actionsOf(item) + '</div>' : '';
       const foot = tipOf(item) + (side ? '' : actionsOf(item));
       return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + (item.date || '').slice(0, 7) + '" data-mode="' + modeKey(item.mode) + '">' +
-        '<div class="bk-head"><strong>' + item.courseName + '</strong>' + (item.batchTotal > 1 ? '<span class="bk-batch-tag">批量 ' + item.batchIndex + '/' + item.batchTotal + '</span>' : '') + '<span class="bk-state ' + item.status + '">' + STATE_TEXT[item.status] + '</span></div>' +
+        '<div class="bk-head"><strong>' + item.courseName + '</strong><span class="bk-state ' + item.status + '">' + STATE_TEXT[item.status] + '</span></div>' +
         (side ? '<div class="bk-row">' + meta + side + '</div>' : meta) +
         (foot ? '<div class="bk-foot">' + foot + '</div>' : '') +
       '</article>';
