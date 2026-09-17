@@ -1,12 +1,291 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=./个人中心_页面还原.html">
-  <title>优坐标个人中心原型</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>优坐标原型 · 原型图 / 功能结构 / 业务流程</title>
+<style>
+  :root{
+    --ink:#1F2937; --muted:#64748B; --line:#E5E7EB; --bg:#F5F6F8; --card:#FFFFFF;
+    --brand:#2F5597; --brand-soft:#EAF0FB; --green:#3F7C50; --green-soft:#EAF5EE;
+    --amber:#B07A24; --purple:#6F53A0; --purple-soft:#F2F1F8;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);display:flex;flex-direction:column}
+  /* ---------- 顶栏 ---------- */
+  header.topbar{flex:0 0 auto;display:flex;align-items:center;gap:18px;padding:0 20px;height:58px;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:10}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;white-space:nowrap}
+  .brand i{width:9px;height:9px;border-radius:50%;background:var(--brand);display:inline-block}
+  nav.tabs{display:flex;gap:6px;margin-left:8px}
+  nav.tabs button{appearance:none;border:1px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:14px;padding:8px 16px;border-radius:9px;cursor:pointer;transition:.15s}
+  nav.tabs button:hover{background:#F1F5F9;color:var(--ink)}
+  nav.tabs button[aria-selected="true"]{background:var(--brand);color:#fff;font-weight:600}
+  .topbar .spacer{flex:1 1 auto}
+  .topbar .hint{font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .topbar .hint b{color:var(--ink);font-weight:600}
+  /* ---------- 主区 ---------- */
+  main{flex:1 1 auto;min-height:0;position:relative}
+  .view{position:absolute;inset:0;display:none;min-height:0}
+  .view.active{display:flex;min-height:0}
+  /* ---------- 视图1：原型图 ---------- */
+  /* ---------- 视图1：原型图（内嵌入口页） ---------- */
+  .stage{flex:1 1 auto;min-width:0;min-height:0;display:flex;flex-direction:column;background:#F7F8FA}
+  .stage-bar{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:#fff}
+  .stage-bar .name{font-size:14px;font-weight:600}
+  .stage-bar .path{font-size:12px;color:var(--muted)}
+  .stage-bar .spacer{flex:1 1 auto}
+  .stage-bar a,.stage-bar button{font-size:12.5px;color:var(--brand);text-decoration:none;border:1px solid #CBD5E1;background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer;font-family:inherit}
+  .stage-bar a:hover,.stage-bar button:hover{background:#F1F5F9}
+  .stage{overflow-x:auto;overflow-y:hidden;justify-content:flex-start}
+  .stage iframe{flex:1 1 auto;min-height:0;width:1200px;height:auto;margin:0 auto 16px;border:0;display:block;background:#F7F8FA}
+  .branch-note{margin:14px 0 0;font-size:12.5px;color:var(--muted);line-height:1.8}
+  #flow .flow-scroll{max-height:none}
+
+  /* ---------- 视图2/3：文档 ---------- */
+  .doc{flex:1 1 auto;overflow:auto;padding:26px 26px 60px}
+  .doc-inner{max-width:1180px;margin:0 auto}
+  .doc h2{font-size:19px;margin:0 0 6px}
+  .doc .lead{font-size:13.5px;color:var(--muted);line-height:1.85;margin:0 0 20px}
+  .doc .lead code{background:#F1F5F9;padding:1px 6px;border-radius:5px;font-size:12.5px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn-row a{font-size:13px;text-decoration:none;border:1px solid #CBD5E1;border-radius:9px;padding:8px 14px;color:var(--brand)}
+  .btn-row a:hover{background:#F1F5F9}
+  /* 功能结构树 */
+  .mind{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .mind-root{flex:0 0 auto;background:#1F4E79;color:#fff;border-radius:12px;padding:16px 18px;font-weight:700;font-size:14px;line-height:1.55;max-width:190px}
+  .mind-root small{display:block;font-weight:400;font-size:11.5px;opacity:.85;margin-top:4px}
+  .mind-cols{flex:1 1 640px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;min-width:0}
+  .col{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .col>summary{list-style:none;cursor:pointer;padding:12px 16px;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .col>summary::-webkit-details-marker{display:none}
+  .col>summary::after{content:"收起";margin-left:auto;font-size:11.5px;font-weight:400;color:var(--muted)}
+  .col:not([open])>summary::after{content:"展开"}
+  .col.parent>summary{background:var(--green-soft);color:#235c37}
+  .col.teacher>summary{background:var(--brand-soft);color:#1e3f74}
+  .col .body{padding:10px 14px 16px}
+  ul.tree{list-style:none;margin:0;padding:0}
+  ul.tree>li{border-left:2px solid var(--line);padding-left:12px;margin-bottom:10px}
+  ul.tree>li:last-child{margin-bottom:0}
+  ul.tree>li>span{display:block;background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:13.5px;font-weight:600}
+  ul.tree ul{list-style:none;margin:7px 0 2px;padding:0 0 0 8px}
+  ul.tree ul li{position:relative;padding:3px 0 3px 16px;font-size:13px;color:#475569;line-height:1.65}
+  ul.tree ul li::before{content:"";position:absolute;left:2px;top:.95em;width:9px;height:1px;background:#CBD5E1}
+  /* 流程图 */
+  /* ---------- 泳道串联业务流程图 ---------- */
+  .flow-wrap{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:auto;padding:6px}
+  .flow-wrap img{display:block;width:100%;min-width:880px;max-width:1180px;height:auto;margin:0 auto}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:12px}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .legend i{width:22px;height:0;border-top:2px dashed var(--purple);display:inline-block}
+  .legend i.solid{border-top-style:solid;border-color:#6E7781}
+  .legend b{width:12px;height:12px;border-radius:3px;display:inline-block}
+  @media (max-width:900px){
+    .topbar{flex-wrap:wrap;height:auto;padding:10px 14px;gap:10px}
+    nav.tabs{order:3;width:100%;overflow:auto}
+  }
+</style>
 </head>
 <body>
-  <p><a href="./个人中心_页面还原.html">打开优坐标个人中心原型</a></p>
+
+<header class="topbar">
+  <div class="brand"><i></i>优坐标原型</div>
+  <nav class="tabs" role="tablist" aria-label="视图切换">
+    <button role="tab" id="tab-proto"  aria-controls="view-proto"  aria-selected="true"  data-view="proto">原型图</button>
+    <button role="tab" id="tab-mind"   aria-controls="view-mind"   aria-selected="false" data-view="mind">功能结构</button>
+    <button role="tab" id="tab-flow"   aria-controls="view-flow"   aria-selected="false" data-view="flow">业务流程</button>
+  </nav>
+  <div class="spacer"></div>
+  <div class="hint">家长端 · 教师端　<b>25 个原型页面</b>　每页右侧附「页面说明」</div>
+</header>
+
+<main>
+  <!-- ============ 视图一：原型图 ============ -->
+  <section class="view active" id="view-proto" role="tabpanel" aria-labelledby="tab-proto">
+    <div class="stage">
+      <div class="stage-bar">
+        <span class="name">个人中心 · 统一身份与服务入口</span>
+        <span class="path">/个人中心_页面还原.html</span>
+        <div class="spacer"></div>
+        <button type="button" id="btn-refresh" title="重新加载原型入口页">刷新</button>
+        <a id="btn-newtab" href="./个人中心_页面还原.html" target="_blank" rel="noopener">新标签打开</a>
+      </div>
+      <iframe id="hub" src="./个人中心_页面还原.html" title="优坐标原型入口：个人中心"></iframe>
+    </div>
+  </section>
+
+  <!-- ============ 视图二：功能结构 ============ -->
+  <section class="view" id="view-mind" role="tabpanel" aria-labelledby="tab-mind">
+    <div class="doc">
+      <div class="doc-inner">
+        <h2>功能模块思维导图 · 家长端 + 教师端</h2>
+        <p class="lead">按「家长端 / 教师端」两条主线梳理当前原型已实现的功能模块，共 2 个一级分支、14 个功能模块。原文件：<code>交付文档/优坐标_功能模块思维导图_家长端+教师端.xmind</code>（78 个主题，双击可用本机 Xmind.app 打开编辑）。</p>
+
+        <div class="panel">
+          <div class="mind">
+            <div class="mind-root">优坐标产品功能<small>当前原型 · 家长端 + 教师端</small></div>
+            <div class="mind-cols">
+              <details class="col parent" open>
+                <summary>家长端（7 个模块）</summary>
+                <div class="body">
+                  <ul class="tree">
+                    <li><span>学习中心</span>
+                      <ul>
+                        <li>学员资料（学员 / 年级）</li>
+                        <li>课时统计：已购 / 已上 / 已约 / 剩余（点击数字进入上课记录）</li>
+                        <li>课程计划查看</li>
+                        <li>入口：去约课 / 上课记录</li>
+                      </ul></li>
+                    <li><span>约课</span>
+                      <ul>
+                        <li>第 1 步：确认学员与课程</li>
+                        <li>第 2 步：设置固定上课计划（开始 / 结束日期 + 每周上课时段）</li>
+                        <li>第 3 步：选择老师 或 发布需求</li>
+                        <li>指定教师：老师确认即生效</li>
+                        <li>发布需求：多个老师抢单</li>
+                        <li>提交约课 + 确认弹窗，提交后拆分为单节课程</li>
+                      </ul></li>
+                    <li><span>上课记录</span>
+                      <ul>
+                        <li>标签：全部 / 待确认 / 待上课 / 待评价 / 已完成 / 已取消</li>
+                        <li>筛选：月份 / 课程 / 上课方式</li>
+                        <li>操作：取消约课 / 查看详情 / 重新约课</li>
+                        <li>待上课状态限制取消改约；已完成跳转去评价</li>
+                      </ul></li>
+                    <li><span>课程详情</span>
+                      <ul>
+                        <li>课程与老师信息</li>
+                        <li>订单状态与课时扣减</li>
+                        <li>查看老师课后反馈 / 去评价</li>
+                      </ul></li>
+                    <li><span>课程评价</span>
+                      <ul>
+                        <li>老师评分 1~5 星（不再对课程评分）</li>
+                        <li>文字评价</li>
+                        <li>提交后写回订单（已评价）</li>
+                      </ul></li>
+                    <li><span>需求单确认</span>
+                      <ul>
+                        <li>查看接单老师信息</li>
+                        <li>家长确认 / 拒绝</li>
+                        <li>双方确认后生效并拆单</li>
+                      </ul></li>
+                    <li><span>订单与购课</span>
+                      <ul>
+                        <li>购买课程 / 订单确认</li>
+                        <li>我的订单：全部 / 待支付 / 已支付 / 已取消</li>
+                        <li>订单详情：支付 / 再次购买 / 立即约课</li>
+                      </ul></li>
+                  </ul>
+                </div>
+              </details>
+
+              <details class="col teacher" open>
+                <summary>教师端（7 个模块）</summary>
+                <div class="body">
+                  <ul class="tree">
+                    <li><span>授课中心</span>
+                      <ul>
+                        <li>教员资料 / 资料管理</li>
+                        <li>累计授课 / 待确认 / 待上课 / 待反馈</li>
+                        <li>本月排课与日历视图</li>
+                        <li>入口：可约时段 / 抢单大厅 / 授课记录</li>
+                      </ul></li>
+                    <li><span>可约时段</span>
+                      <ul>
+                        <li>四类时间：工作日白天 / 工作日晚上 / 周末白天 / 周末晚上</li>
+                        <li>特殊日期：全天开放 / 当天不开放 / 跟随四类时间（删除即恢复跟随）</li>
+                        <li>保存后进入家长可约范围</li>
+                      </ul></li>
+                    <li><span>抢单大厅</span>
+                      <ul>
+                        <li>待接单需求列表 + 刷新</li>
+                        <li>接单操作、等待家长确认状态</li>
+                        <li>新单红点提示</li>
+                      </ul></li>
+                    <li><span>授课记录</span>
+                      <ul>
+                        <li>标签：待确认 / 待上课 / 待反馈 / 已完成</li>
+                        <li>拒绝约课 / 确认约课</li>
+                        <li>模拟签到回调</li>
+                        <li>已完成课程展示反馈与作业；分享文案在课程详情页</li>
+                      </ul></li>
+                    <li><span>课程反馈</span>
+                      <ul>
+                        <li>课程内容 / 课后反馈 / 作业要求</li>
+                        <li>提交后订单进入已完成</li>
+                      </ul></li>
+                    <li><span>课程详情</span>
+                      <ul>
+                        <li>学员与课程信息</li>
+                        <li>去填写反馈 / 分享文案至家长群</li>
+                      </ul></li>
+                    <li><span>消息与提醒</span>
+                      <ul>
+                        <li>新增需求红点</li>
+                        <li>个人中心入口提醒</li>
+                      </ul></li>
+                  </ul>
+                </div>
+              </details>
+            </div>
+          </div>
+          <div class="btn-row">
+            <a href="./交付文档/优坐标_功能模块思维导图_家长端+教师端.xmind" download>下载 .xmind 原文件</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 视图三：业务流程 ============ -->
+  <section class="view" id="view-flow" role="tabpanel" aria-labelledby="tab-flow">
+    <div class="doc">
+      <div class="doc-inner">
+        <h2>业务流程图 · 泳道串联</h2>
+        <p class="lead">横向为责任方泳道（教师端 / 家长端 / 平台），纵向为时间顺序：<b>教师维护可约时段 → 家长购课并制定上课计划 → 确定老师 → 拆分为单节课程 → 签到扣课时 → 课后反馈 → 家长评价收尾</b>。整条主线自上而下依次串联，仅在「A 指定老师 / B 发布需求」处分支一次，随后立即汇合。</p>
+
+        <div class="panel">
+          <div class="flow-wrap">
+            <img src="./交付文档/preview/flowchart-v2.svg" alt="优坐标业务流程图（泳道串联）：教师端 / 家长端 / 平台三条泳道，流程自上而下串联，仅在指定老师与发布需求处分支后汇合">
+          </div>
+
+          <p class="branch-note">分支说明：<b>A 指定老师</b>——教师拒绝或超时未确认时，家长可重新选择老师，或改为发布需求；<b>B 发布需求</b>——在家长确认接单老师前，需求在抢单大厅保持可抢状态（接单后家长取消则不再进入后续流程）。两条路径汇合于「预约生效 · 拆分单节课程」。</p>
+
+          <div class="btn-row">
+            <a href="./交付文档/preview/flowchart-v2.svg" target="_blank" rel="noopener">在新标签打开大图</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('nav.tabs button'));
+  var views = {proto:document.getElementById('view-proto'), mind:document.getElementById('view-mind'), flow:document.getElementById('view-flow')};
+  var frame = document.getElementById('hub');
+  var refresh = document.getElementById('btn-refresh');
+
+  function showView(name){
+    tabs.forEach(function(t){ t.setAttribute('aria-selected', String(t.dataset.view === name)); });
+    Object.keys(views).forEach(function(k){ views[k].classList.toggle('active', k === name); });
+  }
+  function go(name){
+    showView(name);
+    var h = '#' + name;
+    if (location.hash !== h) history.replaceState(null, '', h);
+  }
+
+  tabs.forEach(function(t){ t.addEventListener('click', function(){ go(t.dataset.view); }); });
+  refresh.addEventListener('click', function(){ frame.src = frame.src.split('?')[0] + '?t=' + Date.now(); });
+
+  // 深链：#mind / #flow 直接进入对应菜单，其余 hash 视为原型图
+  var hash = location.hash.slice(1);
+  showView(hash === 'mind' || hash === 'flow' ? hash : 'proto');
+})();
+</script>
 </body>
 </html>

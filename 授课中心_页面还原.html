@@ -67,8 +67,15 @@
     .stat strong { display: block; color: #356da9; font-size: 24px; line-height: 28px; font-weight: 650; }
     .stat > span { display: block; margin-top: 4px; color: #666a72; font-size: 14px; line-height: 20px; }
     .stat-num { position: relative; display: inline-block; }
-    .stat-dot { position: absolute; top: 1px; right: -10px; width: 7px; height: 7px; border-radius: 50%; background: #e5484d; }
-    .stat-dot[hidden] { display: none; }
+    .notif-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; margin-left: 6px; padding: 0 5px; border-radius: 999px; color: #fff; background: linear-gradient(180deg,#ff7378,#e04347); box-shadow: 0 1px 3px rgba(224,67,71,.35); font-size: 11px; font-weight: 650; line-height: 1; font-style: normal; vertical-align: 2px; animation: notif-pop .3s ease-out, notif-breath 2.2s .3s ease-out infinite; }
+    .notif-badge[hidden] { display: none; }
+    .stat-dot, .tab .dot, .center-dot { position: relative; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #e5484d; animation: notif-breath 2.2s ease-out infinite; }
+    .stat-dot { position: absolute; top: 1px; right: -10px; }
+    .stat-dot[hidden], .center-dot[hidden] { display: none; }
+    .center-dot { flex: 0 0 auto; margin-left: 5px; vertical-align: 2px; }
+    @keyframes notif-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes notif-breath { 0% { box-shadow: 0 0 0 0 rgba(229,72,77,.45); } 70% { box-shadow: 0 0 0 7px rgba(229,72,77,0); } 100% { box-shadow: 0 0 0 0 rgba(229,72,77,0); } }
+    @media (prefers-reduced-motion: reduce) { .notif-badge, .stat-dot, .center-dot, .tab .dot { animation: none; } }
     .calendar-head { margin-top: 11px; display: flex; align-items: center; justify-content: space-between; }
     .month-switch { width: 32px; height: 32px; border-radius: 50%; color: #547492; font-size: 20px; }
     .month-label { font-size: 15px; font-weight: 600; }
@@ -123,7 +130,7 @@
 </head>
 <body>
   <button class="review-simulator" id="reviewSimulator" type="button">模拟驳回</button>
-  <aside class="dev-note" aria-label="开发说明"><strong>开发说明 · 授课中心</strong><p id="devNoteText">当前页展示教员信息、教学数据、排课日历和已排课程；本版已移除招募大厅和授课管理入口，预留页面暂不展示入口。</p></aside>
+  <aside class="dev-note" aria-label="开发说明"><strong>开发说明 · 授课中心</strong><p id="devNoteText">当前页展示教员信息、教学数据、排课日历和已排课程；本版已增加抢单大厅入口，接单后等待家长确认。</p></aside>
   <main class="phone-shell" aria-label="授课中心页面">
     <div class="dynamic-island" aria-hidden="true"></div>
     <div class="app">
@@ -142,6 +149,11 @@
             <a class="times-entry" href="可约时段_页面还原.html">
               <span class="times-title">可约时段</span>
               <span class="times-note" id="slotEntryNote">维护四类时间与特殊日期</span>
+              <i class="chevron" aria-hidden="true"></i>
+            </a>
+            <a class="times-entry" href="抢单大厅_页面还原.html">
+              <span class="times-title">抢单大厅<i class="notif-badge" id="marketDot" hidden aria-hidden="true"></i></span>
+              <span class="times-note" id="marketEntryNote">查看家长发布的固定上课需求</span>
               <i class="chevron" aria-hidden="true"></i>
             </a>
           </section>
@@ -179,7 +191,7 @@
       </div>
     </div>
   </main>
-  <script src="约课数据.js?v=20260914-3"></script>
+  <script src="约课数据.js?v=20260917-6"></script>
   <script>
     const page = document.querySelector('.page');
     const reviewStates = { approved: '审核通过', pending: '待审核', rejected: '已驳回' };
@@ -260,6 +272,16 @@
           : YZB.availabilityLabel('zhang'))
         : '维护四类时间与特殊日期';
     }
+    function updateMarketEntry() {
+      const count = window.YZB ? YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && !item.teacherAccepted && item.status === 'pending').length : 0;
+      document.querySelector('#marketEntryNote').textContent = count ? (count + ' 条待接单需求') : '暂无待接单需求';
+      const marketBadge = document.querySelector('#marketDot');
+      marketBadge.textContent = count > 99 ? '99+' : String(count || '');
+      marketBadge.hidden = !count;
+    }
+    // 其它标签页改动数据后刷新入口红点与统计
+    addEventListener('storage', event => { if (!event.key || event.key.indexOf('yzb-booking') === 0) { updateMarketEntry(); updateTeachingStats(); } });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { updateMarketEntry(); updateTeachingStats(); } });
     function renderCalendar() {
       const year = calendarCursor.getFullYear(), month = calendarCursor.getMonth();
       const offset = (new Date(year, month, 1).getDay() + 6) % 7;
@@ -303,12 +325,13 @@
       renderCourseList(selectedDate);
     }));
     updateSlotEntry();
+    updateMarketEntry();
     updateTeachingStats();
     renderCalendar();
     renderCourseList(selectedDate);
     function fitFrame() { const scale = Math.min((innerWidth - 32) / 464,(innerHeight - 32) / 980,1); document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2)); }
     fitFrame(); addEventListener('resize',fitFrame,{ passive:true });
   </script>
-<script src="原型开发说明.js?v=20260914-3"></script>
+<script src="原型开发说明.js?v=20260917-3"></script>
 </body>
 </html>

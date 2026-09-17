@@ -13,7 +13,16 @@
     .tab b{margin-left:3px;font-weight:600}
     .tab.active{color:#356da9;font-weight:650}
     .tab.active:after{content:"";position:absolute;left:50%;bottom:0;width:22px;height:3px;border-radius:2px;background:#4b7fb8;transform:translateX(-50%)}
-    .tab .dot{display:inline-block;width:6px;height:6px;margin:0 0 2px 4px;border-radius:50%;background:#e8a33d}
+    .notif-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; margin-left: 6px; padding: 0 5px; border-radius: 999px; color: #fff; background: linear-gradient(180deg,#ff7378,#e04347); box-shadow: 0 1px 3px rgba(224,67,71,.35); font-size: 11px; font-weight: 650; line-height: 1; font-style: normal; vertical-align: 2px; animation: notif-pop .3s ease-out, notif-breath 2.2s .3s ease-out infinite; }
+    .notif-badge[hidden] { display: none; }
+    .stat-dot, .tab .dot, .center-dot { position: relative; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #e5484d; animation: notif-breath 2.2s ease-out infinite; }
+    .stat-dot { position: absolute; top: 1px; right: -10px; }
+    .stat-dot[hidden], .center-dot[hidden] { display: none; }
+    .center-dot { flex: 0 0 auto; margin-left: 5px; vertical-align: 2px; }
+    .tab .dot { margin: 0 0 2px 4px; }
+    @keyframes notif-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes notif-breath { 0% { box-shadow: 0 0 0 0 rgba(229,72,77,.45); } 70% { box-shadow: 0 0 0 7px rgba(229,72,77,0); } 100% { box-shadow: 0 0 0 0 rgba(229,72,77,0); } }
+    @media (prefers-reduced-motion: reduce) { .notif-badge, .stat-dot, .center-dot, .tab .dot { animation: none; } }
     .content{height:auto;padding:8px 12px 30px}.card{margin-bottom:8px;padding:14px;border-radius:8px;background:#fff;box-shadow:0 2px 10px rgba(47,75,106,.05)}
     .summary{height:66px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-radius:8px;background:#fff}
     .summary span{color:#777a82;font-size:14px}
@@ -40,6 +49,9 @@
     .bk-meta span:nth-child(4){flex:0 0 100%;color:#596674}
     .bk-remark{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
     .bk-foot{margin-top:10px;padding-top:10px;border-top:1px solid #e5ebf2;display:flex;align-items:center;gap:8px;justify-content:flex-end}
+    .bk-feedback-summary{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
+    .bk-feedback-summary div+div{margin-top:5px}
+    .bk-feedback-summary strong{display:block;margin-bottom:2px;color:#356da9;font-size:13px}
     .bk-row{margin-top:8px;display:flex;align-items:center;gap:10px}
     .bk-row .bk-meta{margin-top:0;flex:1;min-width:0}
     .bk-side{flex:0 0 auto}
@@ -103,7 +115,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-  <script src="约课数据.js?v=20260914-3"></script>
+  <script src="约课数据.js?v=20260917-6"></script>
   <script>
     const TEACHER_ORDER = ['zhang', 'liming', 'wangjing'];
     /* 教师端授课记录 = 原「约课管理」+ 原「授课记录」：五个状态与家长端一一对应 */
@@ -157,7 +169,10 @@
 
     function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     function modeKey(mode) { return mode === '线下' ? 'offline' : mode === '上门' ? 'home' : 'online'; }
-    function stampOf(item) { return (item.date || '') + ' ' + (item.time || ''); }
+    function stampOf(item) {
+      if (item.isPlan) return (item.startDate || '') + ' ' + (((item.weeklySlots || [])[0] || {}).time || '');
+      return (item.date || '') + ' ' + (item.time || '');
+    }
     function recordsOf(tab) { return YZB.forTeacher(teacherId, tab.states); }
     /* 未来的约课升序排在前，历史记录按时间倒序 */
     function orderOf(a, b) {
@@ -174,7 +189,14 @@
     }
 
     function tipOf(item) {
-      if (item.status === 'pending') return '<span class="bk-tip frozen">' + item.createdAt + ' 家长提交 · 等待确认</span>';
+      if (item.status === 'pending') {
+        if (item.isPlan) {
+          if (item.teacherAccepted) return '<span class="bk-tip frozen">' + item.teacherName + ' 已接单 · 等待家长确认</span>';
+          return '<span class="bk-tip frozen">' + item.createdAt + (item.orderMode === 'demand' ? ' 发布 · 等待老师接单' : ' 家长指定 · 等待老师确认') + '</span>';
+        }
+        return '<span class="bk-tip frozen">' + item.createdAt + ' 家长提交 · 等待确认</span>';
+      }
+      if (item.isPlan && item.status === 'confirmed') return '<span class="bk-tip">固定周课表 · 已生成 ' + (item.sessionCount || 0) + ' 次课</span>';
       if (item.status === 'confirmed') return '';
       if (item.status === 'attended') return '';
       if (item.status === 'done') return '<span class="bk-tip deducted">课程已完成 · 反馈已提交</span>';
@@ -184,23 +206,40 @@
 
     function actionsOf(item) {
       if (item.status === 'pending') {
+        if (item.isPlan) {
+          if (item.teacherAccepted) return '';
+          return '<button class="btn plain" type="button" data-reject="' + item.id + '">拒绝</button>' +
+                 '<button class="btn primary" type="button" data-accept-plan="' + item.id + '">' + (item.orderMode === 'demand' ? '接单' : '确认接单') + '</button>';
+        }
         return '<button class="btn plain" type="button" data-reject="' + item.id + '">拒绝</button>' +
                '<button class="btn primary" type="button" data-confirm="' + item.id + '">确认接单</button>';
       }
       if (item.status === 'confirmed') return '';
       if (item.status === 'attended') return '<a class="btn primary" href="课程反馈_页面还原.html?booking=' + item.id + '&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">填写反馈</a>';
-      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=teacher&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">查看课程</a>';
+      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=teacher&booking=' + item.id + '&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">查看课程</a>';
       return '';
     }
 
     function cardOf(item) {
-      const meta = '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
+      const learner = item.isPlan && item.status !== 'confirmed' ? item.grade + ' · 学员信息待家长确认' : item.student;
+      const meta = item.isPlan
+        ? '<div class="bk-meta"><span>' + learner + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>'
+        : '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
       /* 待反馈：填写反馈按钮移到卡片右侧、与信息区同高 */
       const side = item.status === 'attended' ? '<div class="bk-side">' + actionsOf(item) + '</div>' : '';
       const foot = tipOf(item) + (side ? '' : actionsOf(item));
-      return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + (item.date || '').slice(0, 7) + '" data-mode="' + modeKey(item.mode) + '">' +
+      const summary = item.status === 'done' && (item.content || item.feedback || item.requirement)
+        ? '<div class="bk-feedback-summary">' +
+          (item.content ? '<div><strong>课程内容</strong><span>' + item.content + '</span></div>' : '') +
+          (item.feedback ? '<div><strong>课程反馈</strong><span>' + item.feedback + '</span></div>' : '') +
+          (item.requirement ? '<div><strong>课后作业</strong><span>' + item.requirement + '</span></div>' : '') +
+          '</div>'
+        : '';
+      const month = (item.isPlan ? item.startDate : item.date || '').slice(0, 7);
+      return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + month + '" data-mode="' + modeKey(item.mode) + '">' +
         '<div class="bk-head"><strong>' + item.courseName + '</strong><span class="bk-state ' + item.status + '">' + STATE_TEXT[item.status] + '</span></div>' +
         (side ? '<div class="bk-row">' + meta + side + '</div>' : meta) +
+        summary +
         (foot ? '<div class="bk-foot">' + foot + '</div>' : '') +
       '</article>';
     }
@@ -251,6 +290,9 @@
     }
 
     function refresh() { renderTabs(); renderRecords(); fillFilters(); applyFilters(); }
+    // 其它标签页改动数据后自动刷新（家长取消 / 确认等）
+    addEventListener('storage', event => { if (!event.key || event.key.indexOf('yzb-booking') === 0) refresh(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 
     function openSheet(id) {
       rejectTarget = id; rejectReason = ''; rejectConfirm.disabled = true;
@@ -265,6 +307,7 @@
       if (!button) return;
       activeTab = button.dataset.tab;
       applyFilters();
+      try{const url=new URL(location.href);url.searchParams.set('filter',activeTab);history.replaceState(null,'',url)}catch{}
     });
     monthSelect.onchange = applyFilters;
     document.querySelectorAll('.mode-option').forEach(option => option.onclick = () => {
@@ -274,6 +317,20 @@
     });
 
     listBox.addEventListener('click', event => {
+      const acceptPlanButton = event.target.closest('[data-accept-plan]');
+      if (acceptPlanButton) {
+        const accepted = YZB.acceptPlan(acceptPlanButton.dataset.acceptPlan, teacherId);
+        if (!accepted) { showToast('该需求刚刚被其他老师接单'); refresh(); return; }
+        if (accepted.orderMode === 'designated') {
+          activeTab = 'confirmed';
+          refresh();
+          showToast('已确认接单，固定课表已生成');
+          return;
+        }
+        refresh();
+        showToast('接单成功，等待家长确认');
+        return;
+      }
       const confirmButton = event.target.closest('[data-confirm]');
       if (confirmButton) {
         YZB.confirm(confirmButton.dataset.confirm);
@@ -307,4 +364,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260914-3"></script></body></html>
+<script src="原型开发说明.js?v=20260917-3"></script></body></html>

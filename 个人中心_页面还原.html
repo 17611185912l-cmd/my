@@ -623,6 +623,15 @@
     .center-desc { color: #718091; }
     .center-card.learning .center-role { color: #477963; }
     .center-card.learning .center-desc { color: #71847a; }
+    .notif-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; margin-left: 6px; padding: 0 5px; border-radius: 999px; color: #fff; background: linear-gradient(180deg,#ff7378,#e04347); box-shadow: 0 1px 3px rgba(224,67,71,.35); font-size: 11px; font-weight: 650; line-height: 1; font-style: normal; vertical-align: 2px; animation: notif-pop .3s ease-out, notif-breath 2.2s .3s ease-out infinite; }
+    .notif-badge[hidden] { display: none; }
+    .stat-dot, .tab .dot, .center-dot { position: relative; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #e5484d; animation: notif-breath 2.2s ease-out infinite; }
+    .stat-dot { position: absolute; top: 1px; right: -10px; }
+    .stat-dot[hidden], .center-dot[hidden] { display: none; }
+    .center-dot { flex: 0 0 auto; margin-left: 5px; vertical-align: 2px; }
+    @keyframes notif-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes notif-breath { 0% { box-shadow: 0 0 0 0 rgba(229,72,77,.45); } 70% { box-shadow: 0 0 0 7px rgba(229,72,77,0); } 100% { box-shadow: 0 0 0 0 rgba(229,72,77,0); } }
+    @media (prefers-reduced-motion: reduce) { .notif-badge, .stat-dot, .center-dot, .tab .dot { animation: none; } }
     .center-arrow { width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; opacity: .55; transform: rotate(45deg); }
     .menu-section,
     .maker + .menu-section,
@@ -717,6 +726,7 @@
       min-height: 100svh;
       padding: 16px;
       display: grid;
+      grid-template-rows: 100%;
       place-items: center;
       overflow: hidden;
       background: #e7eaee;
@@ -843,7 +853,7 @@
       </section>
 
       <nav class="center-shortcuts" aria-label="中心入口">
-        <a class="center-card teaching clickable" href="授课中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-tablet"/></svg></span><span class="center-copy"><span class="center-title"><strong>授课中心</strong><span class="center-role">教师端</span></span><small class="center-desc">排课与教学</small></span><i class="center-arrow" aria-hidden="true"></i></a>
+        <a class="center-card teaching clickable" href="授课中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-tablet"/></svg></span><span class="center-copy"><span class="center-title"><strong>授课中心</strong><span class="center-role">教师端</span><i class="notif-badge" id="teachingDot" hidden aria-hidden="true"></i></span><small class="center-desc">排课与教学</small></span><i class="center-arrow" aria-hidden="true"></i></a>
         <a class="center-card learning clickable" href="学习中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-graduation"/></svg></span><span class="center-copy"><span class="center-title"><strong>学习中心</strong><span class="center-role">家长端</span></span><small class="center-desc">课程与学习</small></span><i class="center-arrow" aria-hidden="true"></i></a>
       </nav>
 
@@ -876,7 +886,7 @@
 
       <section class="info-card card">
         <button class="info-row clickable" data-action="我的邀请码"><svg class="icon"><use href="#i-qr"/></svg><span>我的邀请码</span></button>
-        <button class="info-row clickable" data-action="我的订单"><svg class="icon"><use href="#i-file"/></svg><span>我的订单</span></button>
+        <button class="info-row clickable" type="button" data-route="我的订单_页面还原.html" aria-label="进入我的订单"><svg class="icon"><use href="#i-file"/></svg><span>我的订单</span></button>
         <button class="info-row clickable" data-action="我的收藏"><svg class="icon"><use href="#i-star"/></svg><span>我的收藏</span></button>
         <button class="info-row clickable" data-action="帮助中心"><svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span></button>
         <button class="info-row clickable" data-action="关于我们"><svg class="icon"><use href="#i-info"/></svg><span>关于我们</span></button>
@@ -912,6 +922,7 @@
     </main>
   </div>
 
+  <script src="约课数据.js?v=20260917-6"></script>
   <script>
     try {
       const savedProfile = JSON.parse(window.name || '{}');
@@ -977,8 +988,24 @@
     fitReferenceCanvas();
     window.addEventListener('resize', fitReferenceCanvas, { passive: true });
 
+    /* 授课中心入口红点：抢单大厅有待接单需求，或该教师有待确认约课时亮起 */
+    function updateTeachingEntryDot() {
+      const dot = document.querySelector('#teachingDot');
+      if (!dot) return;
+      if (!window.YZB) { dot.hidden = true; return; }
+      const market = YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && !item.teacherAccepted && item.status === 'pending').length;
+      const pending = YZB.forTeacher('zhang', ['pending']).length;
+      const total = market + pending;
+      dot.textContent = total > 99 ? '99+' : String(total || '');
+      dot.hidden = !total;
+      dot.title = market ? (market + ' 条待接单需求') : (pending ? (pending + ' 条约课待确认') : '');
+    }
+    updateTeachingEntryDot();
+    addEventListener('storage', event => { if (!event.key || event.key.indexOf('yzb-booking') === 0) updateTeachingEntryDot(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateTeachingEntryDot(); });
+
     window.parent.postMessage({ channel: 'personal-center-restored', page: 'profile' }, '*');
   </script>
-<script src="原型开发说明.js"></script>
+<script src="原型开发说明.js?v=20260917-3"></script>
 </body>
 </html>

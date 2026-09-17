@@ -68,7 +68,7 @@
   </div>
   <div class="toast" id="toast"></div>
 </div></div></main>
-  <script src="约课数据.js?v=20260914-3"></script>
+  <script src="约课数据.js?v=20260917-6"></script>
   <script>
     const TABS = [
       { key: 'all', label: '全部课程', states: null },
@@ -108,6 +108,7 @@
     function stampOf(item) { return (item.date || '') + ' ' + (item.time || ''); }
     function lessonsOf(item) { return store ? store.lessonsOf(item) : 1; }
     function slugOf(item) { return DETAIL_SLUG[item.courseId] || 'function-0803'; }
+    function visibleRecords() { return store ? store.list().filter(item => !item.split) : []; }
 
     /* 未来的约课升序排在前，历史记录按时间倒序 */
     function orderOf(a, b) {
@@ -117,10 +118,13 @@
       return aFuture ? stampOf(a).localeCompare(stampOf(b)) : stampOf(b).localeCompare(stampOf(a));
     }
 
-    /* 反馈优先取「课程反馈」页写入的本地缓存，其次用演示文案 */
+    /* 反馈优先取订单记录，其次取「课程反馈」页写入的本地缓存，最后用演示文案 */
     function feedbackOf(item) {
+      if (item.feedback || item.homework || item.requirement) {
+        return { feedback: item.feedback || '', homework: item.requirement || item.homework || '' };
+      }
       try {
-        const saved = JSON.parse(localStorage.getItem('course-detail:' + slugOf(item)) || 'null');
+        const saved = JSON.parse(localStorage.getItem('course-detail:' + item.id) || localStorage.getItem('course-detail:' + slugOf(item)) || 'null');
         if (saved && (saved.feedback || saved.homework || saved.requirement)) return { feedback: saved.feedback || '', homework: saved.homework || saved.requirement || '' };
       } catch (error) { /* 忽略演示数据的缓存异常 */ }
       return FEEDBACK[item.courseId] || null;
@@ -138,6 +142,11 @@
 
     function tipOf(item) {
       const lessons = lessonsOf(item);
+      if (item.isPlan && item.status === 'pending') {
+        if (item.teacherAccepted && item.orderMode !== 'designated') { const info = store ? store.teacher(item.teacherId) : null; const brief = info ? ' · ' + info.years + '年教龄 · 评分 ' + info.score : ''; return '<span class="record-tip">' + item.teacherName + ' 已接单' + brief + ' · 等待家长确认</span>'; }
+        return '<span class="record-tip">' + (item.createdAt || '') + (item.orderMode === 'designated' ? ' 指定老师 · 等待老师确认' : ' 提交 · 等待老师接单') + '</span>';
+      }
+      if (item.isPlan && item.status === 'confirmed') return '<span class="record-tip">固定周课表 · 已生成 ' + (item.sessionCount || 0) + ' 次课</span>';
       if (item.status === 'pending') return '<span class="record-tip">' + (item.createdAt || '') + ' 提交 · 等待老师确认排课</span>';
       if (item.status === 'confirmed') return '';
       if (item.status === 'attended') return '';
@@ -146,32 +155,41 @@
     }
 
     function actionsOf(item) {
+      if (item.isPlan && item.status === 'pending') {
+        const confirm = item.teacherAccepted && item.orderMode !== 'designated' ? '<button class="btn primary" type="button" data-confirm-plan="' + item.id + '">确认老师</button>' : '';
+        return confirm + '<button class="btn plain" type="button" data-cancel="' + item.id + '">取消需求</button>';
+      }
       if (item.status === 'pending') return '<button class="btn plain" type="button" data-cancel="' + item.id + '">取消约课</button>';
       if (item.status === 'confirmed') return '';
-      if (item.status === 'attended') return '<a class="btn primary" href="课程评价_页面还原.html?course=' + (REVIEW_COURSE[item.courseId] || 'trigonometry') + '">去评价</a>';
-      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=parent&course=' + slugOf(item) + '">查看详情</a>';
-      return '<a class="btn primary" href="约课_页面还原.html">重新约课</a>';
+      if (item.status === 'attended') return item.reviewedAt ? '' : '<a class="btn primary" href="课程评价_页面还原.html?booking=' + item.id + '&course=' + (REVIEW_COURSE[item.courseId] || 'trigonometry') + '">去评价</a>';
+      if (item.status === 'done' && !item.reviewedAt) return '<a class="btn primary" href="课程评价_页面还原.html?booking=' + item.id + '&course=' + (REVIEW_COURSE[item.courseId] || slugOf(item)) + '">去评价</a>';
+      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=parent&booking=' + item.id + '&course=' + slugOf(item) + '">查看详情</a>';
+      const rebookMode = item.orderMode === 'demand' ? 'demand' : (item.teacherId ? 'designated' : 'demand');
+      return '<a class="btn primary" href="约课_页面还原.html?course=' + encodeURIComponent(item.courseId || '') + '&teacher=' + encodeURIComponent(item.teacherId || '') + '&mode=' + rebookMode + '">重新约课</a>';
     }
 
     function cardOf(item) {
-      const key = STATUS_KEY[item.status] || 'pending';
-      const detail = item.status === 'cancelled' ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '"';
+      const key = item.reviewedAt ? 'done' : (STATUS_KEY[item.status] || 'pending');
+      const detail = item.status === 'cancelled' ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '" data-booking="' + item.id + '"';
       const foot = tipOf(item) + actionsOf(item);
+      const meta = item.isPlan
+        ? '<div class="meta"><span>' + (item.teacherName === '待匹配' ? '待匹配' : '接单老师：' + item.teacherName) + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + (item.sessionCount || 0) + ' 次课 · ' + lessonsOf(item) + ' 课时</span></div>'
+        : '<div class="meta"><span>' + item.teacherName + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.place + '</span><span>' + (item.durationLabel || (lessonsOf(item) * 45) + '分钟') + ' · ' + lessonsOf(item) + '课时</span></div>';
       return '<article class="record' + (detail ? '' : ' static') + '"' + detail + ' data-status="' + key + '" data-month="' + (item.date || '').slice(0, 7) + '" data-course="' + item.courseId + '" data-mode="' + modeKey(item.mode) + '">' +
-        '<div class="record-top"><strong>' + item.courseName + '</strong><span class="record-side"><span class="badge ' + key + '">' + STATE_TEXT[item.status] + '</span></span></div>' +
-        '<div class="meta"><span>' + item.teacherName + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.place + '</span><span>' + (item.durationLabel || (lessonsOf(item) * 45) + '分钟') + ' · ' + lessonsOf(item) + '课时</span></div>' +
+        '<div class="record-top"><strong>' + item.courseName + '</strong><span class="record-side"><span class="badge ' + key + '">' + (item.reviewedAt ? '已评价' : STATE_TEXT[item.status]) + '</span></span></div>' +
+        meta +
         summaryOf(item) +
         (foot ? '<div class="record-foot">' + foot + '</div>' : '') +
       '</article>';
     }
 
     function renderRecords() {
-      recordList.innerHTML = store ? store.list().slice().sort(orderOf).map(cardOf).join('') : '';
+      recordList.innerHTML = visibleRecords().slice().sort(orderOf).map(cardOf).join('');
     }
 
     /* 月份 / 课程下拉按当前演示数据生成，避免写死选项与数据不一致 */
     function fillFilters() {
-      const records = store ? store.list() : [], months = [], courses = [];
+      const records = visibleRecords(), months = [], courses = [];
       records.forEach(item => {
         const key = (item.date || '').slice(0, 7);
         if (key && months.indexOf(key) === -1) months.push(key);
@@ -197,6 +215,9 @@
     }
 
     function refresh() { renderRecords(); applyFilters(); }
+    // 其它标签页改动数据后自动刷新（老师接单 / 取消等）
+    addEventListener('storage', event => { if (!event.key || event.key.indexOf('yzb-booking') === 0) refresh(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 
     function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     function openSheet(id) {
@@ -214,16 +235,24 @@
     }
     function closeSheet() { sheet.classList.remove('show'); sheetMask.classList.remove('show'); cancelTarget = ''; }
 
-    document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => { activeFilter = tab.dataset.filter; applyFilters(); });
+    document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => { activeFilter = tab.dataset.filter; applyFilters(); try{const url=new URL(location.href);url.searchParams.set('filter',activeFilter);history.replaceState(null,'',url)}catch{} });
     monthSelect.onchange = applyFilters;
     courseSelect.onchange = applyFilters;
     document.querySelectorAll('.mode-option').forEach(option => option.onclick = () => { document.querySelector('.mode-option.active').classList.remove('active'); option.classList.add('active'); applyFilters(); });
     recordList.addEventListener('click', event => {
+      const planConfirm = event.target.closest('[data-confirm-plan]');
+      if (planConfirm) {
+        if (store && store.confirmPlan) store.confirmPlan(planConfirm.dataset.confirmPlan);
+        activeFilter = 'waiting';
+        refresh();
+        showToast('已确认老师，已生成每节课程');
+        return;
+      }
       const cancelButton = event.target.closest('[data-cancel]');
       if (cancelButton) { openSheet(cancelButton.dataset.cancel); return; }
       if (event.target.closest('a,button')) return;
       const card = event.target.closest('.record[data-detail]');
-      if (card) location.href = '课程详情_页面还原.html?role=parent&course=' + card.dataset.detail;
+      if (card) location.href = '课程详情_页面还原.html?role=parent&booking=' + card.dataset.booking + '&course=' + card.dataset.detail;
     });
     recordList.addEventListener('keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -243,10 +272,11 @@
     sheetMask.onclick = closeSheet;
     cancelConfirm.onclick = () => {
       if (!cancelTarget || !cancelReason || !store) return;
+      const cancelled = store.byId(cancelTarget);
       store.cancel(cancelTarget, cancelReason);
       closeSheet();
       refresh();
-      showToast('已取消约课，冻结课时已释放');
+      showToast(cancelled && cancelled.isPlan && cancelled.status === 'pending' ? '需求已取消，未冻结课时' : '已取消约课，冻结课时已释放');
     };
     document.querySelector('.back').onclick = () => location.href = '学习中心_页面还原.html';
 
@@ -255,4 +285,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260914-3"></script></body></html>
+<script src="原型开发说明.js?v=20260917-3"></script></body></html>

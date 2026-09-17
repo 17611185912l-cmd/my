@@ -38,7 +38,16 @@
     .bk-badge{flex:0 0 auto;padding:3px 7px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px}
     .bk-badge b{font-size:15px;font-weight:650}
     .bk-badge.warn{color:#9d5d13;background:#fff4df}
+    .bk-demand{width:100%;margin-bottom:4px;padding:12px;display:flex;align-items:center;gap:10px;border:1px dashed #dcae67;border-radius:8px;background:linear-gradient(180deg,#fffbf4,#fff5e5);text-align:left}
+    .bk-demand-icon{width:34px;height:34px;flex:0 0 auto;display:grid;place-items:center;border-radius:9px;color:#a4661a;background:#fbe6c6;font-size:15px;font-weight:650}
+    .bk-demand-copy{min-width:0;flex:1}
+    .bk-demand-copy strong{display:block;color:#8a5411;font-size:15px;line-height:21px}
+    .bk-demand-copy span{display:block;margin-top:2px;color:#a3835c;font-size:14px;line-height:19px}
+    .bk-demand-radio{flex:0 0 auto;width:20px;height:20px;border:1.5px solid #dcae67;border-radius:50%;background:#fff}
+    .bk-demand.active{border-style:solid;border-color:#c9861f;background:linear-gradient(180deg,#fff3dd,#fde9c9);box-shadow:0 0 0 2px rgba(201,134,31,.14)}
+    .bk-demand.active .bk-demand-radio{border-color:#c9861f;background:#c9861f;box-shadow:inset 0 0 0 3.5px #fff}
     .bk-hours{margin-top:10px;padding:9px 10px;border-radius:6px;color:#356da9;background:#edf4ff;font-size:14px;line-height:20px}
+    .bk-hours:empty{display:none}
     .bk-hours b{font-size:15px}
     .bk-day-tabs{margin-top:10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
     .bk-day-tabs::-webkit-scrollbar{display:none}
@@ -79,6 +88,16 @@
     .bk-teacher[hidden],.bk-teacher-list[hidden],.confirm-mask[hidden],.confirm-dialog[hidden]{display:none}
     .bk-reason{margin-left:6px;padding:2px 6px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px;font-style:normal;font-weight:400;white-space:nowrap}
     .bk-change{flex:0 0 auto;align-self:center;padding:6px 10px;border:1px solid #d8e1eb;border-radius:6px;color:#356da9;background:#fff;font-size:14px;line-height:20px}
+
+    .bk-plan-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .bk-field{min-width:0}.bk-field label{display:block;margin-bottom:5px;color:#777a82;font-size:13px}
+    .bk-field input,.bk-plan-add select{width:100%;height:38px;padding:0 9px;border:1px solid #d8e1eb;border-radius:6px;outline:none;background:#fff;color:#24262b;font-size:14px}
+    .bk-field input:focus,.bk-plan-add select:focus{border-color:#4b7fb8;box-shadow:0 0 0 2px rgba(75,127,184,.1)}
+    .bk-plan-add{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:10px}
+    .bk-plan-add button{height:38px;padding:0 12px;border-radius:6px;color:#fff;background:#4b7fb8;font-size:14px;white-space:nowrap}
+    .bk-plan-slots{margin-top:10px;display:grid;gap:6px}
+    .bk-plan-slot{min-height:46px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e5ebf2;border-radius:6px;background:#fbfdff}
+    .bk-plan-slot strong{font-size:14px;line-height:20px}.bk-plan-slot button{padding:4px 7px;border-radius:4px;color:#777a82;background:#f0f3f6;font-size:13px}
   </style>
 </head>
 <body><main class="phone-shell" aria-label="约课页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header>
@@ -89,27 +108,26 @@
         <div class="step-head"><span class="step-index">1</span><div><strong>确认学员与课程</strong><span class="step-note">学员已默认；每节 1.5 小时 = 2 课时</span></div></div>
         <div class="bk-student"><span class="bk-mark">王</span><span><strong>王子涵 · 男</strong><span>西安高新一中 · 高一</span></span><span class="bk-default">默认学员</span></div>
         <div class="bk-course-list" id="courseList"></div>
-        <div class="bk-hours" id="hoursNote"></div>
       </section>
 
       <section class="card step-card" data-step="2">
-        <div class="step-head"><span class="step-index">2</span><div><strong>确认上课老师</strong><span class="step-note">默认推荐，可更换</span></div></div>
-        <div class="bk-teacher" id="teacherCard">
-          <span class="bk-mark" id="teacherAvatar">张</span>
-          <span class="bk-teacher-copy">
-            <strong><span id="teacherName">张三老师</span><em class="bk-reason" id="teacherReason">推荐</em></strong>
-            <span id="teacherMeta"></span>
-            <span id="teacherOpen"></span>
-          </span>
-          <button class="bk-change" id="switchTeacher" type="button">更换</button>
+        <div class="step-head"><span class="step-index">2</span><div><strong>设置固定上课计划</strong><span class="step-note">每周重复，直到结束日期</span></div></div>
+        <div class="bk-plan-dates">
+          <div class="bk-field"><label for="startDate">开始日期</label><input id="startDate" type="date"></div>
+          <div class="bk-field"><label for="endDate">结束日期</label><input id="endDate" type="date"></div>
         </div>
-        <div class="bk-teacher-list" id="teacherList" hidden></div>
+        <div class="bk-plan-add">
+          <select id="weekdaySelect" aria-label="星期"></select>
+          <select id="timeSelect" aria-label="开始时间"></select>
+          <button id="addSlot" type="button">添加</button>
+        </div>
+        <div class="bk-plan-slots" id="planSlots" aria-live="polite"></div>
+        <div class="bk-hours" id="planNote"></div>
       </section>
 
       <section class="card step-card" data-step="3">
-        <div class="step-head"><span class="step-index">3</span><div><strong>选择上课时间</strong><span class="step-note">可跨日期自由选择多个时段</span></div></div>
-        <div class="bk-day-tabs" id="dayList" aria-label="可约日期"></div>
-        <div class="bk-slots" id="slotList" aria-live="polite"></div>
+        <div class="step-head"><span class="step-index">3</span><div><strong>选择老师或发布需求</strong><span class="step-note">选择老师直接提交，或让老师来接单</span></div></div>
+        <div class="bk-teacher-list" id="matchedTeacherList"></div>
       </section>
 
     <div class="actionbar">
@@ -126,38 +144,68 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-  <script src="约课数据.js?v=20260914-3"></script>
+  <script src="约课数据.js?v=20260917-6"></script>
   <script>
     const STUDENT = '王子涵';
-    const state = { courseId: 'function', defaultTeacherId: '', defaultReason: '', historyCount: 0, teacherId: '', switching: false, date: '', selected: {} };
     const CLASS_MINUTES = YZB.DEFAULT_CLASS_MINUTES;
     const CLASS_LESSONS = YZB.DEFAULT_CLASS_LESSONS;
-    const CLASS_LABEL = '1.5 小时';
+    const CLASS_LABEL = '1.5 小时/次';
+    const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const bookingParams = new URLSearchParams(location.search);
+    const requestedCourse = bookingParams.get('course') || '';
+    const requestedTeacher = bookingParams.get('teacher') || '';
+    const requestedMode = bookingParams.get('mode') || '';
+    const initialCourseId = YZB.courses().some(course => course.id === requestedCourse) ? requestedCourse : 'function';
+    const initialDemand = requestedMode === 'demand';
+    const initialTeacherId = !initialDemand && YZB.teachersFor(initialCourseId).some(teacher => teacher.id === requestedTeacher) ? requestedTeacher : '';
+    const state = {
+      courseId: initialCourseId,
+      teacherId: initialTeacherId,
+      demand: initialDemand,
+      startDate: '2026-09-01',
+      endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 0, time: '19:00' }],
+      submitMode: initialDemand ? 'demand' : 'designated'
+    };
+
     const courseList = document.querySelector('#courseList');
-    const teacherCard = document.querySelector('#teacherCard');
-    const teacherList = document.querySelector('#teacherList');
-    const switchTeacher = document.querySelector('#switchTeacher');
-    const dayList = document.querySelector('#dayList');
-    const slotList = document.querySelector('#slotList');
+    const startDate = document.querySelector('#startDate');
+    const endDate = document.querySelector('#endDate');
+    const weekdaySelect = document.querySelector('#weekdaySelect');
+    const timeSelect = document.querySelector('#timeSelect');
+    const addSlot = document.querySelector('#addSlot');
+    const planSlots = document.querySelector('#planSlots');
+    const planNote = document.querySelector('#planNote');
+    const matchedTeacherList = document.querySelector('#matchedTeacherList');
     const summary = document.querySelector('#summary');
     const submit = document.querySelector('#submit');
     const toast = document.querySelector('#toast');
     const confirmMask = document.querySelector('#confirmMask');
     const confirmDialog = document.querySelector('#confirmDialog');
+    const confirmTitle = document.querySelector('#confirmTitle');
     const confirmSummary = document.querySelector('#confirmSummary');
     const confirmList = document.querySelector('#confirmList');
     const confirmSubmit = document.querySelector('#confirmSubmit');
 
     document.querySelector('.back').onclick = () => location.href = '学习中心_页面还原.html';
 
-    function showToast(text) { toast.textContent = text; toast.classList.add('show'); }
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
     function courseById(id) { return YZB.courses().filter(item => item.id === id)[0]; }
-    function clearSchedule() { state.date = ''; state.selected = {}; }
+    function stats() { return YZB.planStats(state.startDate, state.endDate, state.weeklySlots); }
+    function validPlan() {
+      return !!state.startDate && !!state.endDate && state.startDate <= state.endDate && state.weeklySlots.length > 0;
+    }
+    function slotText(slot) { return '每' + WEEKDAYS[Number(slot.weekday)] + ' ' + slot.time; }
 
     function renderHours() {
       const hours = YZB.hours();
-      document.querySelector('#hoursNote').innerHTML =
-        `本课程剩余 <b>${hours.available}</b> 课时 · 本次约 <b>${CLASS_LABEL}</b>（<b>${CLASS_LESSONS}</b> 课时）<br>老师确认后冻结，签到成功后扣减`;
+      const current = stats();
+      planNote.innerHTML = `本课程剩余 <b>${hours.available}</b> 课时 · 当前计划预计 <b>${current.lessons}</b> 课时<br>按固定周课表估算，节假日和请假可在具体课次中调整`;
     }
 
     function renderCourses() {
@@ -169,75 +217,63 @@
         </button>`).join('');
     }
 
-    function renderTeacher() {
-      const options = YZB.teachersFor(state.courseId);
-      if (!options.some(item => item.id === state.teacherId)) {
-        const recommend = YZB.recommendTeacher(STUDENT, state.courseId);
-        state.defaultTeacherId = recommend ? recommend.teacherId : '';
-        state.defaultReason = recommend ? recommend.reason : '';
-        state.historyCount = recommend ? recommend.count : 0;
-        state.teacherId = state.defaultTeacherId;
-        clearSchedule();
-      }
-      const teacher = YZB.teacher(state.teacherId);
-      if (!teacher) {
-        teacherCard.hidden = true;
-        teacherList.hidden = true;
-        switchTeacher.hidden = true;
+    function renderSchedule() {
+      startDate.value = state.startDate;
+      endDate.value = state.endDate;
+      weekdaySelect.innerHTML = WEEKDAYS.map((label, index) => `<option value="${index}">${label}</option>`).join('');
+      timeSelect.innerHTML = YZB.times().map(time => `<option value="${time}">${time}</option>`).join('');
+      weekdaySelect.value = state.weeklySlots.length ? String(state.weeklySlots[0].weekday) : '0';
+      timeSelect.value = '19:00';
+      planSlots.innerHTML = state.weeklySlots.length ? state.weeklySlots.map((slot, index) => `
+        <div class="bk-plan-slot"><strong>${slotText(slot)}</strong><button type="button" data-remove="${index}">删除</button></div>
+      `).join('') : '<div class="bk-empty">还没有添加固定上课时间</div>';
+      renderHours();
+      renderSummary();
+    }
+
+    function renderMatchedTeachers() {
+      const teachers = YZB.teachersFor(state.courseId);
+      const emptyNote = teachers.length ? '' : '<div class="bk-empty">当前没有匹配老师，可直接发布需求</div>';
+      const teacherCards = teachers.map((teacher, index) => {
+        const selected = !state.demand && teacher.id === state.teacherId;
+        const tag = index === 0 ? '<em class="bk-reason">推荐</em>' : '';
+        const fit = index === 0 ? '可满足全部时间' : '可满足部分时间';
+        return `<button class="bk-teacher ${selected ? 'active' : ''}" type="button" data-teacher="${teacher.id}">
+          <span class="bk-mark">${teacher.avatar}</span>
+          <span class="bk-teacher-copy"><strong>${teacher.name}${tag}</strong><span>${teacher.intro} · ${teacher.score} 分</span><span>${fit} · ${YZB.availabilityLabel(teacher.id)}</span></span>
+          <span class="bk-badge">${selected ? '已选择' : '选择'}</span>
+        </button>`;
+      }).join('');
+      const demandCard = `<button class="bk-demand ${state.demand ? 'active' : ''}" type="button" data-demand="1" aria-pressed="${state.demand ? 'true' : 'false'}">
+          <span class="bk-demand-icon" aria-hidden="true">需</span>
+          <span class="bk-demand-copy"><strong>不指定老师，发布需求</strong><span>发布到抢单大厅，老师接单后由家长确认</span></span>
+          <span class="bk-demand-radio" aria-hidden="true"></span>
+        </button>`;
+      matchedTeacherList.innerHTML = demandCard + teacherCards + emptyNote;
+    }
+
+    function renderSummary() {
+      const current = stats();
+      submit.textContent = '提交约课';
+      if (!validPlan()) {
+        summary.textContent = '请先设置开始日期、结束日期和固定上课时间';
+        submit.disabled = true;
         return;
       }
-      teacherCard.hidden = false;
-      switchTeacher.hidden = false;
-      const isDefault = state.teacherId === state.defaultTeacherId;
-      const reason = isDefault
-        ? (state.defaultReason === 'history' ? `曾给${STUDENT}上过 ${state.historyCount} 次这门课` : '首次约课 · 系统自动匹配')
-        : '手动更换';
-      document.querySelector('#teacherAvatar').textContent = teacher.avatar;
-      document.querySelector('#teacherName').textContent = teacher.name;
-      document.querySelector('#teacherReason').textContent = reason;
-      document.querySelector('#teacherMeta').textContent = `${teacher.intro} · ${teacher.years} 年教学 · ${teacher.score} 分`;
-      document.querySelector('#teacherOpen').textContent = `空闲时间：${YZB.availabilityLabel(teacher.id)} · 未来 4 周可约 ${YZB.teacherFreeCount(teacher.id)} 个时段`;
-      switchTeacher.textContent = state.switching ? '收起' : '更换';
-      teacherList.hidden = !state.switching;
-      teacherList.innerHTML = options.map(item => {
-        const tag = item.id === state.defaultTeacherId ? '<em class="bk-reason">推荐</em>' : '';
-        return `
-        <button class="bk-teacher ${item.id === state.teacherId ? 'active' : ''}" type="button" data-teacher="${item.id}">
-          <span class="bk-mark">${item.avatar}</span>
-          <span class="bk-teacher-copy"><strong>${item.name}${tag}</strong><span>${item.intro} · ${item.score} 分</span><span>空闲时间：${YZB.availabilityLabel(item.id)}</span></span>
-          <span class="bk-badge">${YZB.teacherFreeCount(item.id)} 个时段</span>
-        </button>`;
-      }).join('');
-    }
-
-    function renderDays() {
-      const days = YZB.teacherDayOptions(state.teacherId);
-      if (!days.some(day => day.date === state.date && day.count)) {
-        const first = days.filter(day => day.count)[0];
-        state.date = first ? first.date : '';
+      const teacher = state.demand ? null : YZB.teacher(state.teacherId);
+      if (teacher) {
+        summary.innerHTML = `${teacher.name} · 每周计划 · 预计 <b>${current.sessions}</b> 次 / <b>${current.lessons}</b> 课时`;
+        submit.disabled = false;
+        return;
       }
-      dayList.innerHTML = days.map(day => `
-        <button class="bk-day ${day.date === state.date ? 'active' : ''}" type="button" data-date="${day.date}"${day.count ? '' : ' disabled'}>
-          <strong>${day.label}</strong>
-          <span>${day.week} · ${Object.keys(state.selected).filter(key => key.startsWith(day.date + '|')).length ? '已选 ' + Object.keys(state.selected).filter(key => key.startsWith(day.date + '|')).length : day.count ? day.count + ' 个时段' : '不可约'}</span>
-        </button>`).join('');
-    }
-
-    function renderSlots() {
-      if (!state.date) { slotList.innerHTML = '<div class="bk-empty">该老师未来 4 周暂无可约时段</div>'; return; }
-      const slots = YZB.teacherSlotOptions(state.teacherId, state.date);
-      slotList.innerHTML = slots.map(slot => {
-        const chosen = !!state.selected[state.date + '|' + slot.time];
-        const note = chosen ? '已选择' : slot.state === 'open' ? '可约' : slot.state === 'booked' ? '已被约' : '未开放';
-        return `
-        <button class="bk-slot${chosen ? ' active' : ''}" type="button" data-state="${slot.state}" data-time="${slot.time}"${slot.state === 'open' ? '' : ' disabled'}>
-          ${slot.time}<small>${note}</small>
-        </button>`;
-      }).join('');
-    }
-
-    function selectedSessions() {
-      return Object.values(state.selected).sort((a, b) => (a.date + ' ' + a.time).localeCompare(b.date + ' ' + b.time));
+      if (state.demand) {
+        summary.innerHTML = `不指定老师 · 发布到抢单大厅 · 预计 <b>${current.sessions}</b> 次 / <b>${current.lessons}</b> 课时`;
+        submit.textContent = '发布需求';
+        submit.disabled = false;
+        return;
+      }
+      summary.innerHTML = `固定计划预计 <b>${current.sessions}</b> 次 / <b>${current.lessons}</b> 课时 · 请选择老师或发布需求`;
+      submit.disabled = true;
     }
 
     function closeConfirm() {
@@ -245,81 +281,72 @@
       confirmDialog.hidden = true;
     }
 
-    function openConfirm() {
-      const sessions = selectedSessions();
-      const teacher = YZB.teacher(state.teacherId);
-      const totalLessons = CLASS_LESSONS * sessions.length;
-      confirmSummary.innerHTML = `${teacher.name} · 共 <b>${sessions.length}</b> 节 · 确认后冻结 <b>${totalLessons}</b> 课时`;
-      confirmList.innerHTML = sessions.map(session => {
-        const day = YZB.dayInfo(session.date);
-        return `<div class="confirm-row"><span>${day.label} ${day.week}</span><b>${session.time}</b></div>`;
-      }).join('');
+    function openConfirm(mode) {
+      if (!validPlan()) { showToast('请先设置完整的固定上课计划'); return; }
+      const current = stats();
+      const teacher = mode === 'designated' ? YZB.teacher(state.teacherId) : null;
+      if (mode === 'designated' && !teacher) { showToast('请先选择一位老师'); return; }
+      state.submitMode = mode;
+      confirmTitle.textContent = mode === 'demand' ? '确认发布需求' : '确认指定老师';
+      confirmSubmit.textContent = mode === 'demand' ? '确认发布' : '确认提交';
+      confirmSummary.innerHTML = mode === 'demand'
+        ? `不指定老师 · 预计 <b>${current.sessions}</b> 次 / <b>${current.lessons}</b> 课时`
+        : `${teacher.name} · 预计 <b>${current.sessions}</b> 次 / <b>${current.lessons}</b> 课时`;
+      confirmList.innerHTML = [
+        `<div class="confirm-row"><span>上课周期</span><b>${state.startDate} 至 ${state.endDate}</b></div>`,
+        `<div class="confirm-row"><span>固定时间</span><b>${YZB.scheduleLabel(state.weeklySlots)}</b></div>`,
+        `<div class="confirm-row"><span>提交方式</span><b>${mode === 'demand' ? '发布到抢单大厅' : '提交给当前老师'}</b></div>`
+      ].join('');
       confirmMask.hidden = false;
       confirmDialog.hidden = false;
     }
-
-    function renderSummary() {
-      const teacher = YZB.teacher(state.teacherId);
-      const hours = YZB.hours();
-      const sessions = selectedSessions();
-      const totalLessons = CLASS_LESSONS * sessions.length;
-      if (!teacher || !sessions.length) summary.textContent = '请选择一个或多个上课时间';
-      else if (hours.available < totalLessons) summary.textContent = `剩余 ${hours.available} 课时，本次共需 ${totalLessons} 课时`;
-      else summary.innerHTML = `已选 <b>${sessions.length}</b> 节 · ${teacher.name} · 确认后冻结 <b>${totalLessons}</b> 课时`;
-      submit.disabled = !teacher || !sessions.length || hours.available < totalLessons;
-    }
-
-    function refreshAll() { renderCourses(); renderTeacher(); renderDays(); renderSlots(); renderSummary(); renderHours(); }
 
     courseList.addEventListener('click', event => {
       const button = event.target.closest('[data-course]');
       if (!button) return;
       state.courseId = button.dataset.course;
       state.teacherId = '';
-      state.switching = false;
-      clearSchedule();
-      refreshAll();
+      state.demand = false;
+      renderCourses();
+      renderMatchedTeachers();
+      renderSummary();
     });
 
-    switchTeacher.addEventListener('click', () => {
-      state.switching = !state.switching;
-      renderTeacher();
+    startDate.addEventListener('change', () => { state.startDate = startDate.value; renderHours(); renderSummary(); });
+    endDate.addEventListener('change', () => { state.endDate = endDate.value; renderHours(); renderSummary(); });
+    addSlot.addEventListener('click', () => {
+      const slot = { weekday: Number(weekdaySelect.value), time: timeSelect.value };
+      if (state.weeklySlots.some(item => item.weekday === slot.weekday && item.time === slot.time)) {
+        showToast('这个固定时间已经添加过了');
+        return;
+      }
+      state.weeklySlots.push(slot);
+      state.weeklySlots.sort((a, b) => a.weekday - b.weekday || a.time.localeCompare(b.time));
+      renderSchedule();
     });
-
-    teacherList.addEventListener('click', event => {
+    planSlots.addEventListener('click', event => {
+      const button = event.target.closest('[data-remove]');
+      if (!button) return;
+      state.weeklySlots.splice(Number(button.dataset.remove), 1);
+      renderSchedule();
+    });
+    matchedTeacherList.addEventListener('click', event => {
+      const demand = event.target.closest('[data-demand]');
+      if (demand) {
+        state.demand = true;
+        state.teacherId = '';
+        renderMatchedTeachers();
+        renderSummary();
+        return;
+      }
       const button = event.target.closest('[data-teacher]');
       if (!button) return;
+      state.demand = false;
       state.teacherId = button.dataset.teacher;
-      state.switching = false;
-      clearSchedule();
-      refreshAll();
+      renderMatchedTeachers();
+      renderSummary();
     });
-
-    dayList.addEventListener('click', event => {
-      const button = event.target.closest('[data-date]');
-      if (!button || button.disabled) return;
-      state.date = button.dataset.date;
-      renderDays(); renderSlots(); renderSummary();
-    });
-
-    slotList.addEventListener('click', event => {
-      const button = event.target.closest('.bk-slot');
-      if (!button || button.disabled) return;
-      const key = state.date + '|' + button.dataset.time;
-      if (state.selected[key]) delete state.selected[key];
-      else state.selected[key] = { date: state.date, time: button.dataset.time };
-      renderDays(); renderSlots(); renderSummary();
-    });
-
-    submit.addEventListener('click', () => {
-      const teacher = YZB.teacher(state.teacherId);
-      const hours = YZB.hours();
-      const sessions = selectedSessions();
-      if (!teacher || !sessions.length) { showToast('请先选择一个或多个上课时间'); return; }
-      const totalLessons = CLASS_LESSONS * sessions.length;
-      if (hours.available < totalLessons) { showToast(`剩余课时不足，本次约课共需 ${totalLessons} 课时`); return; }
-      openConfirm();
-    });
+    submit.addEventListener('click', () => openConfirm(state.demand ? 'demand' : 'designated'));
 
     document.querySelector('#confirmClose').addEventListener('click', closeConfirm);
     document.querySelector('#confirmCancel').addEventListener('click', closeConfirm);
@@ -327,27 +354,29 @@
 
     confirmSubmit.addEventListener('click', () => {
       const course = courseById(state.courseId);
-      const teacher = YZB.teacher(state.teacherId);
-      const sessions = selectedSessions();
-      if (!teacher || !sessions.length) { closeConfirm(); showToast('请选择上课时间'); return; }
-      sessions.forEach(session => {
-        const day = YZB.dayInfo(session.date);
-        YZB.add({
-          id: YZB.makeId(), student: STUDENT, courseId: course.id, courseName: course.name, subject: course.subject, grade: course.grade,
-          lessons: CLASS_LESSONS, lessonMinutes: CLASS_MINUTES, durationLabel: CLASS_LABEL,
-          teacherId: teacher.id, teacherName: teacher.name, date: session.date, dateLabel: day.label, time: session.time,
-          mode: course.mode, place: course.place, remark: '', status: 'pending',
-          createdAt: '8月10日 22:30', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
-        });
+      const current = stats();
+      const teacher = state.submitMode === 'designated' ? YZB.teacher(state.teacherId) : null;
+      if (!course || !validPlan() || (state.submitMode === 'designated' && !teacher)) return;
+      const isDemand = state.submitMode === 'demand';
+      YZB.add({
+        id: YZB.makeId(), isPlan: true, orderMode: isDemand ? 'demand' : 'designated', student: STUDENT,
+        courseId: course.id, courseName: course.name, subject: course.subject, grade: course.grade,
+        teacherId: isDemand ? '' : teacher.id, teacherName: isDemand ? '待匹配' : teacher.name, teacherAccepted: false,
+        startDate: state.startDate, endDate: state.endDate, weeklySlots: state.weeklySlots.map(slot => ({ weekday: slot.weekday, time: slot.time })),
+        scheduleLabel: YZB.scheduleLabel(state.weeklySlots), sessionCount: current.sessions, lessons: current.lessons,
+        lessonMinutes: CLASS_MINUTES, durationLabel: CLASS_LABEL, mode: course.mode, place: course.place, remark: '',
+        status: 'pending', occurrences: [], createdAt: YZB.nowLabel(), confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
       });
       closeConfirm();
-      showToast(sessions.length > 1 ? `已提交 ${sessions.length} 条约课，等待老师确认` : `约课已提交：${YZB.dayInfo(sessions[0].date).label} ${sessions[0].time} 等待老师确认`);
+      showToast(isDemand ? '需求已发布，等待老师接单' : `已提交给 ${teacher.name}，等待确认`);
       setTimeout(() => { location.href = '上课记录_页面还原.html?filter=pending'; }, 900);
     });
 
-    refreshAll();
+    renderCourses();
+    renderSchedule();
+    renderMatchedTeachers();
+    renderSummary();
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-  </script>
-<script src="原型开发说明.js?v=20260914-3"></script></body></html>
+<script src="原型开发说明.js?v=20260917-3"></script></body></html>

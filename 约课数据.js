@@ -8,12 +8,13 @@
    6) 家长端先确认老师：默认推荐“以前给该学员上过这门课”的老师，首次约课系统自动匹配，均支持更换；老师卡片展示其空闲时间段；
    7) 选时间支持批量：单次 / 每周同一时间连约 4 次 / 每天同一时间连约 7 天；逐节校验老师开放且未被约，不可约的日期自动跳过；
    8) 家长端「上课记录」为家长唯一入口：融合约课与上课记录，按 全部课程 / 待上课 / 待确认 / 待评价 / 已完成 / 已取消 六类查看，
-      状态流转 pending → confirmed → attended（签到成功、扣课时、待评价）→ done（老师提交反馈后完成），cancelled 由家长取消或老师拒绝产生。 */
+      状态流转 pending → confirmed → attended（签到成功、扣课时、待评价）→ done（老师提交反馈后完成），cancelled 由家长取消或老师拒绝产生；
+   9) 指定老师固定周课：老师确认接单即生效并生成每节课（不须家长二次确认）；发布需求固定周课：老师接单后仍须家长确认。 */
 (function () {
   'use strict';
 
-  var STORE_KEY = 'yzb-booking-v12';   // 演示数据基线；如需把原型恢复到初始状态，递增这个版本号即可
-  var PURCHASED_HOURS = 60;
+  var STORE_KEY = 'yzb-booking-v17';   // 演示数据基线；如需把原型恢复到初始状态，递增这个版本号即可
+  var PURCHASED_HOURS = 96;
   var BASE_USED_HOURS = 35;      // 约课功能上线前的已上课时（其余课时由下方已上课 / 已完成记录按每节课时扣减）
   var MINUTES_PER_LESSON = 45;   // 1 课时 = 45 分钟
   var DEFAULT_CLASS_MINUTES = 90; // 默认每节 1.5 小时
@@ -87,68 +88,143 @@
   };
 
   var SEED = [
+    /* ===== 固定周课表：需求单（未接单，出现在抢单大厅）===== */
     {
-      id: 'BK20260810001', student: '王子涵', courseId: 'sequence', courseName: '高一数学·数列专题', subject: '数学', grade: '高一',
-      teacherId: 'liming', teacherName: '李明老师', date: '2026-08-15', dateLabel: '8月15日', time: '19:00',
-      mode: '线上', place: '西安小寨交付中心', remark: '想巩固数列求和方法', status: 'pending',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月10日 20:15', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+      id: 'PL20260810001', isPlan: true, orderMode: 'demand', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 1, time: '19:00' }, { weekday: 5, time: '10:00' }],
+      scheduleLabel: '每周二 19:00 · 每周六 10:00', sessionCount: 39, lessons: 78,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '希望固定每周两次',
+      status: 'pending', occurrences: [], createdAt: '8月10日 21:10', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 固定周课表：需求单（老师已接单，等待家长确认）===== */
+    {
+      id: 'PL20260809002', isPlan: true, orderMode: 'demand', student: '王子涵', courseId: 'tutorial', courseName: '高中英语', subject: '英语', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', teacherAccepted: true, startDate: '2026-09-01', endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 5, time: '14:00' }],
+      scheduleLabel: '每周六 14:00', sessionCount: 19, lessons: 38,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线上', place: '西安小寨交付中心', remark: '',
+      status: 'pending', occurrences: [], createdAt: '8月9日 20:40', acceptedAt: '8月9日 21:00', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 固定周课表：指定老师（老师尚未确认）===== */
+    {
+      id: 'PL20260808003', isPlan: true, orderMode: 'designated', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'liming', teacherName: '李明老师', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 2, time: '19:00' }],
+      scheduleLabel: '每周三 19:00', sessionCount: 20, lessons: 40,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '', status: 'pending',
+      occurrences: [], createdAt: '8月8日 19:30', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 固定周课表：指定老师（已确认生效，已拆成每节课，本单不再单独展示）===== */
+    {
+      id: 'PL20260728004', isPlan: true, orderMode: 'designated', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', teacherAccepted: true, startDate: '2026-07-20', endDate: '2026-09-30',
+      weeklySlots: [{ weekday: 4, time: '19:00' }],
+      scheduleLabel: '每周五 19:00', sessionCount: 11, lessons: 22,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '', status: 'confirmed',
+      occurrences: [], createdAt: '7月28日 20:00', acceptedAt: '7月28日 20:30', confirmedAt: '7月28日 20:30', split: true, deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    /* ---- 上面这张周课表拆出来的每节课 ---- */
+    {
+      id: 'PL20260728004-01', planId: 'PL20260728004', isOccurrence: true, student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-07-31', dateLabel: '7月31日', time: '19:00',
+      mode: '线下', place: '西安小寨校区', remark: '', content: '三角函数图象与性质复习\n正弦型函数参数 A、ω、φ 的确定\n图象平移与伸缩变换专项训练', feedback: '能准确画出正弦型函数图象，参数求解思路清晰。平移与伸缩的先后顺序偶尔混淆，课上用两组例题对比做了强化。', requirement: '整理两种变换顺序的对比笔记，完成《三角函数图象》专项练习第 6、8 题。', status: 'done',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '7月28日 20:30', confirmedAt: '7月28日 20:30', deducted: true, cancelReason: '', cancelledBy: ''
     },
     {
-      id: 'BK20260810002', student: '王子涵', courseId: 'function', courseName: '高一数学·函数基础', subject: '数学', grade: '高一',
-      teacherId: 'wangjing', teacherName: '王静老师', date: '2026-08-12', dateLabel: '8月12日', time: '19:00',
+      id: 'PL20260728004-02', planId: 'PL20260728004', isOccurrence: true, student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-07', dateLabel: '8月7日', time: '19:00',
+      mode: '线下', place: '西安小寨校区', remark: '', status: 'attended',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '7月28日 20:30', confirmedAt: '7月28日 20:30', deducted: true, cancelReason: '', cancelledBy: ''
+    },
+    {
+      id: 'PL20260728004-03', planId: 'PL20260728004', isOccurrence: true, student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-14', dateLabel: '8月14日', time: '19:00',
+      mode: '线下', place: '西安小寨校区', remark: '', status: 'confirmed',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '7月28日 20:30', confirmedAt: '7月28日 20:30', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    {
+      id: 'PL20260728004-04', planId: 'PL20260728004', isOccurrence: true, student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-21', dateLabel: '8月21日', time: '19:00',
+      mode: '线下', place: '西安小寨校区', remark: '', status: 'confirmed',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '7月28日 20:30', confirmedAt: '7月28日 20:30', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 单次约课：待确认 ===== */
+    {
+      id: 'BK20260810005', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-11', dateLabel: '8月11日', time: '19:00',
+      mode: '线下', place: '西安小寨校区', remark: '想巩固函数综合题', status: 'pending',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月10日 20:15', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    {
+      id: 'BK20260810006', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-12', dateLabel: '8月12日', time: '19:00',
       mode: '线下', place: '西安小寨校区', remark: '', status: 'pending',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月10日 21:02', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月10日 21:02', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
+    /* ===== 单次约课：待上课 ===== */
     {
-      id: 'BK20260809003', student: '王子涵', courseId: 'function', courseName: '高一数学·函数基础', subject: '数学', grade: '高一',
+      id: 'BK20260809007', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-13', dateLabel: '8月13日', time: '19:00',
       mode: '线上', place: '西安小寨交付中心', remark: '函数单调性需要重点讲解', status: 'confirmed',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月9日 18:40', confirmedAt: '8月9日 19:05', deducted: false, cancelReason: '', cancelledBy: ''
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月9日 18:40', confirmedAt: '8月9日 19:05', deducted: false, cancelReason: '', cancelledBy: ''
     },
     {
-      id: 'BK20260809004', student: '王子涵', courseId: 'function', courseName: '高一数学·函数基础', subject: '数学', grade: '高一',
-      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-14', dateLabel: '8月14日', time: '15:30',
-      mode: '线下', place: '西安小寨校区', remark: '想重点讲函数定义域与值域', status: 'pending',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月9日 21:30', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+      id: 'BK20260810008', student: '王子涵', courseId: 'tutorial', courseName: '高中英语', subject: '英语', grade: '高一',
+      teacherId: 'zhoumin', teacherName: '周敏老师', date: '2026-08-15', dateLabel: '8月15日', time: '14:00',
+      mode: '线上', place: '西安小寨交付中心', remark: '', status: 'confirmed',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月10日 09:20', confirmedAt: '8月10日 10:00', deducted: false, cancelReason: '', cancelledBy: ''
     },
+    /* ===== 单次约课：待评价（已签到待反馈）===== */
     {
-      id: 'BK20260808005', student: '王子涵', courseId: 'trigonometry', courseName: '高一数学·三角函数', subject: '数学', grade: '高一',
+      id: 'BK20260808009', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-08', dateLabel: '8月8日', time: '16:00',
       mode: '线下', place: '西安小寨校区', remark: '', status: 'attended',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月7日 19:20', confirmedAt: '8月7日 20:02', deducted: true, cancelReason: '', cancelledBy: ''
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月7日 19:20', confirmedAt: '8月7日 20:02', deducted: true, cancelReason: '', cancelledBy: ''
     },
     {
-      id: 'BK20260803006', student: '王子涵', courseId: 'function', courseName: '高一数学·函数基础', subject: '数学', grade: '高一',
-      teacherId: 'wangjing', teacherName: '王静老师', date: '2026-08-03', dateLabel: '8月3日', time: '14:00',
-      mode: '线上', place: '西安小寨交付中心', remark: '', status: 'done',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月2日 20:10', confirmedAt: '8月2日 20:40', deducted: true, cancelReason: '', cancelledBy: ''
+      id: 'BK20260805010', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'liming', teacherName: '李明老师', date: '2026-08-05', dateLabel: '8月5日', time: '18:30',
+      mode: '线下', place: '西安小寨校区', remark: '', status: 'attended',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月4日 19:05', confirmedAt: '8月4日 19:30', deducted: true, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 单次约课：已完成 ===== */
+    {
+      id: 'BK20260803011', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-03', dateLabel: '8月3日', time: '14:00',
+      mode: '线上', place: '西安小寨交付中心', remark: '', content: '函数奇偶性与单调性综合判断\n含参函数单调区间的分类讨论\n函数性质在高考真题中的应用', feedback: '奇偶性判断掌握扎实，含参分类讨论时容易遗漏参数为零的情况，已现场订正并强化“先定定义域、再判单调性”的解题顺序。', requirement: '完成《函数性质综合》练习第 3、5、7 题，重点标注分类讨论的分界点。', status: 'done',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月2日 20:10', confirmedAt: '8月2日 20:40', deducted: true, cancelReason: '', cancelledBy: ''
     },
     {
-      id: 'BK20260724007', student: '王子涵', courseId: 'geometry', courseName: '高一数学·立体几何', subject: '数学', grade: '高一',
-      teacherId: 'liming', teacherName: '李明老师', date: '2026-07-24', dateLabel: '7月24日', time: '18:30',
-      mode: '线下', place: '西安小寨校区', remark: '', status: 'done',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '7月23日 19:05', confirmedAt: '7月23日 19:30', deducted: true, cancelReason: '', cancelledBy: ''
+      id: 'BK20260729012', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'liming', teacherName: '李明老师', date: '2026-07-29', dateLabel: '7月29日', time: '19:00',
+      mode: '线下', place: '西安小寨校区', remark: '', content: '数列通项公式的常见求法\n等差、等比数列综合应用\n错位相减求和法', feedback: '数列基础公式掌握良好，错位相减的运算步骤需要再梳理，课上已带完整推导一遍。', requirement: '完成错位相减专项练习第 1、2 题，整理求和步骤模板。', status: 'done',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '7月28日 19:05', confirmedAt: '7月28日 19:30', deducted: true, cancelReason: '', cancelledBy: ''
     },
     {
-      id: 'BK20260809008', student: '王子涵', courseId: 'sequence', courseName: '高一数学·数列专题', subject: '数学', grade: '高一',
-      teacherId: 'liming', teacherName: '李明老师', date: '2026-08-09', dateLabel: '8月9日', time: '10:30',
+      id: 'BK20260725016', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'zhang', teacherName: '张三老师', date: '2026-07-25', dateLabel: '7月25日', time: '16:00',
+      mode: '线下', place: '西安小寨校区', remark: '', content: '函数定义域与值域的求法梳理\n复合函数定义域的应用\n换元法求值域专项训练', feedback: '课堂状态专注，定义域求法已能独立完成；换元法求值域的端点取舍还不够熟练。', requirement: '重做课堂例题 2、4，完成练习册 P12 第 1-3 题。', status: 'done',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '7月24日 20:10', confirmedAt: '7月24日 20:30', deducted: true, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 单次约课：已取消 ===== */
+    {
+      id: 'BK20260809013', student: '王子涵', courseId: 'sequence', courseName: '高中语文', subject: '语文', grade: '高一',
+      teacherId: 'liuwen', teacherName: '刘文老师', date: '2026-08-09', dateLabel: '8月9日', time: '10:30',
       mode: '线上', place: '西安小寨交付中心', remark: '临时调整出行安排', status: 'cancelled',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月6日 09:20', confirmedAt: '', deducted: false, cancelReason: '时间冲突', cancelledBy: 'parent'
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月6日 09:20', confirmedAt: '', deducted: false, cancelReason: '时间冲突', cancelledBy: 'parent'
     },
     {
-      id: 'BK20260806009', student: '王子涵', courseId: 'tutorial', courseName: '高中数学·专题辅导', subject: '数学', grade: '高一',
+      id: 'BK20260806014', student: '王子涵', courseId: 'tutorial', courseName: '高中英语', subject: '英语', grade: '高一',
       teacherId: 'zhang', teacherName: '张三老师', date: '2026-08-06', dateLabel: '8月6日', time: '19:00',
       mode: '上门', place: '上门', remark: '', status: 'cancelled',
-      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时',
-      createdAt: '8月5日 21:10', confirmedAt: '8月5日 21:35', deducted: false, cancelReason: '老师临时有事', cancelledBy: 'teacher'
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月5日 21:10', confirmedAt: '8月5日 21:35', deducted: false, cancelReason: '老师临时有事', cancelledBy: 'teacher'
+    },
+    {
+      id: 'BK20260804015', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: 'wangjing', teacherName: '王静老师', date: '2026-08-04', dateLabel: '8月4日', time: '15:30',
+      mode: '线下', place: '西安小寨校区', remark: '', status: 'cancelled',
+      lessons: 2, lessonMinutes: 90, durationLabel: '1.5 小时', createdAt: '8月3日 20:40', confirmedAt: '', deducted: false, cancelReason: '家长临时有事', cancelledBy: 'parent'
     }
   ];
 
@@ -223,7 +299,26 @@
   function checkin(id) { return update(id, { status: 'attended', deducted: true }); }
 
   // 教师提交课后反馈
-  function markDone(id) { return update(id, { status: 'done' }); }
+  function markDone(id, detail) {
+    detail = detail || {};
+    var patch = { status: 'done' };
+    if (detail.content !== undefined) patch.content = detail.content;
+    if (detail.feedback !== undefined) patch.feedback = detail.feedback;
+    var requirement = detail.requirement !== undefined ? detail.requirement : detail.homework;
+    if (requirement !== undefined) patch.requirement = requirement;
+    return update(id, patch);
+  }
+
+  // 家长提交课程评价：评价是完成后的附加信息，不改变教学完成状态
+  function markReviewed(id, review) {
+    review = review || {};
+    return update(id, {
+      reviewedAt: nowLabel(),
+      courseScore: Number(review.courseScore) || 0,
+      teacherScore: Number(review.teacherScore) || 0,
+      review: review.text || ''
+    });
+  }
 
   // 按“科目 + 年级”匹配可以上这门课的老师
   function teachersFor(courseId) {
@@ -331,6 +426,115 @@
       weekday: (parsed.getDay() + 6) % 7
     };
   }
+
+  function weekdayLabel(weekday) {
+    return WEEK_TEXT[Number(weekday)] || '';
+  }
+
+  function scheduleLabel(slots) {
+    return (slots || []).map(function (slot) {
+      return '每' + weekdayLabel(slot.weekday) + ' ' + slot.time;
+    }).join(' · ');
+  }
+
+  function planStats(startDate, endDate, slots) {
+    var start = parseKey(startDate), end = parseKey(endDate), sessions = 0;
+    if (!startDate || !endDate || start > end) return { sessions: 0, lessons: 0 };
+    for (var current = new Date(start.getTime()); current <= end; current.setDate(current.getDate() + 1)) {
+      var weekday = (current.getDay() + 6) % 7;
+      (slots || []).forEach(function (slot) {
+        if (Number(slot.weekday) === weekday) sessions += 1;
+      });
+    }
+    return { sessions: sessions, lessons: sessions * DEFAULT_CLASS_LESSONS };
+  }
+
+  function buildOccurrences(startDate, endDate, slots, planId) {
+    var start = parseKey(startDate), end = parseKey(endDate), list = [];
+    if (!startDate || !endDate || start > end) return list;
+    for (var current = new Date(start.getTime()); current <= end; current.setDate(current.getDate() + 1)) {
+      var weekday = (current.getDay() + 6) % 7;
+      (slots || []).forEach(function (slot) {
+        if (Number(slot.weekday) !== weekday) return;
+        list.push({
+          id: planId + '-S' + String(list.length + 1).padStart(3, '0'),
+          date: keyOf(current),
+          dateLabel: (current.getMonth() + 1) + '月' + current.getDate() + '日',
+          weekday: weekday,
+          time: slot.time,
+          status: 'confirmed',
+          deducted: false
+        });
+      });
+    }
+    return list;
+  }
+
+  function acceptPlan(id, teacherId) {
+    var item = byId(id), teacherInfo = teacher(teacherId);
+    if (!item || !item.isPlan || item.status !== 'pending' || item.teacherAccepted || !teacherInfo) return null;
+    if (item.orderMode === 'designated' && item.teacherId && item.teacherId !== teacherId) return null;
+    var accepted = update(id, {
+      teacherId: teacherInfo.id,
+      teacherName: teacherInfo.name,
+      teacherAccepted: true,
+      acceptedAt: nowLabel()
+    });
+    // 指定老师：老师确认即生效，直接生成每节课（不须家长二次确认）
+    if (item.orderMode === 'designated') return activatePlan(id);
+    return accepted;
+  }
+
+  function activatePlan(id) {
+    var item = byId(id);
+    if (!item || !item.isPlan || !item.teacherAccepted || item.status !== 'pending') return null;
+    var stats = planStats(item.startDate, item.endDate, item.weeklySlots);
+    var occurrences = buildOccurrences(item.startDate, item.endDate, item.weeklySlots, item.id);
+    var bookings = list();
+    bookings.forEach(function (booking) {
+      if (booking.id !== id) return;
+      booking.status = 'confirmed';
+      booking.teacherAccepted = true;
+      booking.split = true;
+      booking.confirmedAt = nowLabel();
+      booking.sessionCount = stats.sessions;
+      booking.lessons = stats.lessons;
+      booking.occurrences = occurrences;
+    });
+    var children = occurrences.map(function (occurrence) {
+      return {
+        id: occurrence.id,
+        planId: item.id,
+        isOccurrence: true,
+        student: item.student,
+        courseId: item.courseId,
+        courseName: item.courseName,
+        subject: item.subject,
+        grade: item.grade,
+        teacherId: item.teacherId,
+        teacherName: item.teacherName,
+        date: occurrence.date,
+        dateLabel: occurrence.dateLabel,
+        time: occurrence.time,
+        mode: item.mode,
+        place: item.place,
+        remark: item.remark || '',
+        status: 'confirmed',
+        lessons: DEFAULT_CLASS_LESSONS,
+        lessonMinutes: DEFAULT_CLASS_MINUTES,
+        durationLabel: item.durationLabel || '1.5 小时',
+        createdAt: item.createdAt || nowLabel(),
+        confirmedAt: nowLabel(),
+        deducted: false,
+        cancelReason: '',
+        cancelledBy: ''
+      };
+    });
+    saveAll(children.concat(bookings));
+    return byId(id);
+  }
+
+  function confirmPlan(id) { return activatePlan(id); }
 
   // 特殊日期：只覆盖某一天，未设置时跟随四类时间
   function specialOf(teacherId, store) {
@@ -523,7 +727,7 @@
     var frozen = 0, deducted = 0;
     bookings.forEach(function (item) {
       var lessons = lessonsOf(item);
-      if (item.status === 'confirmed') frozen += lessons;
+      if (item.status === 'confirmed' && !item.split) frozen += lessons;
       if (item.deducted) deducted += lessons;
     });
     var used = BASE_USED_HOURS + deducted;
@@ -541,6 +745,7 @@
 
   function countByStatus(status, teacherId) {
     return list().filter(function (item) {
+      if (item.split) return false;
       if (item.status !== status) return false;
       return teacherId ? item.teacherId === teacherId : true;
     }).length;
@@ -549,6 +754,7 @@
   // 教师端：某位老师的约课列表
   function forTeacher(teacherId, statusList) {
     return list().filter(function (item) {
+      if (item.split) return false;
       if (item.teacherId !== teacherId) return false;
       return statusList && statusList.length ? statusList.indexOf(item.status) > -1 : true;
     });
@@ -581,6 +787,7 @@
     cancel: cancel,
     checkin: checkin,
     markDone: markDone,
+    markReviewed: markReviewed,
     teachersFor: teachersFor,
     courses: courses,
     days: days,
@@ -617,6 +824,11 @@
     hours: hours,
     countByStatus: countByStatus,
     forTeacher: forTeacher,
+    scheduleLabel: scheduleLabel,
+    planStats: planStats,
+    buildOccurrences: buildOccurrences,
+    acceptPlan: acceptPlan,
+    confirmPlan: confirmPlan,
     nowLabel: nowLabel,
     makeId: makeId
   };
