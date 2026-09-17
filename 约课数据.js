@@ -3,13 +3,17 @@
    1) 每课时按 45 分钟计；默认每节约 1.5 小时（2 课时），教师确认排课后按该节实际课时冻结，剩余可用课时同步减少；
    2) 第三方签到回调成功后才真正扣减（已上课时按该节实际课时增加）；
    3) 取消 / 拒绝立即解冻，不扣课时；
-   4) 不做单独改约，取消后重新约课；
+   4) 约课流程本身不做单独改约（改期统一走第 10 条请假），取消后重新约课；
    5) 老师用“四类时间 + 特殊日期”维护可约时段：四类时间长期生效，特殊日期只覆盖某一天；
    6) 家长端先确认老师：默认推荐“以前给该学员上过这门课”的老师，首次约课系统自动匹配，均支持更换；老师卡片展示其空闲时间段；
    7) 选时间支持批量：单次 / 每周同一时间连约 4 次 / 每天同一时间连约 7 天；逐节校验老师开放且未被约，不可约的日期自动跳过；
    8) 家长端「上课记录」为家长唯一入口：融合约课与上课记录，按 全部课程 / 待上课 / 待确认 / 待评价 / 已完成 / 已取消 六类查看，
       状态流转 pending → confirmed → attended（签到成功、扣课时、待评价）→ done（老师提交反馈后完成），cancelled 由家长取消或老师拒绝产生；
-   9) 指定老师固定周课：老师确认接单即生效并生成每节课（不须家长二次确认）；发布需求固定周课：老师接单后仍须家长确认。 */
+   9) 指定老师固定周课：老师确认接单即生效并生成每节课（不须家长二次确认）；发布需求固定周课：老师接单后仍须家长确认；
+  10) 待上课可请假：家长/老师均可发起，填写原因后选择「调整上课时间」（须直接选好新时段）或「直接取消本次排课」；
+      提交后由另一方确认，对方只能「按新时间确认」或「直接取消课程」（不设拒绝）；改期成功后课时继续冻结，
+      取消后归还冻结课时（解冻，不产生扣减）；距开课不足 2 小时不允许发起；发起方可在对方响应前撤回；
+      调课时新时段不能与原时间完全相同，可调日期/时段不含本次课自身占用的时段。 */
 (function () {
   'use strict';
 
@@ -619,6 +623,132 @@
     return dayTimes(teacherId, date).filter(function (time) { return !isBusy(teacherId, date, time); });
   }
 
+  /* 与 isBusy 同口径，但忽略指定课次自身（请假调课时不能把自己算成占用） */
+  function isBusyExcept(teacherId, date, time, exceptId) {
+    if (BUSY[teacherId + '|' + date + '|' + time]) return true;
+    return list().some(function (item) {
+      return item.id !== exceptId && item.teacherId === teacherId && item.date === date && item.time === time && (item.status === 'pending' || item.status === 'confirmed');
+    });
+  }
+
+  // ===== 请假（待上课课次的改期 / 取消申请，须另一方确认） =====
+  var LEAVE_MIN_HOURS = 2;            // 开课前 2 小时内不允许发起请假
+  var LEAVE_DEMO_HOUR = 9;            // 原型演示“当前时刻”＝演示今天 09:00（避免演示数据全部过期，无法演示请假）
+
+  function demoNow() {
+    var base = parseKey(DEMO_TODAY);
+    return new Date(base.getFullYear(), base.getMonth(), base.getDate(), LEAVE_DEMO_HOUR, 0, 0);
+  }
+
+  function sessionStart(item) {
+    if (!item || !item.date) return null;
+    var base = parseKey(item.date);
+    var parts = String(item.time || '00:00').split(':');
+    return new Date(base.getFullYear(), base.getMonth(), base.getDate(), Number(parts[0]) || 0, Number(parts[1]) || 0, 0);
+  }
+
+  // 距开课还有多少小时（负数表示已开课）
+  function leaveHoursLeft(item) {
+    var start = sessionStart(item);
+    return start ? (start.getTime() - demoNow().getTime()) / 3600000 : 0;
+  }
+
+  function labelOfDate(key) {
+    var date = parseKey(key);
+    return (date.getMonth() + 1) + '月' + date.getDate() + '日';
+  }
+
+  // 请假调课可选日期：老师未来 4 周已开放且未被占用的时段（排除本次课自身）
+  function leaveDays(item) {
+    if (!item || !item.teacherId) return [];
+    var rows = [];
+    DAYS.forEach(function (day) {
+      var own = item.date === day.date ? item.time : '';
+      var times = dayTimes(item.teacherId, day.date).filter(function (time) {
+        if (time === own) return false;                       // 不含本次课自身占用的时段
+        return !isBusyExcept(item.teacherId, day.date, time, item.id);
+      });
+      if (!times.length) return;
+      rows.push({ date: day.date, label: day.label, week: day.week, times: times });
+    });
+    return rows;
+  }
+
+  function canRequestLeave(id) {
+    var item = byId(id);
+    if (!item) return { ok: false, reason: '课次不存在' };
+    if (item.status !== 'confirmed') return { ok: false, reason: '只有待上课的课次可以请假' };
+    if (item.leave && item.leave.status === 'pending') return { ok: false, reason: '已有一条待对方确认的请假' };
+    if (leaveHoursLeft(item) < LEAVE_MIN_HOURS) return { ok: false, reason: '距开课不足 ' + LEAVE_MIN_HOURS + ' 小时，无法发起请假' };
+    return { ok: true, reason: '' };
+  }
+
+  // 发起请假：type=reschedule 须带新日期/时段；type=cancel 直接取消本次排课
+  function requestLeave(id, payload) {
+    var check = canRequestLeave(id);
+    if (!check.ok) return check;
+    var item = byId(id);
+    var data = payload || {};
+    var type = data.type === 'cancel' ? 'cancel' : 'reschedule';
+    var reason = String(data.reason || '').trim();
+    if (!reason) return { ok: false, reason: '请选择请假原因' };
+    if (type === 'reschedule') {
+      if (!data.newDate || !data.newTime) return { ok: false, reason: '请选择调整后的上课时间' };
+      if (dayTimes(item.teacherId, data.newDate).indexOf(data.newTime) === -1) return { ok: false, reason: '新时间不在老师开放的时段内' };
+      if (data.newDate === item.date && data.newTime === item.time) return { ok: false, reason: '新时间与原时间相同，请重新选择' };
+      if (isBusyExcept(item.teacherId, data.newDate, data.newTime, item.id)) return { ok: false, reason: '新时间已被占用，请另选时段' };
+    }
+    var leave = {
+      by: data.by === 'teacher' ? 'teacher' : 'parent',
+      type: type,
+      reason: reason,
+      note: String(data.note || '').trim(),
+      newDate: type === 'reschedule' ? data.newDate : '',
+      newTime: type === 'reschedule' ? data.newTime : '',
+      status: 'pending',
+      requestedAt: nowLabel(),
+      decidedAt: '',
+      decidedBy: '',
+      decision: ''
+    };
+    update(id, { leave: leave });
+    return { ok: true, leave: leave };
+  }
+
+  // 发起方在对方响应前撤回
+  function withdrawLeave(id) {
+    var item = byId(id);
+    if (!item || !item.leave || item.leave.status !== 'pending') return { ok: false, reason: '当前没有待确认的请假' };
+    var leave = item.leave;
+    leave.status = 'withdrawn';
+    leave.decidedAt = nowLabel();
+    leave.decidedBy = leave.by;
+    leave.decision = 'withdraw';
+    update(id, { leave: leave });
+    return { ok: true, leave: leave };
+  }
+
+  // 对方响应：reschedule=按新时间确认改期（课时继续冻结）；cancel=直接取消本次排课（归还冻结课时）
+  function respondLeave(id, decision) {
+    var item = byId(id);
+    if (!item || !item.leave || item.leave.status !== 'pending') return { ok: false, reason: '当前没有待确认的请假' };
+    var leave = item.leave;
+    leave.decidedAt = nowLabel();
+    leave.decidedBy = leave.by === 'parent' ? 'teacher' : 'parent';
+    if (decision === 'reschedule') {
+      if (leave.type !== 'reschedule') return { ok: false, reason: '本次请假没有提出新的时间' };
+      if (isBusyExcept(item.teacherId, leave.newDate, leave.newTime, item.id)) return { ok: false, reason: '新时间已被占用，请直接取消或重新协商' };
+      leave.status = 'approved';
+      leave.decision = 'reschedule';
+      update(id, { date: leave.newDate, dateLabel: labelOfDate(leave.newDate), time: leave.newTime, leave: leave });
+      return { ok: true, leave: leave, moved: true };
+    }
+    leave.status = 'cancelled';
+    leave.decision = 'cancel';
+    update(id, { status: 'cancelled', cancelledBy: leave.by, cancelReason: '请假 · ' + leave.reason, leave: leave });
+    return { ok: true, leave: leave, cancelled: true };
+  }
+
   // 家长端：按老师统计未来 4 周每天的可约时段数
   function teacherDayOptions(teacherId) {
     return DAYS.map(function (day) {
@@ -786,6 +916,16 @@
     reject: reject,
     cancel: cancel,
     checkin: checkin,
+    leave: {
+      canRequest: canRequestLeave,
+      request: requestLeave,
+      respond: respondLeave,
+      withdraw: withdrawLeave,
+      days: leaveDays,
+      hoursLeft: leaveHoursLeft,
+      labelOfDate: labelOfDate,
+      minHours: LEAVE_MIN_HOURS
+    },
     markDone: markDone,
     markReviewed: markReviewed,
     teachersFor: teachersFor,

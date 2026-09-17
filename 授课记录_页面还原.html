@@ -78,10 +78,32 @@
     .toast.show{transform:translate(-50%,0);opacity:1}
     .dev-sim{position:fixed;z-index:40;left:calc(50% - 366px);min-width:112px;height:38px;padding:0 14px;border:1px solid #d9e5f2;border-radius:8px;color:#356da9;background:rgba(255,255,255,.96);box-shadow:0 6px 18px rgba(47,75,106,.12);font-size:14px;font-weight:600}
     .dev-sim:hover{border-color:#9dbadb;background:#f7faff}
-    .dev-sim[data-position="1"]{top:calc(50% - 455px)}
-    .dev-sim[data-position="2"]{top:calc(50% - 407px)}
+    .dev-sim[data-position="1"]{top:calc(50% - 455px);top:max(12px, calc(50% - 455px))}
+    .dev-sim[data-position="2"]{top:calc(50% - 407px);top:max(54px, calc(50% - 407px))}
     @media (max-width:760px){.dev-sim{left:12px;min-width:86px;height:34px;padding:0 10px;font-size:13px}.dev-sim[data-position="1"]{top:12px}.dev-sim[data-position="2"]{top:54px}}
     @media (max-width:520px){.dev-sim{display:none}}
+  </style>
+  <style>
+    .bk-state.leave{color:#9d5d13;background:#fff4df}
+    .leave-tip{display:block;margin-top:8px;color:#9d5d13;font-size:14px;line-height:20px}
+    .leave-type{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .leave-type button{height:36px;border:1px solid #d8e1eb;border-radius:6px;color:#777a82;background:#f7faff;font-size:14px}
+    .leave-type button.active{border-color:#4b7fb8;color:#fff;background:#4b7fb8;font-weight:600}
+    .leave-slot{margin-top:10px}
+    .leave-slot[hidden]{display:none}
+    .leave-origin{margin-bottom:8px;padding:8px 10px;border-radius:6px;color:#4b5563;background:#f4f7fb;font-size:13px;line-height:19px}
+    .leave-actions{display:flex;flex-direction:column;gap:6px;flex:0 0 auto;min-width:118px}
+    .leave-actions .btn{width:100%}
+    .leave-dates{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+    .leave-dates::-webkit-scrollbar{display:none}
+    .leave-date{flex:0 0 auto;min-width:76px;padding:6px 8px;border:1px solid #e5ebf2;border-radius:6px;color:#454951;background:#fff;font-size:14px;line-height:19px;text-align:center}
+    .leave-date small{display:block;color:#9aa5b1;font-size:12px}
+    .leave-date.active{border-color:#4b7fb8;color:#fff;background:#4b7fb8}
+    .leave-date.active small{color:rgba(255,255,255,.82)}
+    .leave-times{margin-top:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .leave-time{height:34px;border:1px solid #e5ebf2;border-radius:6px;color:#454951;background:#fff;font-size:14px}
+    .leave-time.active{border-color:#4b7fb8;color:#fff;background:#4b7fb8;font-weight:600}
+    .leave-note{margin-top:10px;width:100%;min-height:54px;padding:8px 10px;border:1px solid #d8e1eb;border-radius:6px;outline:none;color:#454951;background:#f7faff;font:inherit;font-size:14px;line-height:20px;resize:none}
   </style>
 </head>
 <body>
@@ -112,12 +134,21 @@
         <button class="btn primary" type="button" id="rejectConfirm" disabled>确认拒绝</button>
       </div>
     </div>
+    <div class="sheet" id="leaveSheet" role="dialog" aria-label="请假申请">
+      <h2>请假 · 本次课</h2>
+      <span class="sheet-note" id="leaveNote">填写原因并选择处理方式，提交后由对方确认</span>
+      <div class="reason-list" id="leaveReasons"></div>
+      <textarea class="leave-note" id="leaveNoteInput" maxlength="80" placeholder="补充说明（选填）"></textarea>
+      <div class="leave-type" id="leaveType"><button class="active" type="button" data-leave-type="reschedule">调整上课时间</button><button type="button" data-leave-type="cancel">直接取消本次排课</button></div>
+      <div class="leave-slot" id="leaveSlot"><div class="leave-origin" id="leaveOrigin"></div><div class="leave-dates" id="leaveDates"></div><div class="leave-times" id="leaveTimes"></div></div>
+      <div class="sheet-actions"><button class="btn plain" type="button" id="leaveAbort">再想想</button><button class="btn primary" type="button" id="leaveSubmit" disabled>提交请假</button></div>
+    </div>
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-  <script src="约课数据.js?v=20260917-6"></script>
+  <script src="约课数据.js?v=20260917-7"></script>
   <script>
-    const TEACHER_ORDER = ['zhang', 'liming', 'wangjing'];
+    const TEACHER_ORDER = ['zhang', 'liming', 'wangjing', 'zhoumin'];
     /* 教师端授课记录 = 原「约课管理」+ 原「授课记录」：五个状态与家长端一一对应 */
     const TABS = [
       { key: 'all', label: '累计授课', states: null },
@@ -131,12 +162,16 @@
     const STATE_TEXT = { pending: '待确认', confirmed: '待上课', attended: '待反馈', done: '已完成', cancelled: '已取消' };
     const FEEDBACK_COURSE = { trigonometry: 'trigonometry', 'function': 'derivative-0809', sequence: 'derivative-0809', tutorial: 'derivative-0809' };
     const REASONS = ['时间冲突', '该时段已被约满', '需要调整上课方式', '教学内容不匹配'];
+    /* 请假：本页为教师视角，另一方是家长 */
+    const VIEWER = 'teacher';
+    const LEAVE_REASONS = ['临时有事', '身体不适', '学校/课程安排冲突', '想调整上课时间'];
     const params = new URLSearchParams(location.search);
     const requested = FILTER_ALIAS[params.get('filter') || ''] || params.get('filter') || '';
     let activeTab = TABS.some(tab => tab.key === requested) ? requested : 'all';
     let teacherId = 'zhang';
     let rejectTarget = '';
     let rejectReason = '';
+    let leaveTarget = '', leaveReason = '', leaveType = 'reschedule', leaveDate = '', leaveTime = '';
 
     const listBox = document.querySelector('#list');
     const tabs = document.querySelector('#tabs');
@@ -145,6 +180,16 @@
     const sheetMask = document.querySelector('#sheetMask');
     const reasonList = document.querySelector('#reasonList');
     const rejectConfirm = document.querySelector('#rejectConfirm');
+    const leaveSheet = document.querySelector('#leaveSheet');
+    const leaveNote = document.querySelector('#leaveNote');
+    const leaveReasons = document.querySelector('#leaveReasons');
+    const leaveNoteInput = document.querySelector('#leaveNoteInput');
+    const leaveTypeBox = document.querySelector('#leaveType');
+    const leaveSlot = document.querySelector('#leaveSlot');
+    const leaveOrigin = document.querySelector('#leaveOrigin');
+    const leaveDates = document.querySelector('#leaveDates');
+    const leaveTimes = document.querySelector('#leaveTimes');
+    const leaveSubmit = document.querySelector('#leaveSubmit');
     const monthSelect = document.querySelector('#monthFilter');
     const emptyBox = document.querySelector('#emptyBox');
 
@@ -189,6 +234,8 @@
     }
 
     function tipOf(item) {
+      const pendingLeave = item.leave && item.leave.status === 'pending' ? item.leave : null;
+      if (pendingLeave) return '<span class="leave-tip">' + leaveTipText(pendingLeave) + '</span>';
       if (item.status === 'pending') {
         if (item.isPlan) {
           if (item.teacherAccepted) return '<span class="bk-tip frozen">' + item.teacherName + ' 已接单 · 等待家长确认</span>';
@@ -200,7 +247,7 @@
       if (item.status === 'confirmed') return '';
       if (item.status === 'attended') return '';
       if (item.status === 'done') return '<span class="bk-tip deducted">课程已完成 · 反馈已提交</span>';
-      const who = item.cancelledBy === 'teacher' ? '已拒绝' : '家长取消';
+      const who = item.cancelledBy === 'teacher' ? (item.leave ? '老师取消' : '已拒绝') : '家长取消';
       return '<span class="bk-tip">' + who + ' · ' + (item.cancelReason || '未填写原因') + '</span>';
     }
 
@@ -214,7 +261,19 @@
         return '<button class="btn plain" type="button" data-reject="' + item.id + '">拒绝</button>' +
                '<button class="btn primary" type="button" data-confirm="' + item.id + '">确认接单</button>';
       }
-      if (item.status === 'confirmed') return '';
+      if (item.status === 'confirmed') {
+        const leave = item.leave && item.leave.status === 'pending' ? item.leave : null;
+        if (leave) {
+          if (leave.by === VIEWER) return '<button class="btn plain" type="button" data-leave-withdraw="' + item.id + '">撤回请假</button>';
+          return '<span class="leave-actions">' +
+                 (leave.type === 'reschedule' ? '<button class="btn plain" type="button" data-leave-respond="' + item.id + '" data-decision="reschedule">按新时间确认</button>' : '') +
+                 '<button class="btn primary" type="button" data-leave-respond="' + item.id + '" data-decision="cancel">' + (leave.type === 'reschedule' ? '直接取消课程' : '确认取消课程') + '</button>' +
+                 '</span>';
+        }
+        const allow = YZB.leave.canRequest(item.id);
+        if (allow.ok) return '<button class="btn plain" type="button" data-leave="' + item.id + '">请假</button>';
+        return allow.reason ? '<span class="leave-tip">' + allow.reason + '</span>' : '';
+      }
       if (item.status === 'attended') return '<a class="btn primary" href="课程反馈_页面还原.html?booking=' + item.id + '&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">填写反馈</a>';
       if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=teacher&booking=' + item.id + '&course=' + (FEEDBACK_COURSE[item.courseId] || 'derivative-0809') + '">查看课程</a>';
       return '';
@@ -236,8 +295,11 @@
           '</div>'
         : '';
       const month = (item.isPlan ? item.startDate : item.date || '').slice(0, 7);
+      const cardLeave = item.leave && item.leave.status === 'pending' ? item.leave : null;
+      const badgeText = cardLeave ? '请假待确认' : STATE_TEXT[item.status];
+      const badgeClass = 'bk-state ' + item.status + (cardLeave ? ' leave' : '');
       return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + month + '" data-mode="' + modeKey(item.mode) + '">' +
-        '<div class="bk-head"><strong>' + item.courseName + '</strong><span class="bk-state ' + item.status + '">' + STATE_TEXT[item.status] + '</span></div>' +
+        '<div class="bk-head"><strong>' + item.courseName + '</strong><span class="' + badgeClass + '">' + badgeText + '</span></div>' +
         (side ? '<div class="bk-row">' + meta + side + '</div>' : meta) +
         summary +
         (foot ? '<div class="bk-foot">' + foot + '</div>' : '') +
@@ -302,6 +364,64 @@
     }
     function closeSheet() { sheet.classList.remove('show'); sheetMask.classList.remove('show'); rejectTarget = ''; }
 
+    /* ===== 请假：待上课课次由家长/老师任一方发起，另一方确认 ===== */
+    function weekTextOf(dateKey) {
+      const date = new Date(dateKey + 'T00:00:00');
+      return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()] || '';
+    }
+    function leaveTipText(leave) {
+      const isMine = leave.by === VIEWER;
+      const other = VIEWER === 'parent' ? '老师' : '家长';
+      const plan = leave.type === 'reschedule'
+        ? '申请调整到 ' + YZB.leave.labelOfDate(leave.newDate) + ' ' + weekTextOf(leave.newDate) + ' ' + leave.newTime
+        : '申请取消本次排课';
+      return (leave.by === 'parent' ? '家长请假' : '老师请假') + ' · ' + leave.reason + ' · ' + plan + ' · 等待' + (isMine ? other : '你') + '确认';
+    }
+    function leaveDaysOf() {
+      if (!leaveTarget) return [];
+      const item = YZB.byId(leaveTarget);
+      return item ? YZB.leave.days(item).slice(0, 14) : [];
+    }
+    function updateLeaveSubmit() {
+      leaveSubmit.disabled = !(leaveReason && (leaveType === 'cancel' || (leaveDate && leaveTime)));
+    }
+    function renderLeaveTimes(days) {
+      const day = (days || leaveDaysOf()).filter(entry => entry.date === leaveDate)[0];
+      const times = day ? day.times : [];
+      if (times.indexOf(leaveTime) === -1) leaveTime = times[0] || '';
+      leaveTimes.innerHTML = times.map(time => '<button class="leave-time' + (time === leaveTime ? ' active' : '') + '" type="button" data-leave-time="' + time + '">' + time + '</button>').join('');
+      updateLeaveSubmit();
+    }
+    function renderLeaveDates() {
+      const days = leaveDaysOf();
+      if (!days.length) {
+        leaveDate = ''; leaveTime = '';
+        leaveDates.innerHTML = '<span class="leave-tip">近期没有可调整的开放时段，可直接选择「直接取消本次排课」</span>';
+        leaveTimes.innerHTML = '';
+        updateLeaveSubmit();
+        return;
+      }
+      if (!leaveDate || !days.some(day => day.date === leaveDate)) { leaveDate = days[0].date; leaveTime = days[0].times[0]; }
+      leaveDates.innerHTML = days.map(day => '<button class="leave-date' + (day.date === leaveDate ? ' active' : '') + '" type="button" data-leave-date="' + day.date + '">' + day.label + '<small>' + day.week + '</small></button>').join('');
+      renderLeaveTimes(days);
+    }
+    function openLeaveSheet(id) {
+      const item = YZB.byId(id);
+      const check = YZB.leave.canRequest(id);
+      if (!item || !check.ok) { showToast(check.reason || '当前无法发起请假'); return; }
+      leaveTarget = id; leaveReason = ''; leaveType = 'reschedule'; leaveDate = ''; leaveTime = '';
+      leaveNote.textContent = '本课次已冻结家长 ' + YZB.lessonsOf(item) + ' 课时：家长确认新时间即改期（课时继续冻结）；直接取消本次排课则归还课时';
+      leaveNoteInput.value = '';
+      leaveOrigin.textContent = '原上课时间：' + item.student + ' · ' + (item.dateLabel || YZB.leave.labelOfDate(item.date)) + ' ' + item.time;
+      leaveReasons.innerHTML = LEAVE_REASONS.map(reason => '<button class="reason" type="button" data-leave-reason="' + reason + '">' + reason + '</button>').join('');
+      leaveTypeBox.querySelectorAll('[data-leave-type]').forEach(button => button.classList.toggle('active', button.dataset.leaveType === 'reschedule'));
+      leaveSlot.hidden = false;
+      renderLeaveDates();
+      updateLeaveSubmit();
+      leaveSheet.classList.add('show'); sheetMask.classList.add('show');
+    }
+    function closeLeaveSheet() { leaveSheet.classList.remove('show'); sheetMask.classList.remove('show'); leaveTarget = ''; }
+
     tabs.addEventListener('click', event => {
       const button = event.target.closest('[data-tab]');
       if (!button) return;
@@ -340,7 +460,28 @@
         return;
       }
       const rejectButton = event.target.closest('[data-reject]');
-      if (rejectButton) openSheet(rejectButton.dataset.reject);
+      if (rejectButton) { openSheet(rejectButton.dataset.reject); return; }
+      const leaveButton = event.target.closest('[data-leave]');
+      if (leaveButton) { openLeaveSheet(leaveButton.dataset.leave); return; }
+      const withdrawButton = event.target.closest('[data-leave-withdraw]');
+      if (withdrawButton) {
+        const result = YZB.leave.withdraw(withdrawButton.dataset.leaveWithdraw);
+        refresh();
+        showToast(result.ok ? '已撤回请假申请' : (result.reason || '撤回失败'));
+        return;
+      }
+      const respondButton = event.target.closest('[data-leave-respond]');
+      if (respondButton) {
+        const targetId = respondButton.dataset.leaveRespond;
+        const decision = respondButton.dataset.decision;
+        const target = YZB.byId(targetId);
+        const lessons = target ? YZB.lessonsOf(target) : 0;
+        const result = YZB.leave.respond(targetId, decision);
+        if (!result.ok) { showToast(result.reason || '操作失败，请重试'); refresh(); return; }
+        refresh();
+        showToast(decision === 'cancel' ? '已取消本次排课，已归还 ' + lessons + ' 课时' : '已按新时间确认，课次已改期');
+        return;
+      }
     });
 
     reasonList.addEventListener('click', event => {
@@ -351,7 +492,46 @@
       rejectConfirm.disabled = false;
     });
     document.querySelector('#rejectAbort').onclick = closeSheet;
-    sheetMask.onclick = closeSheet;
+    document.querySelector('#leaveAbort').onclick = closeLeaveSheet;
+    sheetMask.onclick = () => { closeSheet(); closeLeaveSheet(); };
+    leaveReasons.addEventListener('click', event => {
+      const button = event.target.closest('[data-leave-reason]');
+      if (!button) return;
+      leaveReason = button.dataset.leaveReason;
+      leaveReasons.querySelectorAll('.reason').forEach(item => item.classList.toggle('active', item === button));
+      updateLeaveSubmit();
+    });
+    leaveTypeBox.addEventListener('click', event => {
+      const button = event.target.closest('[data-leave-type]');
+      if (!button) return;
+      leaveType = button.dataset.leaveType;
+      leaveTypeBox.querySelectorAll('[data-leave-type]').forEach(item => item.classList.toggle('active', item === button));
+      leaveSlot.hidden = leaveType === 'cancel';
+      updateLeaveSubmit();
+    });
+    leaveDates.addEventListener('click', event => {
+      const button = event.target.closest('[data-leave-date]');
+      if (!button) return;
+      leaveDate = button.dataset.leaveDate;
+      leaveDates.querySelectorAll('.leave-date').forEach(item => item.classList.toggle('active', item === button));
+      renderLeaveTimes();
+    });
+    leaveTimes.addEventListener('click', event => {
+      const button = event.target.closest('[data-leave-time]');
+      if (!button) return;
+      leaveTime = button.dataset.leaveTime;
+      leaveTimes.querySelectorAll('.leave-time').forEach(item => item.classList.toggle('active', item === button));
+      updateLeaveSubmit();
+    });
+    leaveSubmit.onclick = () => {
+      if (!leaveTarget) return;
+      const type = leaveType;
+      const result = YZB.leave.request(leaveTarget, { by: VIEWER, type: type, reason: leaveReason, note: leaveNoteInput.value, newDate: leaveDate, newTime: leaveTime });
+      if (!result.ok) { showToast(result.reason || '提交失败，请检查后重试'); return; }
+      closeLeaveSheet();
+      refresh();
+      showToast(type === 'cancel' ? '请假已提交，等待家长确认取消' : '请假已提交，等待家长确认新时间');
+    };
     rejectConfirm.onclick = () => {
       if (!rejectTarget || !rejectReason) return;
       YZB.reject(rejectTarget, rejectReason);
