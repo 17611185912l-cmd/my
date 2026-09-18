@@ -922,7 +922,7 @@
     </main>
   </div>
 
-  <script src="约课数据.js?v=20260918-1"></script>
+  <script src="约课数据.js?v=20260918-2"></script>
   <script>
     try {
       const savedProfile = JSON.parse(window.name || '{}');
@@ -993,7 +993,7 @@
       const dot = document.querySelector('#teachingDot');
       if (!dot) return;
       if (!window.YZB) { dot.hidden = true; return; }
-      const market = YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && !item.teacherAccepted && item.status === 'pending' && YZB.teacherTeaches('zhang', item.subject, item.grade)).length;
+      const market = YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && !item.teacherAccepted && item.status === 'pending' && YZB.demandPushable('zhang', item)).length;
       const pending = YZB.forTeacher('zhang', ['pending']).length;
       const total = market + pending;
       dot.textContent = total > 99 ? '99+' : String(total || '');

@@ -13,7 +13,11 @@
   10) 待上课可请假：家长/老师均可发起，填写原因后选择「调整上课时间」（须直接选好新时段）或「直接取消本次排课」；
       提交后由另一方确认，对方只能「按新时间确认」或「直接取消课程」（不设拒绝）；改期成功后课时继续冻结，
       取消后归还冻结课时（解冻，不产生扣减）；距开课不足 2 小时不允许发起；发起方可在对方响应前撤回；
-      调课时新时段不能与原时间完全相同，可调日期/时段不含本次课自身占用的时段。 */
+      调课时新时段不能与原时间完全相同，可调日期/时段不含本次课自身占用的时段；
+  11) 抢单大厅只展示与本教师「科目 + 年级」同时匹配、且至少有一次课可上的待接单需求（完全冲突的不推送）；
+      卡片按「具体上课日期」逐次核对满足度：
+      全部满足 / 部分时间冲突（细分为「整个周期某时段都冲突」与「仅某几天冲突」并列出冲突日期）/ 全部时间冲突；
+      页面提供演示视角切换（张三 / 李明 / 王静）用于对比。 */
 (function () {
   'use strict';
 
@@ -88,7 +92,12 @@
     'liming|2026-08-15|19:00': 1,
     'wangjing|2026-08-15|10:30': 1,
     'wangjing|2026-08-12|19:00': 1,
-    'zhang|2026-08-14|15:30': 1
+    'zhang|2026-08-14|15:30': 1,
+    /* 抢单大厅演示：仅某几天的时间冲突（个别日期已有其他排课，其余日期不受影响） */
+    'zhang|2026-11-25|19:00': 1,   // 陈诺的需求：11月25日（周三）19:00
+    'zhang|2026-12-17|10:00': 1,   // 陈诺的需求：12月17日（周四）10:00
+    'liming|2026-10-13|19:00': 1,  // 王子涵的需求：10月13日（周二）19:00
+    'liming|2026-12-19|10:00': 1   // 王子涵的需求：12月19日（周六）10:00
   };
 
   var SEED = [
@@ -100,6 +109,31 @@
       scheduleLabel: '每周二 19:00 · 每周六 10:00', sessionCount: 39, lessons: 78,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '希望固定每周两次',
       status: 'pending', occurrences: [], createdAt: '8月10日 21:10', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    /* ===== 抢单大厅演示数据：同一批需求在不同教师可约时间下呈现 全部满足 / 部分满足 / 时间冲突 ===== */
+    {
+      id: 'PL20260918001', isPlan: true, orderMode: 'demand', student: '陈诺', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 2, time: '19:00' }, { weekday: 3, time: '10:00' }],
+      scheduleLabel: '每周三 19:00 · 每周四 10:00', sessionCount: 40, lessons: 80,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '工作日晚间与白天各一次',
+      status: 'pending', occurrences: [], createdAt: '9月18日 09:20', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    {
+      id: 'PL20260918002', isPlan: true, orderMode: 'demand', student: '李思远', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 0, time: '10:00' }, { weekday: 4, time: '14:00' }],
+      scheduleLabel: '每周一 10:00 · 每周五 14:00', sessionCount: 39, lessons: 78,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线上', place: '西安小寨交付中心', remark: '两次都在工作日上午后',
+      status: 'pending', occurrences: [], createdAt: '9月18日 09:22', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
+    },
+    {
+      id: 'PL20260918003', isPlan: true, orderMode: 'demand', student: '赵一诺', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
+      teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
+      weeklySlots: [{ weekday: 1, time: '20:00' }, { weekday: 3, time: '19:30' }],
+      scheduleLabel: '每周二 20:00 · 每周四 19:30', sessionCount: 40, lessons: 80,
+      lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安高新校区', remark: '两次都在晚间',
+      status: 'pending', occurrences: [], createdAt: '9月18日 09:24', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
     /* ===== 固定周课表：需求单（老师已接单，等待家长确认）===== */
     {
@@ -234,13 +268,25 @@
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
 
+  // 抢单大厅演示需求：基线里的固定周课需求单始终补齐（只补缺失的 id，不影响已有状态与用户操作结果）
+  function mergeSeedPlans(bookings) {
+    var merged = bookings.slice();
+    SEED.forEach(function (seed) {
+      if (!seed.isPlan) return;
+      var exists = false;
+      merged.forEach(function (item) { if (item.id === seed.id) exists = true; });
+      if (!exists) merged.push(clone(seed));
+    });
+    return merged;
+  }
+
   function read() {
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (raw) {
         var state = JSON.parse(raw);
         if (state && state.bookings && state.bookings.length !== undefined) {
-          return { bookings: state.bookings, availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {} };
+          return { bookings: mergeSeedPlans(state.bookings), availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {} };
         }
       }
     } catch (error) { /* 忽略读取异常，使用种子数据 */ }
@@ -843,6 +889,72 @@
     return { level: 'conflict', ok: 0, total: total, label: '时间冲突 0/' + total };
   }
 
+  // 单个每周时段与该教师可约时间的匹配情况（供卡片逐时段标注「可上课 / 不在可约时间」）
+  function slotFit(teacherId, slot) {
+    var id = slotRangeId(slot && slot.weekday, slot && slot.time);
+    var range = id ? timeRange(id) : null;
+    var ids = availabilityIds(teacherId);
+    return {
+      ok: !!id && ids.indexOf(id) > -1,
+      rangeId: id || '',
+      rangeLabel: range ? range.label : '',
+      note: range ? range.note : ''
+    };
+  }
+
+  // 需求单逐次课满足度：按「具体日期 + 时刻」把整段周期拆开核对，区分「整个周期某时段都冲突」与「仅某几天冲突」
+  function planDateFit(teacherId, startDate, endDate, slots) {
+    var rows = (slots || []).filter(function (slot) { return slot && typeof slot.weekday === 'number' && slot.time; });
+    if (!rows.length || !startDate || !endDate) {
+      return { level: 'unknown', ok: 0, total: 0, label: '', groups: [], wholeConflicts: [], dateConflicts: [] };
+    }
+    var groups = rows.map(function (slot) {
+      var occurrences = buildOccurrences(startDate, endDate, [slot], 'FIT');
+      var conflicts = [];
+      occurrences.forEach(function (occ) {
+        var open = dayTimes(teacherId, occ.date).indexOf(occ.time) > -1;
+        var busy = open && isBusy(teacherId, occ.date, occ.time);
+        if (!open || busy) conflicts.push({ date: occ.date, dateLabel: occ.dateLabel, week: weekdayLabel(occ.weekday), time: occ.time, reason: busy ? '已有其他排课' : '当天不可约' });
+      });
+      var base = slotFit(teacherId, slot);
+      var level = !occurrences.length ? 'unknown' : (!conflicts.length ? 'full' : (conflicts.length === occurrences.length ? 'conflict' : 'partial'));
+      return {
+        label: '每' + weekdayLabel(slot.weekday) + ' ' + slot.time,
+        slot: slot,
+        total: occurrences.length,
+        ok: occurrences.length - conflicts.length,
+        level: level,
+        conflicts: conflicts,
+        reason: level === 'conflict' ? (base.ok ? '该时段已有其他排课' : (base.rangeLabel ? '未开放' + base.rangeLabel : '不在可约时间档内')) : ''
+      };
+    });
+    var total = groups.reduce(function (sum, group) { return sum + group.total; }, 0);
+    var ok = groups.reduce(function (sum, group) { return sum + group.ok; }, 0);
+    var wholeConflicts = groups.filter(function (group) { return group.level === 'conflict'; }).map(function (group) {
+      return { label: group.label, count: group.total, reason: group.reason };
+    });
+    var dateConflicts = [];
+    groups.forEach(function (group) {
+      if (group.level !== 'partial') return;
+      group.conflicts.forEach(function (item) {
+        dateConflicts.push({ slotLabel: group.label, date: item.date, dateLabel: item.dateLabel, week: item.week, time: item.time, reason: item.reason });
+      });
+    });
+    dateConflicts.sort(function (a, b) { return a.date.localeCompare(b.date); });
+    var level = !total ? 'unknown' : (ok === total ? 'full' : (ok ? 'partial' : 'conflict'));
+    var label = '';
+    if (level === 'full') label = '全部满足 ' + ok + '/' + total + ' 次';
+    else if (level === 'partial') label = '部分时间冲突 ' + ok + '/' + total + ' 次可上';
+    else if (level === 'conflict') label = '全部时间冲突 0/' + total + ' 次';
+    return { level: level, ok: ok, total: total, label: label, groups: groups, wholeConflicts: wholeConflicts, dateConflicts: dateConflicts };
+  }
+
+  // 推送口径：科目 + 年级同时匹配，且按具体日期至少有一次课能上（完全冲突的需求不推送给该老师）
+  function demandPushable(teacherId, item) {
+    return !!item && teacherTeaches(teacherId, item.subject, item.grade)
+      && planDateFit(teacherId, item.startDate, item.endDate, item.weeklySlots).ok > 0;
+  }
+
   // 批量预约：单次 / 每周（连约 4 次）/ 每天（连约 7 天）；逐节校验老师是否开放且未被约
   function batchSessions(params) {
     var totals = { once: 1, weekly: 4, daily: 7 };
@@ -981,6 +1093,9 @@
     recommendTeacher: recommendTeacher,
     teacherTeaches: teacherTeaches,
     planFit: planFit,
+    slotFit: slotFit,
+    planDateFit: planDateFit,
+    demandPushable: demandPushable,
     batchSessions: batchSessions,
     openCount: openCount,
     specialCount: specialCount,

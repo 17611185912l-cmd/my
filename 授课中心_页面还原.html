@@ -191,7 +191,7 @@
       </div>
     </div>
   </main>
-  <script src="约课数据.js?v=20260918-1"></script>
+  <script src="约课数据.js?v=20260918-2"></script>
   <script>
     const page = document.querySelector('.page');
     const reviewStates = { approved: '审核通过', pending: '待审核', rejected: '已驳回' };
@@ -273,7 +273,7 @@
         : '维护四类时间与特殊日期';
     }
     function updateMarketEntry() {
-      const count = window.YZB ? YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && !item.teacherAccepted && item.status === 'pending' && YZB.teacherTeaches('zhang', item.subject, item.grade)).length : 0;
+      const count = window.YZB ? YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && !item.teacherAccepted && item.status === 'pending' && YZB.demandPushable('zhang', item)).length : 0;
       document.querySelector('#marketEntryNote').textContent = count ? (count + ' 条待接单需求') : '暂无待接单需求';
       const marketBadge = document.querySelector('#marketDot');
       marketBadge.textContent = count > 99 ? '99+' : String(count || '');
