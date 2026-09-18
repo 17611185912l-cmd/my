@@ -93,8 +93,11 @@
     .bk-field{min-width:0}.bk-field label{display:block;margin-bottom:5px;color:#777a82;font-size:13px}
     .bk-field input,.bk-plan-add select{width:100%;height:38px;padding:0 9px;border:1px solid #d8e1eb;border-radius:6px;outline:none;background:#fff;color:#24262b;font-size:14px}
     .bk-field input:focus,.bk-plan-add select:focus{border-color:#4b7fb8;box-shadow:0 0 0 2px rgba(75,127,184,.1)}
-    .bk-plan-add{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:10px}
-    .bk-plan-add button{height:38px;padding:0 12px;border-radius:6px;color:#fff;background:#4b7fb8;font-size:14px;white-space:nowrap}
+    .bk-plan-add{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:10px}
+    .bk-plan-add #addSlot{height:38px;padding:0 12px;border-radius:6px;color:#fff;background:#4b7fb8;font-size:14px;white-space:nowrap}
+    .bk-weekday-chips{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .bk-weekday-chip{height:34px;border:1px solid #dbe3ec;border-radius:6px;background:#fff;color:#41506b;font-size:12.5px;line-height:1}
+    .bk-weekday-chip.active{border-color:#4b7fb8;background:#4b7fb8;color:#fff;font-weight:600}
     .bk-plan-slots{margin-top:10px;display:grid;gap:6px}
     .bk-plan-slot{min-height:46px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e5ebf2;border-radius:6px;background:#fbfdff}
     .bk-plan-slot strong{font-size:14px;line-height:20px}.bk-plan-slot button{padding:4px 7px;border-radius:4px;color:#777a82;background:#f0f3f6;font-size:13px}
@@ -117,7 +120,7 @@
           <div class="bk-field"><label for="endDate">结束日期</label><input id="endDate" type="date"></div>
         </div>
         <div class="bk-plan-add">
-          <select id="weekdaySelect" aria-label="星期"></select>
+          <div class="bk-weekday-chips" id="weekdayChips" role="group" aria-label="星期，可多选"></div>
           <select id="timeSelect" aria-label="开始时间"></select>
           <button id="addSlot" type="button">添加</button>
         </div>
@@ -151,6 +154,7 @@
     const CLASS_LESSONS = YZB.DEFAULT_CLASS_LESSONS;
     const CLASS_LABEL = '1.5 小时/次';
     const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const selectedWeekdays = new Set();
     const bookingParams = new URLSearchParams(location.search);
     const requestedCourse = bookingParams.get('course') || '';
     const requestedTeacher = bookingParams.get('teacher') || '';
@@ -171,7 +175,7 @@
     const courseList = document.querySelector('#courseList');
     const startDate = document.querySelector('#startDate');
     const endDate = document.querySelector('#endDate');
-    const weekdaySelect = document.querySelector('#weekdaySelect');
+    const weekdayChips = document.querySelector('#weekdayChips');
     const timeSelect = document.querySelector('#timeSelect');
     const addSlot = document.querySelector('#addSlot');
     const planSlots = document.querySelector('#planSlots');
@@ -220,10 +224,10 @@
     function renderSchedule() {
       startDate.value = state.startDate;
       endDate.value = state.endDate;
-      weekdaySelect.innerHTML = WEEKDAYS.map((label, index) => `<option value="${index}">${label}</option>`).join('');
+      weekdayChips.innerHTML = WEEKDAYS.map((label, index) => `<button class="bk-weekday-chip ${selectedWeekdays.has(index) ? 'active' : ''}" type="button" data-weekday="${index}" aria-pressed="${selectedWeekdays.has(index)}">${label}</button>`).join('');
+      const keepTime = timeSelect.value;
       timeSelect.innerHTML = YZB.times().map(time => `<option value="${time}">${time}</option>`).join('');
-      weekdaySelect.value = state.weeklySlots.length ? String(state.weeklySlots[0].weekday) : '0';
-      timeSelect.value = '19:00';
+      timeSelect.value = keepTime && YZB.times().indexOf(keepTime) >= 0 ? keepTime : '19:00';
       planSlots.innerHTML = state.weeklySlots.length ? state.weeklySlots.map((slot, index) => `
         <div class="bk-plan-slot"><strong>${slotText(slot)}</strong><button type="button" data-remove="${index}">删除</button></div>
       `).join('') : '<div class="bk-empty">还没有添加固定上课时间</div>';
@@ -314,14 +318,26 @@
 
     startDate.addEventListener('change', () => { state.startDate = startDate.value; renderHours(); renderSummary(); });
     endDate.addEventListener('change', () => { state.endDate = endDate.value; renderHours(); renderSummary(); });
+    weekdayChips.addEventListener('click', event => {
+      const chip = event.target.closest('[data-weekday]');
+      if (!chip) return;
+      const index = Number(chip.dataset.weekday);
+      if (selectedWeekdays.has(index)) selectedWeekdays.delete(index); else selectedWeekdays.add(index);
+      renderSchedule();
+    });
     addSlot.addEventListener('click', () => {
-      const slot = { weekday: Number(weekdaySelect.value), time: timeSelect.value };
-      if (state.weeklySlots.some(item => item.weekday === slot.weekday && item.time === slot.time)) {
-        showToast('这个固定时间已经添加过了');
-        return;
-      }
-      state.weeklySlots.push(slot);
+      if (!selectedWeekdays.size) { showToast('请先选择星期（可多选）'); return; }
+      const time = timeSelect.value;
+      const added = [];
+      Array.from(selectedWeekdays).sort((a, b) => a - b).forEach(day => {
+        if (state.weeklySlots.some(item => item.weekday === day && item.time === time)) return;
+        state.weeklySlots.push({ weekday: day, time });
+        added.push(day);
+      });
+      if (!added.length) { showToast('这些时间已经添加过了'); return; }
       state.weeklySlots.sort((a, b) => a.weekday - b.weekday || a.time.localeCompare(b.time));
+      showToast('已添加 ' + added.map(day => WEEKDAYS[day]).join('、') + ' ' + time);
+      selectedWeekdays.clear();
       renderSchedule();
     });
     planSlots.addEventListener('click', event => {

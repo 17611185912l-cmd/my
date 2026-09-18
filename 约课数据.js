@@ -817,6 +817,32 @@
     return { teacherId: candidates[0].id, reason: 'auto', count: 0 };
   }
 
+  // 发布需求的可见范围：仅「科目 + 年级」同时匹配的老师可见
+  function teacherTeaches(teacherId, subject, grade) {
+    var info = teacher(teacherId);
+    if (!info) return false;
+    return info.subjects.indexOf(subject) > -1 && info.grades.indexOf(grade) > -1;
+  }
+
+  // 需求单每周时段与老师可约时间的满足度：full 全部 / partial 部分 / conflict 冲突
+  function slotRangeId(weekday, time) {
+    var weekend = weekday > 4;
+    if (DAY_TIMES.indexOf(time) > -1) return weekend ? 'weekend-day' : 'workday-day';
+    if (NIGHT_TIMES.indexOf(time) > -1) return weekend ? 'weekend-evening' : 'workday-evening';
+    return '';
+  }
+
+  function planFit(teacherId, slots) {
+    var ids = availabilityIds(teacherId);
+    var rows = (slots || []).filter(function (slot) { return slot && typeof slot.weekday === 'number' && slot.time; });
+    var total = rows.length;
+    var ok = rows.filter(function (slot) { var id = slotRangeId(slot.weekday, slot.time); return !!id && ids.indexOf(id) > -1; }).length;
+    if (!total) return { level: 'unknown', ok: 0, total: 0, label: '' };
+    if (ok === total) return { level: 'full', ok: ok, total: total, label: '可满足全部时间' };
+    if (ok > 0) return { level: 'partial', ok: ok, total: total, label: '可满足部分时间 ' + ok + '/' + total };
+    return { level: 'conflict', ok: 0, total: total, label: '时间冲突 0/' + total };
+  }
+
   // 批量预约：单次 / 每周（连约 4 次）/ 每天（连约 7 天）；逐节校验老师是否开放且未被约
   function batchSessions(params) {
     var totals = { once: 1, weekly: 4, daily: 7 };
@@ -953,6 +979,8 @@
     availabilityLabel: availabilityLabel,
     teacherFreeCount: teacherFreeCount,
     recommendTeacher: recommendTeacher,
+    teacherTeaches: teacherTeaches,
+    planFit: planFit,
     batchSessions: batchSessions,
     openCount: openCount,
     specialCount: specialCount,

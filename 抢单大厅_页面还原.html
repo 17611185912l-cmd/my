@@ -7,6 +7,11 @@
   <title>教师端 · 抢单大厅</title>
 <style>
     :root{--device-scale:1}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100svh;padding:16px;display:grid;place-items:center;overflow:hidden;color:#24262b;background:#e7eaee;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}button{font:inherit;padding:0;border:0;color:inherit;background:none;cursor:pointer}.phone-shell{position:relative;isolation:isolate;width:464px;height:980px;padding:11px;border:1px solid #777d84;border-radius:66px;background:linear-gradient(135deg,#bfc3c7,#f4f5f6 20%,#8d9298 49%,#d9dcdf 72%,#73787e);box-shadow:0 34px 70px rgba(32,38,45,.28),0 10px 22px rgba(32,38,45,.18),inset 0 0 0 1px rgba(255,255,255,.75),inset 0 0 0 3px rgba(33,36,40,.68);transform:scale(var(--device-scale));transform-origin:center}.app{position:relative;width:440px;height:956px;overflow:hidden;border-radius:54px;background:#f5f4f6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.52)}.page{width:100%;height:100%;overflow-y:auto;scrollbar-width:none;background:linear-gradient(to bottom,rgba(245,244,246,0) 188px,#f5f4f6 250px),linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.page::-webkit-scrollbar{display:none}header{position:sticky;z-index:10;top:0;color:#294966;background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.46) 36%,transparent 55%),linear-gradient(132deg,#f7faff 0%,#edf4ff 48%,#dceafa 100%)}.statusbar{height:36px;padding:17px 36px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#050505;font-size:15px;line-height:1;font-weight:700}.device-status{display:flex;align-items:center;gap:8px}.signal{width:18px;height:12px;display:flex;align-items:flex-end;gap:2px}.signal i{width:3px;border-radius:2px 2px 0 0;background:#050505}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{position:relative;width:18px;height:13px;overflow:hidden}.wifi:before,.wifi:after{content:"";position:absolute;left:50%;border:2px solid #050505;border-color:#050505 transparent transparent;border-radius:50%;transform:translateX(-50%)}.wifi:before{top:0;width:19px;height:17px}.wifi:after{top:5px;width:10px;height:9px}.wifi i{position:absolute;left:8px;bottom:0;width:3px;height:3px;border-radius:50%;background:#050505}.battery{position:relative;width:23px;height:11px;padding:2px;border:1.5px solid #919191;border-radius:3px}.battery:before{content:"";display:block;width:100%;height:100%;border-radius:1px;background:#050505}.battery:after{content:"";position:absolute;top:3px;right:-3px;width:2px;height:5px;border-radius:0 2px 2px 0;background:#b4b4b4}.titlebar{position:relative;height:57px;display:flex;align-items:center}.titlebar h1{width:100%;margin:0;font-size:18px;line-height:26px;font-weight:600;text-align:center}.back{position:absolute;z-index:4;left:20px;top:8px;width:40px;height:40px}.back:before{content:"";position:absolute;left:12px;top:13px;width:10px;height:10px;border:solid #294966;border-width:0 0 2px 2px;transform:rotate(45deg)}.capsule{position:absolute;right:17px;top:13px;width:84px;height:30px;border:1px solid rgba(61,105,151,.18);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:rgba(255,255,255,.9)}.dots{height:100%;display:flex;align-items:center;justify-content:center;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#15171b}.ring{position:relative;width:15px;height:15px;margin:auto;border:1.8px solid #111318;border-radius:50%}.ring:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#111318}.content{height:calc(100% - 93px);padding:14px;overflow-y:auto;scrollbar-width:none}.content::-webkit-scrollbar{display:none}.card{border:1px solid rgba(183,201,220,.45);border-radius:14px;background:rgba(255,255,255,.92);box-shadow:0 6px 18px rgba(69,96,124,.06)}.hero{padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.eyebrow{color:#4b7fb8;font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:6px 0 0;font-size:22px;line-height:30px}.hero p{margin:6px 0 0;color:#777a82;font-size:13px;line-height:19px}.count{flex:0 0 74px;text-align:center}.count strong{display:block;color:#356da9;font-size:28px;line-height:32px}.count span{color:#777a82;font-size:12px}.list{margin-top:12px;display:grid;gap:10px}.market-card{padding:14px}.market-head{display:flex;align-items:flex-start;gap:8px}.market-head strong{min-width:0;flex:1;font-size:16px;line-height:22px}.badge{padding:3px 7px;border-radius:4px;color:#9d5d13;background:#fff4df;font-size:12px;line-height:19px;white-space:nowrap}.badge.taken{color:#34705a;background:#eaf7f1}.market-meta{margin-top:9px;display:flex;flex-wrap:wrap;gap:5px 12px;color:#777a82;font-size:13px;line-height:19px}.market-meta span:nth-child(3),.market-meta span:nth-child(4){flex:0 0 100%;color:#596674}.market-foot{margin-top:12px;padding-top:11px;border-top:1px solid #e5ebf2;display:flex;align-items:center;justify-content:space-between;gap:8px}.market-foot>span{min-width:0;color:#777a82;font-size:13px;line-height:19px}.btn{flex:0 0 auto;height:34px;padding:0 14px;border-radius:6px;font-size:14px;line-height:34px;text-decoration:none}.btn.primary{color:#fff;background:#4b7fb8}.taken{color:#34705a;font-size:13px;white-space:nowrap}.empty{margin-top:12px;padding:30px 16px;border:1px dashed #cbd8e5;border-radius:14px;color:#777a82;text-align:center;font-size:14px;background:rgba(255,255,255,.55)}.toast{position:fixed;left:50%;bottom:36px;z-index:60;padding:9px 14px;border-radius:8px;color:#fff;background:rgba(27,35,45,.9);font-size:14px;opacity:0;transform:translate(-50%,8px);pointer-events:none;transition:.18s}.toast.show{opacity:1;transform:translate(-50%,0)}.hero-actions{display:flex;align-items:center;gap:8px}.refresh-btn{flex:0 0 auto;height:30px;padding:0 11px;display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(75,127,184,.35);border-radius:15px;color:#356da9;background:#f2f7fd;font-size:13px}.refresh-btn:active{background:#e3eefb}.refresh-icon{width:12px;height:12px;border:1.6px solid currentColor;border-radius:50%;border-top-color:transparent;transform:rotate(-45deg)}.refresh-btn.spin .refresh-icon{animation:yzb-spin .55s linear}@keyframes yzb-spin{from{transform:rotate(-45deg)}to{transform:rotate(315deg)}}@media(max-width:520px){body{padding:0;background:#f5f4f6}.phone-shell{border-color:transparent;box-shadow:none}}
+    .scope-note{margin:10px 2px 0;color:#8a8f99;font-size:12.5px;line-height:18px}
+    .market-meta .fit{padding:1px 7px;border-radius:4px;font-size:12px;font-weight:600;line-height:19px}
+    .market-meta .fit.full{color:#1f7a4d;background:#e8f7ee}
+    .market-meta .fit.partial{color:#9a6b13;background:#fff4df}
+    .market-meta .fit.conflict{color:#a33b3b;background:#fdecec}
 </style>
 </head>
 <body>
@@ -22,15 +27,16 @@
           <div><h1>抢单大厅</h1></div>
           <div class="hero-actions"><button class="refresh-btn" id="refreshBtn" type="button"><span class="refresh-icon" aria-hidden="true"></span>刷新</button><div class="count"><strong id="openCount">0</strong><span>待接单</span></div></div>
         </section>
+        <p class="scope-note">仅展示与您「科目 + 年级」匹配的需求；标签为该单每周时段与您可约时间的满足度。</p>
         <section class="list" id="marketList" aria-label="固定周课需求列表"></section>
-        <div class="empty" id="emptyBox" hidden>暂无待接单的固定上课需求</div>
+        <div class="empty" id="emptyBox" hidden>暂无与您「科目 + 年级」匹配的待接单需求</div>
       </div>
     </div>
   </div>
 </main>
 <div class="toast" id="toast"></div>
-<script src="原型开发说明.js?v=20260917-3"></script>
-  <script src="约课数据.js?v=20260917-6"></script>
+<script src="原型开发说明.js?v=20260918-1"></script>
+  <script src="约课数据.js?v=20260918-1"></script>
 <script>
   const TEACHER_ID = 'zhang';
   const marketList = document.querySelector('#marketList');
@@ -46,7 +52,9 @@
   }
 
   function marketItems() {
-    return YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && item.status === 'pending').sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));
+    return YZB.list().filter(item => item.isPlan && item.orderMode === 'demand' && item.status === 'pending')
+      .filter(item => YZB.teacherTeaches(TEACHER_ID, item.subject, item.grade))
+      .sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));
   }
 
   function learnerOf(item) {
@@ -55,12 +63,14 @@
 
   function cardOf(item) {
     const open = !item.teacherAccepted;
+    const fit = YZB.planFit(TEACHER_ID, item.weeklySlots);
+    const fitTag = fit.label ? '<span class="fit ' + fit.level + '">' + fit.label + '</span>' : '';
     const action = open
       ? '<button class="btn primary" type="button" data-accept="' + item.id + '">接单</button>'
       : '<span class="taken">已被 ' + item.teacherName + ' 接单</span>';
     return '<article class="card market-card">' +
       '<div class="market-head"><strong>' + item.courseName + '</strong><span class="badge' + (open ? '' : ' taken') + '">' + (open ? '待接单' : '等待家长确认') + '</span></div>' +
-      '<div class="market-meta"><span>' + learnerOf(item) + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>' +
+      '<div class="market-meta">' + fitTag + '<span>' + learnerOf(item) + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>' +
       '<div class="market-foot"><span>预计 ' + (item.sessionCount || 0) + ' 次课 · ' + (item.remark || '固定周课表') + '</span>' + action + '</div>' +
     '</article>';
   }
