@@ -29,7 +29,7 @@
     'analytic-0626':{name:'高三数学·解析几何',student:'孙若溪',teacher:'张三老师',time:'6月26日 19:00',place:'上门',status:'已完成',content:'直线与圆锥曲线的位置关系\n弦长、中点弦与定点问题',feedback:'计算过程较熟练，联立方程后的化简速度有所提升。需要继续训练参数范围的检查。',requirement:'完成综合练习第 3、5、7 题，订正课堂例题中的计算错误。'}
   };
   const params=new URLSearchParams(location.search),role=params.get('role')==='parent'?'parent':'teacher',courseId=params.get('course')||'function-0810',course={...(courses[courseId]||courses['function-0810'])},courseModes={'function-0810':'线下','sequence-0810':'线上','sequence-0815':'线上','tutorial':'线上','derivative-0809':'上门','trigonometry-0808':'线下','function-0803':'线上','geometry-0724':'线下','probability-0718':'线上','analytic-0626':'上门'};
-  const parentStatuses={'trigonometry-0808':'待评价','function-0803':'待评价','geometry-0724':'已评价','probability-0718':'已评价','analytic-0626':'已评价'};
+  const parentStatuses={'geometry-0724':'已评价','probability-0718':'已评价','analytic-0626':'已评价'};
   const bookingId=params.get('booking')||'',record=window.YZB&&bookingId?YZB.byId(bookingId):null;
   if(record){
     const detailSlug={function:'function-0803',sequence:'sequence-0815',trigonometry:'trigonometry-0808',tutorial:'tutorial',geometry:'geometry-0724'};
