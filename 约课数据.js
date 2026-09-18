@@ -1,6 +1,6 @@
 /* 优坐标 · 约课演示数据层（家长端 / 教师端共用）
    规则：
-   1) 每课时按 45 分钟计；默认每节约 1.5 小时（2 课时），教师确认排课后按该节实际课时冻结，剩余可用课时同步减少；
+   1) 每课时按 45 分钟计，课时按整数取整（最短 1 课时，不出现 0.5 课时）；默认每节约 1.5 小时（2 课时），教师确认排课后按该节实际课时冻结，剩余可用课时同步减少；
    2) 第三方签到回调成功后才真正扣减（已上课时按该节实际课时增加）；
    3) 取消 / 拒绝立即解冻，不扣课时；
    4) 约课流程本身不做单独改约（改期统一走第 10 条请假），取消后重新约课；
@@ -21,7 +21,7 @@
 (function () {
   'use strict';
 
-  var STORE_KEY = 'yzb-booking-v17';   // 演示数据基线；如需把原型恢复到初始状态，递增这个版本号即可
+  var STORE_KEY = 'yzb-booking-v18';   // 演示数据基线；如需把原型恢复到初始状态，递增这个版本号即可
   var PURCHASED_HOURS = 96;
   var BASE_USED_HOURS = 35;      // 约课功能上线前的已上课时（其余课时由下方已上课 / 已完成记录按每节课时扣减）
   var MINUTES_PER_LESSON = 45;   // 1 课时 = 45 分钟
@@ -39,13 +39,28 @@
     { id: 'zhoumin',  name: '周敏老师', avatar: '周', subjects: ['英语'], grades: ['高一'],                years: 6,  score: 4.8, lessons: 98,  modes: ['线上', '上门'],        intro: '高中英语 · 语法与阅读' }
   ];
 
+  // 课程目录：家长端「我的上课时间」的课程选择范围（约课页的课程卡片是家长已购课程，与计划无关，演示数据见约课页 PURCHASED_COURSE_IDS）
   var COURSES = [
-    { id: 'function', name: '高中数学', subject: '数学', grade: '高一', mode: '线下', place: '西安小寨校区' },
-    { id: 'sequence', name: '高中语文', subject: '语文', grade: '高一', mode: '线上', place: '西安小寨交付中心' },
-    { id: 'tutorial', name: '高中英语', subject: '英语', grade: '高一', mode: '上门', place: '上门' }
+    { id: 'sequence',  name: '高中语文', subject: '语文',     grade: '高一', mode: '线上', place: '西安小寨交付中心' },
+    { id: 'function',  name: '高中数学', subject: '数学',     grade: '高一', mode: '线下', place: '西安小寨校区' },
+    { id: 'tutorial',  name: '高中英语', subject: '英语',     grade: '高一', mode: '上门', place: '上门' },
+    { id: 'physics',   name: '高中物理', subject: '物理',     grade: '高一', mode: '线下', place: '西安小寨校区' },
+    { id: 'chemistry', name: '高中化学', subject: '化学',     grade: '高一', mode: '线下', place: '西安小寨校区' },
+    { id: 'biology',   name: '高中生物', subject: '生物',     grade: '高一', mode: '线上', place: '西安小寨交付中心' },
+    { id: 'geography', name: '高中地理', subject: '地理',     grade: '高一', mode: '线上', place: '西安小寨交付中心' },
+    { id: 'history',   name: '高中历史', subject: '历史',     grade: '高一', mode: '线下', place: '西安小寨校区' },
+    { id: 'politics',  name: '高中道法', subject: '道法',     grade: '高一', mode: '线上', place: '西安小寨交付中心' },
+    { id: 'words',     name: '英语单词', subject: '英语单词', grade: '高一', mode: '线上', place: '西安小寨交付中心' }
   ];
 
   var MODE_PLACE = { '线上': '西安小寨交付中心', '线下': '西安小寨校区', '上门': '上门' };
+
+  // 家长端「我的上课时间」：按课程维护的固定周课表（不含上课周期），约课时自动带入
+  var DEFAULT_PLANS = {
+    'function': [{ weekday: 0, time: '19:00', end: '20:30' }],
+    'sequence': [{ weekday: 2, time: '19:00', end: '20:30' }],
+    'tutorial': [{ weekday: 5, time: '09:00', end: '10:30' }]
+  };
 
   var DEMO_TODAY = '2026-08-10';      // 原型演示“今天”（周一）
   var BOOKING_WEEKS = 4;              // 家长端最多可约未来 4 周
@@ -105,8 +120,8 @@
     {
       id: 'PL20260810001', isPlan: true, orderMode: 'demand', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
-      weeklySlots: [{ weekday: 1, time: '19:00' }, { weekday: 5, time: '10:00' }],
-      scheduleLabel: '每周二 19:00 · 每周六 10:00', sessionCount: 39, lessons: 78,
+      weeklySlots: [{ weekday: 1, time: '19:00', end: '20:30' }, { weekday: 5, time: '10:00', end: '11:30' }],
+      scheduleLabel: '每周二 19:00–20:30 · 每周六 10:00–11:30', sessionCount: 39, lessons: 78,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '希望固定每周两次',
       status: 'pending', occurrences: [], createdAt: '8月10日 21:10', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
@@ -114,24 +129,24 @@
     {
       id: 'PL20260918001', isPlan: true, orderMode: 'demand', student: '陈诺', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
-      weeklySlots: [{ weekday: 2, time: '19:00' }, { weekday: 3, time: '10:00' }],
-      scheduleLabel: '每周三 19:00 · 每周四 10:00', sessionCount: 40, lessons: 80,
+      weeklySlots: [{ weekday: 2, time: '19:00', end: '20:30' }, { weekday: 3, time: '10:00', end: '11:30' }],
+      scheduleLabel: '每周三 19:00–20:30 · 每周四 10:00–11:30', sessionCount: 40, lessons: 80,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '工作日晚间与白天各一次',
       status: 'pending', occurrences: [], createdAt: '9月18日 09:20', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
     {
       id: 'PL20260918002', isPlan: true, orderMode: 'demand', student: '李思远', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
-      weeklySlots: [{ weekday: 0, time: '10:00' }, { weekday: 4, time: '14:00' }],
-      scheduleLabel: '每周一 10:00 · 每周五 14:00', sessionCount: 39, lessons: 78,
+      weeklySlots: [{ weekday: 0, time: '10:00', end: '11:30' }, { weekday: 4, time: '14:00', end: '15:30' }],
+      scheduleLabel: '每周一 10:00–11:30 · 每周五 14:00–15:30', sessionCount: 39, lessons: 78,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线上', place: '西安小寨交付中心', remark: '两次都在工作日上午后',
       status: 'pending', occurrences: [], createdAt: '9月18日 09:22', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
     {
       id: 'PL20260918003', isPlan: true, orderMode: 'demand', student: '赵一诺', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: '', teacherName: '待匹配', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
-      weeklySlots: [{ weekday: 1, time: '20:00' }, { weekday: 3, time: '19:30' }],
-      scheduleLabel: '每周二 20:00 · 每周四 19:30', sessionCount: 40, lessons: 80,
+      weeklySlots: [{ weekday: 1, time: '20:00', end: '21:30' }, { weekday: 3, time: '19:30', end: '21:00' }],
+      scheduleLabel: '每周二 20:00–21:30 · 每周四 19:30–21:00', sessionCount: 40, lessons: 80,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安高新校区', remark: '两次都在晚间',
       status: 'pending', occurrences: [], createdAt: '9月18日 09:24', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
@@ -139,8 +154,8 @@
     {
       id: 'PL20260809002', isPlan: true, orderMode: 'demand', student: '王子涵', courseId: 'tutorial', courseName: '高中英语', subject: '英语', grade: '高一',
       teacherId: 'zhang', teacherName: '张三老师', teacherAccepted: true, startDate: '2026-09-01', endDate: '2027-01-15',
-      weeklySlots: [{ weekday: 5, time: '14:00' }],
-      scheduleLabel: '每周六 14:00', sessionCount: 19, lessons: 38,
+      weeklySlots: [{ weekday: 5, time: '14:00', end: '15:30' }],
+      scheduleLabel: '每周六 14:00–15:30', sessionCount: 19, lessons: 38,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线上', place: '西安小寨交付中心', remark: '',
       status: 'pending', occurrences: [], createdAt: '8月9日 20:40', acceptedAt: '8月9日 21:00', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
@@ -148,8 +163,8 @@
     {
       id: 'PL20260808003', isPlan: true, orderMode: 'designated', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: 'liming', teacherName: '李明老师', teacherAccepted: false, startDate: '2026-09-01', endDate: '2027-01-15',
-      weeklySlots: [{ weekday: 2, time: '19:00' }],
-      scheduleLabel: '每周三 19:00', sessionCount: 20, lessons: 40,
+      weeklySlots: [{ weekday: 2, time: '19:00', end: '20:30' }],
+      scheduleLabel: '每周三 19:00–20:30', sessionCount: 20, lessons: 40,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '', status: 'pending',
       occurrences: [], createdAt: '8月8日 19:30', acceptedAt: '', confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
     },
@@ -157,8 +172,8 @@
     {
       id: 'PL20260728004', isPlan: true, orderMode: 'designated', student: '王子涵', courseId: 'function', courseName: '高中数学', subject: '数学', grade: '高一',
       teacherId: 'zhang', teacherName: '张三老师', teacherAccepted: true, startDate: '2026-07-20', endDate: '2026-09-30',
-      weeklySlots: [{ weekday: 4, time: '19:00' }],
-      scheduleLabel: '每周五 19:00', sessionCount: 11, lessons: 22,
+      weeklySlots: [{ weekday: 4, time: '19:00', end: '20:30' }],
+      scheduleLabel: '每周五 19:00–20:30', sessionCount: 11, lessons: 22,
       lessonMinutes: 90, durationLabel: '1.5 小时/次', mode: '线下', place: '西安小寨校区', remark: '', status: 'confirmed',
       occurrences: [], createdAt: '7月28日 20:00', acceptedAt: '7月28日 20:30', confirmedAt: '7月28日 20:30', split: true, deducted: false, cancelReason: '', cancelledBy: ''
     },
@@ -286,16 +301,16 @@
       if (raw) {
         var state = JSON.parse(raw);
         if (state && state.bookings && state.bookings.length !== undefined) {
-          return { bookings: mergeSeedPlans(state.bookings), availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {} };
+          return { bookings: mergeSeedPlans(state.bookings), availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {}, plans: state.plans || {}, plansReady: !!state.plansReady };
         }
       }
     } catch (error) { /* 忽略读取异常，使用种子数据 */ }
-    return { bookings: clone(SEED), availability: {}, special: {}, specialEnabled: {} };
+    return { bookings: clone(SEED), availability: {}, special: {}, specialEnabled: {}, plans: {}, plansReady: false };
   }
 
   function writeState(state) {
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ bookings: state.bookings || [], availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {} }));
+      localStorage.setItem(STORE_KEY, JSON.stringify({ bookings: state.bookings || [], availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {}, plans: state.plans || {}, plansReady: !!state.plansReady }));
     } catch (error) { /* 演示环境忽略写入异常 */ }
   }
 
@@ -380,6 +395,29 @@
   }
 
   function courses() { return clone(COURSES); }
+
+  // 「我的上课时间」：按课程读取 / 保存固定周课表（家长固定数据，提交约课时作为快照）
+  function plans() {
+    var state = read();
+    var source = state.plansReady ? (state.plans || {}) : clone(DEFAULT_PLANS);
+    var result = {};
+    COURSES.forEach(function (course) { result[course.id] = clone(source[course.id] || []); });
+    return result;
+  }
+
+  function planOf(courseId) { return plans()[courseId] || []; }
+
+  function savePlan(courseId, slots) {
+    var state = read();
+    var all = state.plansReady ? (state.plans || {}) : clone(DEFAULT_PLANS);
+    all[courseId] = clone(slots || []);
+    state.plans = all;
+    state.plansReady = true;
+    writeState(state);
+    return planOf(courseId);
+  }
+
+  function removePlan(courseId) { return savePlan(courseId, []); }
 
   function days() { return clone(DAYS); }
 
@@ -481,22 +519,38 @@
     return WEEK_TEXT[Number(weekday)] || '';
   }
 
+  // 每节时长：显式结束时间优先，缺省按默认 90 分钟（1.5 小时 = 2 课时）
+  function slotMinutes(slot) {
+    var start = minutesOf(slot && slot.time), end = minutesOf(slot && slot.end);
+    return (!isNaN(start) && !isNaN(end) && end > start) ? end - start : DEFAULT_CLASS_MINUTES;
+  }
+
+  // 课时按整数计：45 分钟 = 1 课时，最短 1 课时，不出现 0.5 课时
+  function slotLessons(slot) { return Math.max(Math.round(slotMinutes(slot) / MINUTES_PER_LESSON), 1); }
+
+  function timeRangeText(time, end) { return time ? (end ? time + '–' + end : time) : ''; }
+
+  function slotText(slot) {
+    if (!slot) return '';
+    return '每' + weekdayLabel(slot.weekday) + ' ' + timeRangeText(slot.time, slot.end);
+  }
+
   function scheduleLabel(slots) {
-    return (slots || []).map(function (slot) {
-      return '每' + weekdayLabel(slot.weekday) + ' ' + slot.time;
-    }).join(' · ');
+    return (slots || []).map(slotText).filter(Boolean).join(' · ');
   }
 
   function planStats(startDate, endDate, slots) {
-    var start = parseKey(startDate), end = parseKey(endDate), sessions = 0;
+    var start = parseKey(startDate), end = parseKey(endDate), sessions = 0, lessons = 0;
     if (!startDate || !endDate || start > end) return { sessions: 0, lessons: 0 };
     for (var current = new Date(start.getTime()); current <= end; current.setDate(current.getDate() + 1)) {
       var weekday = (current.getDay() + 6) % 7;
       (slots || []).forEach(function (slot) {
-        if (Number(slot.weekday) === weekday) sessions += 1;
+        if (Number(slot.weekday) !== weekday) return;
+        sessions += 1;
+        lessons += slotLessons(slot);
       });
     }
-    return { sessions: sessions, lessons: sessions * DEFAULT_CLASS_LESSONS };
+    return { sessions: sessions, lessons: lessons };
   }
 
   function buildOccurrences(startDate, endDate, slots, planId) {
@@ -512,6 +566,9 @@
           dateLabel: (current.getMonth() + 1) + '月' + current.getDate() + '日',
           weekday: weekday,
           time: slot.time,
+          endTime: slot.end || '',
+          minutes: slotMinutes(slot),
+          lessons: slotLessons(slot),
           status: 'confirmed',
           deducted: false
         });
@@ -566,12 +623,13 @@
         date: occurrence.date,
         dateLabel: occurrence.dateLabel,
         time: occurrence.time,
+        endTime: occurrence.endTime || '',
         mode: item.mode,
         place: item.place,
         remark: item.remark || '',
         status: 'confirmed',
-        lessons: DEFAULT_CLASS_LESSONS,
-        lessonMinutes: DEFAULT_CLASS_MINUTES,
+        lessons: occurrence.lessons || DEFAULT_CLASS_LESSONS,
+        lessonMinutes: occurrence.minutes || DEFAULT_CLASS_MINUTES,
         durationLabel: item.durationLabel || '1.5 小时',
         createdAt: item.createdAt || nowLabel(),
         confirmedAt: nowLabel(),
@@ -919,7 +977,7 @@
       var base = slotFit(teacherId, slot);
       var level = !occurrences.length ? 'unknown' : (!conflicts.length ? 'full' : (conflicts.length === occurrences.length ? 'conflict' : 'partial'));
       return {
-        label: '每' + weekdayLabel(slot.weekday) + ' ' + slot.time,
+        label: slotText(slot),
         slot: slot,
         total: occurrences.length,
         ok: occurrences.length - conflicts.length,
@@ -1068,6 +1126,10 @@
     markReviewed: markReviewed,
     teachersFor: teachersFor,
     courses: courses,
+    plans: plans,
+    planOf: planOf,
+    savePlan: savePlan,
+    removePlan: removePlan,
     days: days,
     times: times,
     teacher: teacher,
@@ -1108,6 +1170,11 @@
     countByStatus: countByStatus,
     forTeacher: forTeacher,
     scheduleLabel: scheduleLabel,
+    slotText: slotText,
+    slotMinutes: slotMinutes,
+    slotLessons: slotLessons,
+    timeRangeText: timeRangeText,
+    timeToMinutes: minutesOf,
     planStats: planStats,
     buildOccurrences: buildOccurrences,
     acceptPlan: acceptPlan,
