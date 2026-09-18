@@ -49,9 +49,9 @@
     .bk-meta span:nth-child(4){flex:0 0 100%;color:#596674}
     .bk-remark{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
     .bk-foot{margin-top:10px;padding-top:10px;border-top:1px solid #e5ebf2;display:flex;align-items:center;gap:8px;justify-content:flex-end}
-    .bk-feedback-summary{margin-top:8px;padding:9px 10px;border-radius:6px;color:#5e6c7b;background:#f7faff;font-size:14px;line-height:20px}
-    .bk-feedback-summary div+div{margin-top:5px}
-    .bk-feedback-summary strong{display:block;margin-bottom:2px;color:#356da9;font-size:13px}
+    
+    
+    
     .bk-row{margin-top:8px;display:flex;align-items:center;gap:10px}
     .bk-row .bk-meta{margin-top:0;flex:1;min-width:0}
     .bk-side{flex:0 0 auto}
@@ -287,13 +287,7 @@
       /* 待反馈：填写反馈按钮移到卡片右侧、与信息区同高 */
       const side = item.status === 'attended' ? '<div class="bk-side">' + actionsOf(item) + '</div>' : '';
       const foot = tipOf(item) + (side ? '' : actionsOf(item));
-      const summary = item.status === 'done' && (item.content || item.feedback || item.requirement)
-        ? '<div class="bk-feedback-summary">' +
-          (item.content ? '<div><strong>课程内容</strong><span>' + item.content + '</span></div>' : '') +
-          (item.feedback ? '<div><strong>课程反馈</strong><span>' + item.feedback + '</span></div>' : '') +
-          (item.requirement ? '<div><strong>课后作业</strong><span>' + item.requirement + '</span></div>' : '') +
-          '</div>'
-        : '';
+      /* 已完成：课程内容/反馈/作业只在课程详情展示，列表卡片不重复展示 */
       const month = (item.isPlan ? item.startDate : item.date || '').slice(0, 7);
       const cardLeave = item.leave && item.leave.status === 'pending' ? item.leave : null;
       const badgeText = cardLeave ? '请假待确认' : STATE_TEXT[item.status];
@@ -301,7 +295,6 @@
       return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + month + '" data-mode="' + modeKey(item.mode) + '">' +
         '<div class="bk-head"><strong>' + item.courseName + '</strong><span class="' + badgeClass + '">' + badgeText + '</span></div>' +
         (side ? '<div class="bk-row">' + meta + side + '</div>' : meta) +
-        summary +
         (foot ? '<div class="bk-foot">' + foot + '</div>' : '') +
       '</article>';
     }
@@ -544,4 +537,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260918-7"></script></body></html>
+<script src="原型开发说明.js?v=20260918-20"></script></body></html>

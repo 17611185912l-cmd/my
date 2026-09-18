@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f4f5">
+  <link rel="icon" href="data:,">
+  <title>我的订单</title>
+  <style>
+    :root {
+      --device-scale: 1;
+      --blue: #1e59ff;
+      --page: #f4f4f5;
+      --ink: #333333;
+      --muted: #999999;
+      --line: #e9e9eb;
+      --trial: #ffa816;
+      --official: #30c593;
+      --paid: #30c593;
+      --pending: #f92d1c;
+      --cancelled: #999999;
+      --price: #f97d2b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100svh;
+      padding: 16px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--ink);
+      background: #e7eaee;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { margin: 0; padding: 0; border: 0; color: inherit; font: inherit; background: none; cursor: pointer; }
+    .phone-shell {
+      position: relative;
+      isolation: isolate;
+      width: 464px;
+      height: 980px;
+      padding: 11px;
+      border: 1px solid #777d84;
+      border-radius: 66px;
+      background: linear-gradient(135deg, #bfc3c7, #f4f5f6 20%, #8d9298 49%, #d9dcdf 72%, #73787e);
+      box-shadow: 0 34px 70px rgba(32, 38, 45, .28), inset 0 0 0 3px rgba(33, 36, 40, .68);
+      transform: scale(var(--device-scale));
+      transform-origin: center;
+    }
+    .dynamic-island {
+      position: absolute;
+      z-index: 30;
+      top: 22px;
+      left: 50%;
+      width: 126px;
+      height: 34px;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #050505;
+      pointer-events: none;
+    }
+    .dynamic-island::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 11px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #111a25;
+    }
+    .app {
+      position: relative;
+      width: 440px;
+      height: 956px;
+      overflow: hidden;
+      border-radius: 54px;
+      background: var(--page);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .52);
+    }
+    .page {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      background: var(--page);
+    }
+    .page::-webkit-scrollbar { display: none; }
+    header {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(51, 51, 51, .04);
+    }
+    .statusbar {
+      height: 36px;
+      padding: 17px 36px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      color: #050505;
+      font-size: 15px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .device-status { display: flex; align-items: center; gap: 8px; }
+    .signal { width: 18px; height: 12px; display: flex; align-items: flex-end; gap: 2px; }
+    .signal i { width: 3px; border-radius: 2px 2px 0 0; background: #050505; }
+    .signal i:nth-child(1) { height: 4px; }
+    .signal i:nth-child(2) { height: 7px; }
+    .signal i:nth-child(3) { height: 10px; }
+    .signal i:nth-child(4) { height: 12px; }
+    .wifi { position: relative; width: 18px; height: 13px; overflow: hidden; }
+    .wifi::before, .wifi::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      border: 2px solid #050505;
+      border-color: #050505 transparent transparent;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .wifi::before { top: 0; width: 19px; height: 17px; }
+    .wifi::after { top: 5px; width: 10px; height: 9px; }
+    .wifi i { position: absolute; left: 8px; bottom: 0; width: 3px; height: 3px; border-radius: 50%; background: #050505; }
+    .battery { position: relative; width: 23px; height: 11px; padding: 2px; border: 1.5px solid #919191; border-radius: 3px; }
+    .battery::before { content: ""; display: block; width: 100%; height: 100%; border-radius: 1px; background: #050505; }
+    .battery::after { content: ""; position: absolute; top: 3px; right: -3px; width: 2px; height: 5px; background: #b4b4b4; }
+    .titlebar { position: relative; height: 52px; display: flex; align-items: flex-start; }
+    .titlebar h1 {
+      width: 100%;
+      margin: 11px 0 0;
+      color: #303135;
+      font-size: 20px;
+      line-height: 27px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .back {
+      position: absolute;
+      z-index: 4;
+      left: 18px;
+      top: 8px;
+      width: 40px;
+      height: 40px;
+    }
+    .back::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 12px;
+      width: 12px;
+      height: 12px;
+      border: solid #111;
+      border-width: 0 0 2px 2px;
+      transform: rotate(45deg);
+    }
+    .capsule {
+      position: absolute;
+      right: 5px;
+      top: 9px;
+      width: 84px;
+      height: 30px;
+      border: 1px solid #ebe8e6;
+      border-radius: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      background: rgba(255, 255, 255, .92);
+    }
+    .dots { height: 100%; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .dots i { width: 4px; height: 4px; border-radius: 50%; background: #15171b; }
+    .mini-ring { position: relative; width: 15px; height: 15px; margin: auto; border: 1.8px solid #111318; border-radius: 50%; }
+    .mini-ring::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #111318; }
+    .order-tabs {
+      height: 54px;
+      padding: 0 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: #fff;
+    }
+    .order-tab {
+      position: relative;
+      color: #8b8d92;
+      font-size: 15px;
+      line-height: 54px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .order-tab.active { color: var(--blue); font-weight: 650; }
+    .order-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 27px;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--blue);
+      transform: translateX(-50%);
+    }
+    .order-content { padding: 24px 12px 32px; }
+    .order-card {
+      margin-bottom: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(35, 41, 51, .025);
+    }
+    .order-card:last-child { margin-bottom: 0; }
+    .order-head {
+      min-width: 0;
+      padding-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .order-number {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      color: #333;
+      font-size: 15px;
+      line-height: 22px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .status {
+      flex: 0 0 auto;
+      font-size: 16px;
+      line-height: 22px;
+      font-weight: 500;
+    }
+    .status-paid { color: var(--paid); }
+    .status-pending { color: var(--pending); }
+    .status-cancelled { color: var(--cancelled); }
+    .product-row {
+      padding-top: 13px;
+      display: grid;
+      grid-template-columns: 106px minmax(0, 1fr);
+      gap: 13px;
+    }
+    .product-row + .product-row { margin-top: 14px; }
+    .product-thumb {
+      width: 106px;
+      height: 106px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #fff0b7;
+    }
+    .product-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .member-thumb { background: #e9f0ff; }
+    .member-thumb img { object-fit: contain; }
+    .product-copy { min-width: 0; }
+    .product-heading { display: flex; align-items: flex-start; gap: 8px; }
+    .type-tag {
+      flex: 0 0 auto;
+      height: 23px;
+      padding: 0 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 500;
+    }
+    .type-trial { background: var(--trial); }
+    .type-official { background: var(--official); }
+    .product-title {
+      max-width: 220px;
+      margin: -1px 0 0;
+      overflow: hidden;
+      color: #222;
+      font-size: 17px;
+      line-height: 1.42;
+      font-weight: 600;
+    }
+    .amount-line {
+      margin-top: 10px;
+      display: flex;
+      align-items: baseline;
+      color: #666;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .price {
+      margin-left: 7px;
+      color: var(--price);
+      font-size: 19px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .price .currency { margin-right: 4px; font-size: 15px; font-weight: 500; }
+    .bundle-summary {
+      padding-top: 12px;
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 17px;
+      color: #333;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    .bundle-summary .price { font-size: 20px; }
+    .order-footer {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .order-time {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      color: #9a9b9f;
+      font-size: 13px;
+      line-height: 20px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .order-action {
+      flex: 0 0 auto;
+      height: 36px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      color: #666;
+      background: #f4f4f5;
+      font-size: 14px;
+      line-height: 36px;
+      white-space: nowrap;
+    }
+    .order-action.pay {
+      min-width: 82px;
+      padding-inline: 15px;
+      color: #fff;
+      background: #4a7cff;
+      font-weight: 500;
+      box-shadow: 0 5px 12px rgba(74, 124, 255, .18);
+    }
+    .order-action.book {
+      min-width: 82px;
+      padding-inline: 15px;
+      color: #fff;
+      background: #4b7fb8;
+      font-weight: 500;
+      box-shadow: 0 5px 12px rgba(75, 127, 184, .18);
+    }
+    .empty-order {
+      margin-top: 98px;
+      color: #aaa;
+      font-size: 15px;
+      text-align: center;
+    }
+    .home-indicator {
+      position: absolute;
+      z-index: 25;
+      left: 50%;
+      bottom: 6px;
+      width: 126px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 4px;
+      background: #111;
+      pointer-events: none;
+    }
+    .toast {
+      position: absolute;
+      z-index: 40;
+      left: 50%;
+      bottom: 26px;
+      max-width: 280px;
+      padding: 8px 14px;
+      border-radius: 5px;
+      color: #fff;
+      background: rgba(20, 22, 27, .86);
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .clickable { transition: transform .12s ease, opacity .12s ease; }
+    .clickable:active { transform: scale(.97); opacity: .75; }
+    @media (max-width: 520px) {
+      body { padding: 0; background: #f4f4f5; }
+      .phone-shell { border-color: transparent; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone-shell" aria-label="我的订单页面">
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <div class="app">
+      <div class="page">
+        <header>
+          <div class="statusbar">
+            <span>23:58</span>
+            <div class="device-status" aria-label="手机状态">
+              <span class="signal"><i></i><i></i><i></i><i></i></span>
+              <span class="wifi"><i></i></span>
+              <span class="battery"></span>
+            </div>
+          </div>
+          <div class="titlebar">
+            <button class="back clickable" type="button" aria-label="返回个人中心"></button>
+            <h1>我的订单</h1>
+            <div class="capsule" aria-label="小程序菜单">
+              <button class="dots clickable" type="button" data-action="更多"><i></i><i></i><i></i></button>
+              <button class="mini-ring clickable" type="button" data-action="小程序菜单" aria-label="小程序菜单"></button>
+            </div>
+          </div>
+          <nav class="order-tabs" role="tablist" aria-label="订单状态">
+            <button class="order-tab clickable active" type="button" role="tab" aria-selected="true" data-tab="all">全部订单</button>
+            <button class="order-tab clickable" type="button" role="tab" aria-selected="false" data-tab="pending">待支付</button>
+            <button class="order-tab clickable" type="button" role="tab" aria-selected="false" data-tab="paid">已支付</button>
+            <button class="order-tab clickable" type="button" role="tab" aria-selected="false" data-tab="cancelled">已取消</button>
+          </nav>
+        </header>
+        <section id="orderContent" class="order-content" aria-live="polite"></section>
+      </div>
+      <div class="home-indicator" aria-hidden="true"></div>
+      <div class="toast" role="status" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script>
+    const ORDER_ID = 'ORD1786499369265fab9c344c2';
+    const COURSE_IMAGE = 'assets/order-ai-word-course.jpg';
+    const MEMBER_IMAGE = 'assets/order-ordinary-member.png';
+    const ORDER_TIME = '2026-08-12 09:49';
+
+    const orders = {
+      all: [
+        { status: 'paid', type: 'trial', tag: '试听课', title: '优AI单词速记-体验课【1V4专业教练伴学直播课】', amount: '39.9' },
+        { status: 'pending', type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        { status: 'cancelled', type: 'trial', tag: '体验课', title: '优AI单词速记-体验课【1V4专业教练伴学直播课】', amount: '39.9' },
+        { status: 'paid', type: 'trial', tag: '试听课', title: '优AI单词速记-体验课【1V4专业教练伴学直播课】', amount: '39.9' }
+      ],
+      pending: [
+        { status: 'pending', type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        { status: 'pending', type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        {
+          status: 'pending',
+          bundle: true,
+          items: [
+            { type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+            { type: 'member', title: '优坐标 - 普通会员', amount: '499', member: true }
+          ],
+          summary: { count: 2, total: '798' }
+        }
+      ],
+      paid: [
+        { status: 'paid', type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        { status: 'paid', type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        {
+          status: 'paid',
+          bundle: true,
+          items: [
+            { type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+            { type: 'member', title: '优坐标 - 普通会员', amount: '499', member: true }
+          ],
+          summary: { count: 2, total: '798' }
+        },
+        {
+          status: 'paid',
+          bundle: true,
+          items: [
+            { type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+            { type: 'member', title: '优坐标 - 普通会员', amount: '499', member: true }
+          ],
+          summary: { count: 2, total: '798' }
+        }
+      ],
+      cancelled: [
+        { status: 'cancelled', type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        {
+          status: 'cancelled',
+          bundle: true,
+          items: [
+            { type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+            { type: 'member', title: '优坐标 - 普通会员', amount: '499', member: true }
+          ],
+          summary: { count: 2, total: '798' }
+        }
+      ]
+    };
+
+    const statusLabels = { paid: '已支付', pending: '待支付', cancelled: '已取消' };
+    const page = document.querySelector('.page');
+    const content = document.querySelector('#orderContent');
+    const tabs = [...document.querySelectorAll('.order-tab')];
+    const toast = document.querySelector('.toast');
+    let toastTimer;
+
+    function priceMarkup(amount) {
+      return `<span class="price"><span class="currency">¥</span>${amount}</span>`;
+    }
+
+    function productMarkup(item) {
+      const tag = item.tag ? `<span class="type-tag type-${item.type}">${item.tag}</span>` : '';
+      const thumbClass = item.member ? ' product-thumb member-thumb' : ' product-thumb';
+      const image = item.member ? MEMBER_IMAGE : COURSE_IMAGE;
+      const title = item.title.replace('【1V', '【1V<br>');
+      return `
+        <div class="product-row">
+          <div class="${thumbClass}"><img src="${image}" alt=""></div>
+          <div class="product-copy">
+            <div class="product-heading">${tag}<h2 class="product-title">${title}</h2></div>
+            <div class="amount-line">合计：${priceMarkup(item.amount)}</div>
+          </div>
+        </div>`;
+    }
+
+    function orderMarkup(order) {
+      const statusClass = `status-${order.status}`;
+      const products = order.bundle ? order.items.map(productMarkup).join('') : productMarkup(order);
+      const summary = order.bundle
+        ? `<div class="bundle-summary"><span>共 <b>${order.summary.count}</b> 个子订单</span><span>合计：${priceMarkup(order.summary.total)}</span></div>`
+        : '';
+      const book = order.status === 'paid' ? '<a class="order-action book clickable" href="约课_页面还原.html">立即约课</a>' : '';
+      const pay = order.status === 'pending' ? '<button class="order-action pay clickable" type="button" data-pay>立即支付</button>' : '';
+      return `
+        <article class="order-card" data-bundle="${order.bundle ? 'true' : 'false'}" data-status="${order.status}">
+          <div class="order-head">
+            <div class="order-number">订单号：${ORDER_ID}</div>
+            <div class="status ${statusClass}">${statusLabels[order.status]}</div>
+          </div>
+          ${products}
+          ${summary}
+          <div class="order-footer">
+            <div class="order-time">下单时间：${ORDER_TIME}</div>
+            <button class="order-action clickable" type="button" data-detail>查看详情</button>
+            ${book}
+            ${pay}
+          </div>
+        </article>`;
+    }
+
+    function render(tab) {
+      const list = orders[tab] || [];
+      content.innerHTML = list.length ? list.map(orderMarkup).join('') : '<div class="empty-order">暂无相关订单</div>';
+      page.scrollTop = 0;
+    }
+
+    function selectTab(tab, updateUrl = true) {
+      if (!orders[tab]) tab = 'all';
+      tabs.forEach(item => {
+        const active = item.dataset.tab === tab;
+        item.classList.toggle('active', active);
+        item.setAttribute('aria-selected', String(active));
+      });
+      render(tab);
+      if (updateUrl) {
+        const url = new URL(location.href);
+        url.searchParams.set('tab', tab);
+        history.replaceState(null, '', url);
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => selectTab(tab.dataset.tab)));
+    content.addEventListener('click', event => {
+      const detail = event.target.closest('[data-detail]');
+      if (detail) {
+        const card = detail.closest('.order-card');
+        const type = card && card.dataset.bundle === 'true' ? 'bundle' : 'single';
+        const status = card && card.dataset.status;
+        const target = status === 'paid'
+          ? '我的订单详情_已支付_页面还原.html'
+          : status === 'cancelled'
+            ? '我的订单详情_已取消_页面还原.html'
+            : '我的订单详情_页面还原.html';
+        location.href = target + '?type=' + type;
+        return;
+      }
+      if (event.target.closest('[data-pay]')) showToast('已发起支付（演示）');
+    });
+    document.querySelector('.back').addEventListener('click', () => { location.href = '个人中心_页面还原.html'; });
+    document.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.action)));
+
+    selectTab(new URLSearchParams(location.search).get('tab') || 'all', false);
+  </script>
+  <script src="原型开发说明.js?v=20260918-20"></script>
+</body>
+</html>

@@ -34,6 +34,9 @@
     const detailSlug={function:'function-0803',sequence:'sequence-0815',trigonometry:'trigonometry-0808',tutorial:'tutorial',geometry:'geometry-0724'};
     const baseCourse=courses[courseId]||courses[detailSlug[record.courseId]]||course;
     const statusMap=role==='parent'?{pending:'待确认',confirmed:'待上课',attended:'待评价',done:'已完成',cancelled:'已取消'}:{pending:'待确认',confirmed:'待上课',attended:'待反馈',done:'已完成',cancelled:'已取消'};
+    /* 已完成/家长待评价一定带教师内容：课次未填写时用该课程演示文案兜底；教师待反馈仍显示占位，等待填写 */
+    const finishedState=record.status==='done'||(record.status==='attended'&&role==='parent');
+    const pick=(own,demo)=>own!==undefined&&own!==null&&own!==''?own:(finishedState?demo||'':'');
     Object.assign(course,baseCourse,{
       name:record.courseName||baseCourse.name,
       student:record.student||baseCourse.student,
@@ -41,9 +44,9 @@
       time:record.dateLabel&&record.time?record.dateLabel+' '+record.time:(record.startDate?record.startDate+' 起':baseCourse.time),
       place:record.place||baseCourse.place,
       status:statusMap[record.status]||baseCourse.status,
-      content:record.content||'',
-      feedback:record.feedback||'',
-      requirement:record.requirement||record.homework||'',
+      content:pick(record.content,baseCourse.content),
+      feedback:pick(record.feedback,baseCourse.feedback),
+      requirement:pick(record.requirement||record.homework,baseCourse.requirement),
       courseId:record.courseId||courseId,
       mode:record.mode||''
     });
@@ -66,4 +69,4 @@
   if(role==='teacher'&&course.status==='已完成'&&course.feedback){shareEntry.hidden=false;shareEntry.onclick=copyShareText;document.querySelector('.content').classList.add('with-action')}
   document.querySelector('.back').onclick=()=>{if(history.length>1)history.back();else location.href=role==='parent'?'上课记录_页面还原.html':'授课记录_页面还原.html'};
   function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
-</script><script src="原型开发说明.js?v=20260918-19"></script></body></html>
+</script><script src="原型开发说明.js?v=20260918-20"></script></body></html>

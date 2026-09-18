@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f4f5">
+  <link rel="icon" href="data:,">
+  <title>我的订单详情-已支付</title>
+  <style>
+    :root {
+      --device-scale: 1;
+      --page: #f4f4f5;
+      --ink: #333333;
+      --muted: #999999;
+      --line: #e9e9eb;
+      --official: #30c593;
+      --price: #f97d2b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100svh;
+      padding: 16px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--ink);
+      background: #e7eaee;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { margin: 0; padding: 0; border: 0; color: inherit; font: inherit; background: none; cursor: pointer; }
+    .phone-shell {
+      position: relative;
+      isolation: isolate;
+      width: 464px;
+      height: 980px;
+      padding: 11px;
+      border: 1px solid #777d84;
+      border-radius: 66px;
+      background: linear-gradient(135deg, #bfc3c7, #f4f5f6 20%, #8d9298 49%, #d9dcdf 72%, #73787e);
+      box-shadow: 0 34px 70px rgba(32, 38, 45, .28), inset 0 0 0 3px rgba(33, 36, 40, .68);
+      transform: scale(var(--device-scale));
+      transform-origin: center;
+    }
+    .dynamic-island {
+      position: absolute;
+      z-index: 30;
+      top: 22px;
+      left: 50%;
+      width: 126px;
+      height: 34px;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #050505;
+      pointer-events: none;
+    }
+    .dynamic-island::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 11px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #111a25;
+    }
+    .app {
+      position: relative;
+      width: 440px;
+      height: 956px;
+      overflow: hidden;
+      border-radius: 54px;
+      background: var(--page);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .52);
+    }
+    .page {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      background: var(--page);
+      padding-bottom: 104px;
+    }
+    .page::-webkit-scrollbar { display: none; }
+    header {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(51, 51, 51, .04);
+    }
+    .statusbar {
+      height: 36px;
+      padding: 17px 36px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      color: #050505;
+      font-size: 15px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .device-status { display: flex; align-items: center; gap: 8px; }
+    .signal { width: 18px; height: 12px; display: flex; align-items: flex-end; gap: 2px; }
+    .signal i { width: 3px; border-radius: 2px 2px 0 0; background: #050505; }
+    .signal i:nth-child(1) { height: 4px; }
+    .signal i:nth-child(2) { height: 7px; }
+    .signal i:nth-child(3) { height: 10px; }
+    .signal i:nth-child(4) { height: 12px; }
+    .wifi { position: relative; width: 18px; height: 13px; overflow: hidden; }
+    .wifi::before, .wifi::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      border: 2px solid #050505;
+      border-color: #050505 transparent transparent;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .wifi::before { top: 0; width: 19px; height: 17px; }
+    .wifi::after { top: 5px; width: 10px; height: 9px; }
+    .wifi i { position: absolute; left: 8px; bottom: 0; width: 3px; height: 3px; border-radius: 50%; background: #050505; }
+    .battery { position: relative; width: 23px; height: 11px; padding: 2px; border: 1.5px solid #919191; border-radius: 3px; }
+    .battery::before { content: ""; display: block; width: 100%; height: 100%; border-radius: 1px; background: #050505; }
+    .battery::after { content: ""; position: absolute; top: 3px; right: -3px; width: 2px; height: 5px; background: #b4b4b4; }
+    .titlebar { position: relative; height: 52px; display: flex; align-items: flex-start; }
+    .back {
+      position: absolute;
+      z-index: 4;
+      left: 18px;
+      top: 8px;
+      width: 40px;
+      height: 40px;
+    }
+    .back::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 12px;
+      width: 12px;
+      height: 12px;
+      border: solid #111;
+      border-width: 0 0 2px 2px;
+      transform: rotate(45deg);
+    }
+    .capsule {
+      position: absolute;
+      right: 5px;
+      top: 9px;
+      width: 84px;
+      height: 30px;
+      border: 1px solid #ebe8e6;
+      border-radius: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      background: rgba(255, 255, 255, .92);
+    }
+    .dots { height: 100%; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .dots i { width: 4px; height: 4px; border-radius: 50%; background: #15171b; }
+    .mini-ring { position: relative; width: 15px; height: 15px; margin: auto; border: 1.8px solid #111318; border-radius: 50%; }
+    .mini-ring::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #111318; }
+    .detail-content { padding: 18px 12px 20px; }
+    .status-block { padding: 6px 0 2px; text-align: center; }
+    .status-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #111;
+      font-size: 27px;
+      line-height: 1.3;
+      font-weight: 650;
+    }
+    .status-note {
+      margin-top: 12px;
+      color: #333;
+      font-size: 17px;
+      line-height: 1.5;
+    }
+    .card {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(35, 41, 51, .03);
+    }
+    .card + .card { margin-top: 12px; }
+    .card-head { display: flex; align-items: center; gap: 10px; }
+    .order-number {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      color: #444;
+      font-size: 16px;
+      line-height: 24px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .copy-btn {
+      position: relative;
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: #f7f7f8;
+    }
+    .copy-btn::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 7px;
+      width: 9px;
+      height: 11px;
+      border: 1.6px solid #a6a8ad;
+      border-radius: 2px;
+    }
+    .copy-btn::after {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      width: 9px;
+      height: 11px;
+      border: 1.6px solid #a6a8ad;
+      border-radius: 2px;
+      background: #f7f7f8;
+    }
+    .product-row {
+      display: grid;
+      grid-template-columns: 106px minmax(0, 1fr);
+      gap: 13px;
+      margin-top: 14px;
+    }
+    .product-thumb {
+      width: 106px;
+      height: 106px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #fff0b7;
+    }
+    .product-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .member-thumb { background: #4b7fd6; }
+    .member-thumb img { object-fit: contain; }
+    .product-copy { min-width: 0; }
+    .product-heading { display: flex; align-items: flex-start; gap: 8px; }
+    .type-tag {
+      flex: 0 0 auto;
+      height: 23px;
+      padding: 0 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 500;
+    }
+    .type-official { background: var(--official); }
+    .product-title {
+      max-width: 220px;
+      margin: -1px 0 0;
+      overflow: hidden;
+      color: #222;
+      font-size: 17px;
+      line-height: 1.42;
+      font-weight: 600;
+    }
+    .amount-line {
+      margin-top: 9px;
+      display: flex;
+      align-items: baseline;
+      color: #666;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .price {
+      margin-left: 7px;
+      color: var(--price);
+      font-size: 19px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .price .currency { margin-right: 4px; font-size: 15px; font-weight: 500; }
+    .order-time {
+      margin-top: 13px;
+      color: #9a9b9f;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    .card-title {
+      margin: 0 0 6px;
+      color: #222;
+      font-size: 19px;
+      line-height: 28px;
+      font-weight: 650;
+    }
+    .info-row {
+      min-height: 34px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-size: 16px;
+      line-height: 26px;
+    }
+    .info-row dt { flex: 0 0 auto; color: #999; }
+    .info-row dd {
+      min-width: 0;
+      flex: 1;
+      margin: 0;
+      overflow: hidden;
+      color: #333;
+      text-align: right;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .total-row {
+      margin-top: 7px;
+      padding-top: 15px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      color: #111;
+      font-size: 18px;
+      line-height: 28px;
+      font-weight: 700;
+    }
+    .total-row span { flex: 1; }
+    .total-row .price { margin-left: 0; font-size: 24px; font-weight: 700; }
+    .total-row .price .currency { font-size: 18px; }
+    .remark {
+      margin-top: 4px;
+      color: #555;
+      font-size: 16px;
+      line-height: 26px;
+    }
+    .contact-row {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .contact-row + .contact-row {
+      margin-top: 4px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .contact-icon {
+      position: relative;
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #4b4d52;
+      border-radius: 50%;
+    }
+    .contact-icon::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      bottom: -5px;
+      width: 9px;
+      height: 9px;
+      border: 2px solid #4b4d52;
+      border-top-color: transparent;
+      border-right-color: transparent;
+      border-radius: 0 0 0 6px;
+      background: #fff;
+      transform: rotate(-18deg);
+    }
+    .contact-icon.chat { border-radius: 8px; }
+    .contact-icon.chat::after {
+      left: 4px;
+      bottom: -6px;
+      border-radius: 0 0 0 5px;
+    }
+    .contact-copy { min-width: 0; flex: 1; }
+    .contact-title { color: #222; font-size: 18px; line-height: 26px; font-weight: 650; }
+    .contact-desc { margin-top: 2px; color: #999; font-size: 14px; line-height: 22px; }
+    .chevron {
+      flex: 0 0 auto;
+      width: 10px;
+      height: 10px;
+      border: solid #b8b8bc;
+      border-width: 2px 2px 0 0;
+      transform: rotate(45deg);
+    }
+    .action-bar {
+      position: absolute;
+      z-index: 30;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 92px;
+      padding: 16px 16px 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      box-shadow: 0 -1px 0 rgba(51, 51, 51, .06);
+    }
+    .pay-total {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      color: #666;
+      font-size: 16px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .pay-total .price { font-size: 24px; }
+    .pay-total .price .currency { font-size: 17px; }
+    .primary-btn {
+      flex: 0 0 auto;
+      min-width: 104px;
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 10px;
+      color: #fff;
+      background: #ff7a1a;
+      font-size: 17px;
+      line-height: 46px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+      box-shadow: 0 6px 14px rgba(255, 122, 26, .22);
+    }
+    .primary-btn.book {
+      min-width: 96px;
+      padding: 0 14px;
+      background: #4b7fb8;
+      font-size: 16px;
+      box-shadow: 0 6px 14px rgba(75, 127, 184, .22);
+    }
+    .secondary-btn {
+      flex: 0 0 auto;
+      min-width: 82px;
+      height: 46px;
+      padding: 0 12px;
+      border: 1px solid #dcdcdc;
+      border-radius: 10px;
+      color: #555;
+      background: #fff;
+      font-size: 15px;
+      line-height: 44px;
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .home-indicator {
+      position: absolute;
+      z-index: 40;
+      left: 50%;
+      bottom: 6px;
+      width: 126px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 4px;
+      background: #111;
+      pointer-events: none;
+    }
+    .toast {
+      position: absolute;
+      z-index: 50;
+      left: 50%;
+      bottom: 118px;
+      max-width: 280px;
+      padding: 8px 14px;
+      border-radius: 5px;
+      color: #fff;
+      background: rgba(20, 22, 27, .86);
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .clickable { transition: transform .12s ease, opacity .12s ease; }
+    .clickable:active { transform: scale(.97); opacity: .75; }
+    @media (max-width: 520px) {
+      body { padding: 0; background: #f4f4f5; }
+      .phone-shell { border-color: transparent; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone-shell" aria-label="我的订单详情页面（已支付）">
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <div class="app">
+      <div class="page">
+        <header>
+          <div class="statusbar">
+            <span>23:58</span>
+            <div class="device-status" aria-label="手机状态">
+              <span class="signal"><i></i><i></i><i></i><i></i></span>
+              <span class="wifi"><i></i></span>
+              <span class="battery"></span>
+            </div>
+          </div>
+          <div class="titlebar">
+            <button class="back clickable" type="button" aria-label="返回我的订单"></button>
+            <div class="capsule" aria-label="小程序菜单">
+              <button class="dots clickable" type="button" data-action="更多"><i></i><i></i><i></i></button>
+              <button class="mini-ring clickable" type="button" data-action="小程序菜单" aria-label="小程序菜单"></button>
+            </div>
+          </div>
+        </header>
+        <section class="detail-content">
+          <div class="status-block">
+            <div class="status-line"><span id="statusText">已支付</span></div>
+            <div class="status-note">你的订单已交易成功！</div>
+          </div>
+          <article class="card" id="orderCard"></article>
+          <article class="card">
+            <h2 class="card-title">学生信息</h2>
+            <dl>
+              <div class="info-row"><dt>学员姓名</dt><dd>张长弓</dd></div>
+              <div class="info-row"><dt>家长手机号</dt><dd>130****2123</dd></div>
+            </dl>
+          </article>
+          <article class="card" id="detailCard"></article>
+          <article class="card">
+            <div class="contact-row">
+              <span class="contact-icon" aria-hidden="true"></span>
+              <div class="contact-copy">
+                <div class="contact-title">联系客服</div>
+                <div class="contact-desc">遇到问题?我们的助教全天候为您服务！</div>
+              </div>
+              <span class="chevron" aria-hidden="true"></span>
+            </div>
+            <div class="contact-row">
+              <span class="contact-icon chat" aria-hidden="true"></span>
+              <div class="contact-copy">
+                <div class="contact-title">在线聊天</div>
+                <div class="contact-desc">直接与客服实时沟通！</div>
+              </div>
+              <span class="chevron" aria-hidden="true"></span>
+            </div>
+          </article>
+        </section>
+      </div>
+      <div class="action-bar">
+        <div class="pay-total">实付：<span class="price" id="payTotal"><span class="currency">¥</span>299</span></div>
+        <button class="secondary-btn clickable" type="button" id="rebuyBtn">再次购买</button>
+        <a class="primary-btn book clickable" href="约课_页面还原.html">立即约课</a>
+      </div>
+      <div class="home-indicator" aria-hidden="true"></div>
+      <div class="toast" role="status" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script>
+    const COURSE_IMAGE = 'assets/order-ai-word-course.jpg';
+    const MEMBER_IMAGE = 'assets/order-detail-paid-member.png';
+    const ORDER_ID = 'ORD1786499369265fab9c344c2';
+    const ORDER_DETAIL_ID = 'ORD17871892703669745cd6668';
+    const ORDER_TIME = '2026-08-12 09:49';
+    const ORDER_DETAIL_TIME = '2026-08-20 09:27';
+    const LIST_PAGE = '我的订单_页面还原.html';
+
+    const products = {
+      single: [
+        { type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' }
+      ],
+      bundle: [
+        { type: 'official', tag: '正式课', title: '优AI单词速记-正价课【1V4专业教练伴学直播课】', amount: '299' },
+        { type: 'member', title: '优坐标 - 普通会员', amount: '499', member: true }
+      ]
+    };
+
+    const toast = document.querySelector('.toast');
+    const page = document.querySelector('.page');
+    const orderCard = document.querySelector('#orderCard');
+    const detailCard = document.querySelector('#detailCard');
+    const payTotal = document.querySelector('#payTotal');
+    const params = new URLSearchParams(location.search);
+    const type = params.get('type') === 'bundle' ? 'bundle' : 'single';
+
+    const items = products[type];
+    const total = items.reduce((sum, item) => sum + Number(item.amount), 0);
+    let toastTimer;
+
+    function priceMarkup(amount) {
+      return `<span class="price"><span class="currency">¥</span>${amount}</span>`;
+    }
+
+    function productMarkup(item) {
+      const tag = item.tag ? `<span class="type-tag type-${item.type}">${item.tag}</span>` : '';
+      const thumbClass = item.member ? ' product-thumb member-thumb' : ' product-thumb';
+      const image = item.member ? MEMBER_IMAGE : COURSE_IMAGE;
+      const title = item.title.replace('【1V', '【1V<br>');
+      return `
+        <div class="product-row">
+          <div class="${thumbClass}"><img src="${image}" alt=""></div>
+          <div class="product-copy">
+            <div class="product-heading">${tag}<h3 class="product-title" style="margin:0">${title}</h3></div>
+            <div class="amount-line">合计：${priceMarkup(item.amount)}</div>
+          </div>
+        </div>`;
+    }
+
+    function render() {
+      orderCard.innerHTML = `
+        <div class="card-head">
+          <div class="order-number">订单号：${ORDER_ID}</div>
+          <button class="copy-btn clickable" type="button" id="copyBtn" aria-label="复制订单号"></button>
+        </div>
+        ${items.map(productMarkup).join('')}
+        <div class="order-time">下单时间：${ORDER_TIME}</div>`;
+      detailCard.innerHTML = `
+        <h2 class="card-title">订单详情</h2>
+        <dl>
+          <div class="info-row"><dt>订单编号</dt><dd>${ORDER_DETAIL_ID}</dd></div>
+          <div class="info-row"><dt>下单时间</dt><dd>${ORDER_DETAIL_TIME}</dd></div>
+          <div class="info-row"><dt>支付方式</dt><dd>微信支付</dd></div>
+        </dl>
+        <div class="total-row"><span>商品总额</span>${priceMarkup(total)}</div>
+        <div class="remark">备注：学员_9662</div>`;
+      payTotal.innerHTML = `<span class="currency">¥</span>${total}`;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    async function copyOrderId() {
+      try {
+        await navigator.clipboard.writeText(ORDER_ID);
+        showToast('订单号已复制');
+      } catch (error) {
+        showToast('订单号：' + ORDER_ID);
+      }
+    }
+
+    render();
+    document.querySelector('.back').addEventListener('click', () => { location.href = LIST_PAGE + '?tab=paid'; });
+    document.querySelector('#rebuyBtn').addEventListener('click', () => showToast('已进入再次购买流程（演示）'));
+    document.querySelector('#orderCard').addEventListener('click', event => {
+      if (event.target.closest('#copyBtn')) copyOrderId();
+    });
+    document.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.action)));
+    document.querySelectorAll('.contact-row').forEach(row => row.addEventListener('click', () => showToast('客服能力待接入')));
+    page.scrollTop = 0;
+  </script>
+  <script src="原型开发说明.js?v=20260918-20"></script>
+</body>
+</html>

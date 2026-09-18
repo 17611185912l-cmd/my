@@ -172,7 +172,9 @@
         const saved = JSON.parse(localStorage.getItem('course-detail:' + item.id) || localStorage.getItem('course-detail:' + slugOf(item)) || 'null');
         if (saved && (saved.feedback || saved.homework || saved.requirement)) return { feedback: saved.feedback || '', homework: saved.homework || saved.requirement || '' };
       } catch (error) { /* 忽略演示数据的缓存异常 */ }
-      return item.status === 'done' ? (FEEDBACK[item.courseId] || null) : null;
+      if (item.status !== 'done' && item.status !== 'attended') return null;
+      /* 家长端待评价/已完成一定带教师反馈：缺失时用课程演示文案兜底，保证不出现空内容 */
+      return FEEDBACK[item.courseId] || { feedback: '老师已完成本课次课后反馈，可在课程详情中查看完整内容。', homework: '' };
     }
 
     function summaryOf(item) {
@@ -229,7 +231,7 @@
 
     function cardOf(item) {
       const key = item.reviewedAt ? 'done' : (item.status === 'done' ? 'review' : (STATUS_KEY[item.status] || 'pending'));
-      const detail = item.status === 'cancelled' ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '" data-booking="' + item.id + '"';
+      const detail = (item.status === 'cancelled' || item.status === 'pending') ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '" data-booking="' + item.id + '"';
       const cardLeave = item.leave && item.leave.status === 'pending' ? item.leave : null;
       const badgeText = cardLeave ? '请假待确认' : (item.reviewedAt ? '已完成' : (item.status === 'done' ? '待评价' : STATE_TEXT[item.status]));
       const badgeClass = 'badge ' + key + (cardLeave ? ' leave' : '');
@@ -466,4 +468,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260918-19"></script></body></html>
+<script src="原型开发说明.js?v=20260918-20"></script></body></html>
