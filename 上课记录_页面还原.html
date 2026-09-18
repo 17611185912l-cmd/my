@@ -99,7 +99,7 @@
   </div>
   <div class="toast" id="toast"></div>
 </div></div></main>
-  <script src="约课数据.js?v=20260917-7"></script>
+  <script src="约课数据.js?v=20260918-7"></script>
   <script>
     const TABS = [
       { key: 'all', label: '全部课程', states: null },
@@ -172,7 +172,7 @@
         const saved = JSON.parse(localStorage.getItem('course-detail:' + item.id) || localStorage.getItem('course-detail:' + slugOf(item)) || 'null');
         if (saved && (saved.feedback || saved.homework || saved.requirement)) return { feedback: saved.feedback || '', homework: saved.homework || saved.requirement || '' };
       } catch (error) { /* 忽略演示数据的缓存异常 */ }
-      return FEEDBACK[item.courseId] || null;
+      return item.status === 'done' ? (FEEDBACK[item.courseId] || null) : null;
     }
 
     function summaryOf(item) {
@@ -222,21 +222,21 @@
       }
       if (item.status === 'attended') return item.reviewedAt ? '' : '<a class="btn primary" href="课程评价_页面还原.html?booking=' + item.id + '&course=' + (REVIEW_COURSE[item.courseId] || 'trigonometry') + '">去评价</a>';
       if (item.status === 'done' && !item.reviewedAt) return '<a class="btn primary" href="课程评价_页面还原.html?booking=' + item.id + '&course=' + (REVIEW_COURSE[item.courseId] || slugOf(item)) + '">去评价</a>';
-      if (item.status === 'done') return '<a class="btn ghost" href="课程详情_页面还原.html?role=parent&booking=' + item.id + '&course=' + slugOf(item) + '">查看详情</a>';
+      if (item.status === 'done') return '';
       const rebookMode = item.orderMode === 'demand' ? 'demand' : (item.teacherId ? 'designated' : 'demand');
       return '<a class="btn primary" href="约课_页面还原.html?course=' + encodeURIComponent(item.courseId || '') + '&teacher=' + encodeURIComponent(item.teacherId || '') + '&mode=' + rebookMode + '">重新约课</a>';
     }
 
     function cardOf(item) {
-      const key = item.reviewedAt ? 'done' : (STATUS_KEY[item.status] || 'pending');
+      const key = item.reviewedAt ? 'done' : (item.status === 'done' ? 'review' : (STATUS_KEY[item.status] || 'pending'));
       const detail = item.status === 'cancelled' ? '' : ' role="link" tabindex="0" data-detail="' + slugOf(item) + '" data-booking="' + item.id + '"';
       const cardLeave = item.leave && item.leave.status === 'pending' ? item.leave : null;
-      const badgeText = item.reviewedAt ? '已评价' : (cardLeave ? '请假待确认' : STATE_TEXT[item.status]);
+      const badgeText = cardLeave ? '请假待确认' : (item.reviewedAt ? '已完成' : (item.status === 'done' ? '待评价' : STATE_TEXT[item.status]));
       const badgeClass = 'badge ' + key + (cardLeave ? ' leave' : '');
       const foot = tipOf(item) + actionsOf(item);
       const meta = item.isPlan
         ? '<div class="meta"><span>' + (item.teacherName === '待匹配' ? '待匹配' : '接单老师：' + item.teacherName) + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + (item.sessionCount || 0) + ' 次课 · ' + lessonsOf(item) + ' 课时</span></div>'
-        : '<div class="meta"><span>' + item.teacherName + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.place + '</span><span>' + (item.durationLabel || (lessonsOf(item) * 45) + '分钟') + ' · ' + lessonsOf(item) + '课时</span></div>';
+        : '<div class="meta"><span>' + item.teacherName + '</span><span>' + item.dateLabel + ' ' + YZB.timeRangeText(item.time, item.endTime) + '</span><span>' + item.place + '</span><span>' + (item.durationLabel || (lessonsOf(item) * 45) + '分钟') + ' · ' + lessonsOf(item) + '课时</span></div>';
       return '<article class="record' + (detail ? '' : ' static') + '"' + detail + ' data-status="' + key + '" data-month="' + (item.date || '').slice(0, 7) + '" data-course="' + item.courseId + '" data-mode="' + modeKey(item.mode) + '">' +
         '<div class="record-top"><strong>' + item.courseName + '</strong><span class="record-side"><span class="' + badgeClass + '">' + badgeText + '</span></span></div>' +
         meta +
@@ -346,7 +346,7 @@
       leaveTarget = id; leaveReason = ''; leaveType = 'reschedule'; leaveDate = ''; leaveTime = '';
       leaveNote.textContent = '本次课已冻结 ' + lessonsOf(item) + ' 课时：对方确认新时间即改期（课时继续冻结）；直接取消本次排课则归还课时';
       leaveNoteInput.value = '';
-      leaveOrigin.textContent = '原上课时间：' + item.teacherName + ' · ' + (item.dateLabel || store.leave.labelOfDate(item.date)) + ' ' + item.time;
+      leaveOrigin.textContent = '原上课时间：' + item.teacherName + ' · ' + (item.dateLabel || store.leave.labelOfDate(item.date)) + ' ' + YZB.timeRangeText(item.time, item.endTime);
       leaveReasons.innerHTML = LEAVE_REASONS.map(reason => '<button class="reason" type="button" data-leave-reason="' + reason + '">' + reason + '</button>').join('');
       leaveTypeBox.querySelectorAll('[data-leave-type]').forEach(button => button.classList.toggle('active', button.dataset.leaveType === 'reschedule'));
       leaveSlot.hidden = false;
@@ -466,4 +466,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260917-3"></script></body></html>
+<script src="原型开发说明.js?v=20260918-19"></script></body></html>

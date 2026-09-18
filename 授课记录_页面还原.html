@@ -146,7 +146,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-  <script src="约课数据.js?v=20260917-7"></script>
+  <script src="约课数据.js?v=20260918-7"></script>
   <script>
     const TEACHER_ORDER = ['zhang', 'liming', 'wangjing', 'zhoumin'];
     /* 教师端授课记录 = 原「约课管理」+ 原「授课记录」：五个状态与家长端一一对应 */
@@ -283,7 +283,7 @@
       const learner = item.isPlan && item.status !== 'confirmed' ? item.grade + ' · 学员信息待家长确认' : item.student;
       const meta = item.isPlan
         ? '<div class="bk-meta"><span>' + learner + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>'
-        : '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + item.time + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
+        : '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + YZB.timeRangeText(item.time, item.endTime) + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
       /* 待反馈：填写反馈按钮移到卡片右侧、与信息区同高 */
       const side = item.status === 'attended' ? '<div class="bk-side">' + actionsOf(item) + '</div>' : '';
       const foot = tipOf(item) + (side ? '' : actionsOf(item));
@@ -412,7 +412,7 @@
       leaveTarget = id; leaveReason = ''; leaveType = 'reschedule'; leaveDate = ''; leaveTime = '';
       leaveNote.textContent = '本课次已冻结家长 ' + YZB.lessonsOf(item) + ' 课时：家长确认新时间即改期（课时继续冻结）；直接取消本次排课则归还课时';
       leaveNoteInput.value = '';
-      leaveOrigin.textContent = '原上课时间：' + item.student + ' · ' + (item.dateLabel || YZB.leave.labelOfDate(item.date)) + ' ' + item.time;
+      leaveOrigin.textContent = '原上课时间：' + item.student + ' · ' + (item.dateLabel || YZB.leave.labelOfDate(item.date)) + ' ' + YZB.timeRangeText(item.time, item.endTime);
       leaveReasons.innerHTML = LEAVE_REASONS.map(reason => '<button class="reason" type="button" data-leave-reason="' + reason + '">' + reason + '</button>').join('');
       leaveTypeBox.querySelectorAll('[data-leave-type]').forEach(button => button.classList.toggle('active', button.dataset.leaveType === 'reschedule'));
       leaveSlot.hidden = false;
@@ -544,4 +544,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260917-3"></script></body></html>
+<script src="原型开发说明.js?v=20260918-7"></script></body></html>

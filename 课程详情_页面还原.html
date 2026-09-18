@@ -29,8 +29,7 @@
     'analytic-0626':{name:'高三数学·解析几何',student:'孙若溪',teacher:'张三老师',time:'6月26日 19:00',place:'上门',status:'已完成',content:'直线与圆锥曲线的位置关系\n弦长、中点弦与定点问题',feedback:'计算过程较熟练，联立方程后的化简速度有所提升。需要继续训练参数范围的检查。',requirement:'完成综合练习第 3、5、7 题，订正课堂例题中的计算错误。'}
   };
   const params=new URLSearchParams(location.search),role=params.get('role')==='parent'?'parent':'teacher',courseId=params.get('course')||'function-0810',course={...(courses[courseId]||courses['function-0810'])},courseModes={'function-0810':'线下','sequence-0810':'线上','sequence-0815':'线上','tutorial':'线上','derivative-0809':'上门','trigonometry-0808':'线下','function-0803':'线上','geometry-0724':'线下','probability-0718':'线上','analytic-0626':'上门'};
-  const parentStatuses={'geometry-0724':'已评价','probability-0718':'已评价','analytic-0626':'已评价'};
-  const bookingId=params.get('booking')||'',record=window.YZB&&bookingId?YZB.byId(bookingId):null;
+    const bookingId=params.get('booking')||'',record=window.YZB&&bookingId?YZB.byId(bookingId):null;
   if(record){
     const detailSlug={function:'function-0803',sequence:'sequence-0815',trigonometry:'trigonometry-0808',tutorial:'tutorial',geometry:'geometry-0724'};
     const baseCourse=courses[courseId]||courses[detailSlug[record.courseId]]||course;
@@ -48,9 +47,9 @@
       courseId:record.courseId||courseId,
       mode:record.mode||''
     });
-    if(role==='parent'&&record.reviewedAt)course.status='已评价';
+    
   }
-  if(role==='parent'&&!record&&parentStatuses[courseId])course.status=parentStatuses[courseId];document.querySelector('#courseMode').textContent=course.mode||courseModes[courseId]||'线下';
+  if(role==='parent'&&record&&(record.status==='done'||record.status==='attended'))course.status=record.reviewedAt?'已完成':'待评价';document.querySelector('#courseMode').textContent=course.mode||courseModes[courseId]||'线下';
   try{const savedKey=record?`course-detail:${record.id}`:`course-detail:${courseId}`,saved=JSON.parse(localStorage.getItem(savedKey)||'null');if(saved){if(saved.content)course.content=saved.content;if(saved.feedback)course.feedback=saved.feedback;if(saved.homework)course.requirement=saved.homework}}catch{}
   document.title=`${role==='parent'?'家长端':'教师端'} · 课程详情`;document.querySelector('h1').textContent=document.title;
   document.querySelector('#courseName').textContent=course.name;document.querySelector('#participant').textContent=role==='parent'?course.teacher:course.student;document.querySelector('#courseTime').textContent=course.time;document.querySelector('#coursePlace').textContent=course.place;document.querySelector('#coursePlace').hidden=role==='parent'||!course.place;document.querySelector('#courseContent').outerHTML=course.content?`<p class="content-text" id="courseContent"></p>`:`<div class="empty-block" id="courseContent">${course.status==='待上课'?'课程结束后展示课程内容':'暂未填写课程内容'}</div>`;if(course.content)document.querySelector('#courseContent').textContent=course.content;
@@ -67,4 +66,4 @@
   if(role==='teacher'&&course.status==='已完成'&&course.feedback){shareEntry.hidden=false;shareEntry.onclick=copyShareText;document.querySelector('.content').classList.add('with-action')}
   document.querySelector('.back').onclick=()=>{if(history.length>1)history.back();else location.href=role==='parent'?'上课记录_页面还原.html':'授课记录_页面还原.html'};
   function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
-</script><script src="原型开发说明.js?v=20260918-9"></script></body></html>
+</script><script src="原型开发说明.js?v=20260918-19"></script></body></html>
