@@ -214,7 +214,24 @@
     function validPlan() {
       return !!state.startDate && !!state.endDate && state.startDate <= state.endDate && state.weeklySlots.length > 0;
     }
-    function slotText(slot) { return '每' + WEEKDAYS[Number(slot.weekday)] + ' ' + YZB.timeRangeText(slot.time, slot.end); }
+    function planGroups() {
+      const groups = [];
+      state.weeklySlots.forEach(slot => {
+        const key = slot.time + '|' + slot.end;
+        let group = groups.find(item => item.key === key);
+        if (!group) { group = { key, time: slot.time, end: slot.end, days: [] }; groups.push(group); }
+        if (group.days.indexOf(Number(slot.weekday)) < 0) group.days.push(Number(slot.weekday));
+      });
+      groups.sort((a, b) => a.time.localeCompare(b.time) || a.end.localeCompare(b.end));
+      return groups;
+    }
+    function daysText(days) {
+      const sorted = days.slice().sort((a, b) => a - b);
+      return sorted.length === 7 ? '每天' : '每' + sorted.map(day => WEEKDAYS[day]).join('、');
+    }
+    function planLabel() {
+      return planGroups().map(group => daysText(group.days) + ' ' + YZB.timeRangeText(group.time, group.end)).join(' · ');
+    }
     function lengthText(minutes) {
       if (minutes % 60 === 0) return (minutes / 60) + ' 小时';
       if (minutes % 30 === 0) return (minutes / 60).toFixed(1) + ' 小时';
@@ -250,8 +267,8 @@
     function renderSchedule() {
       startDate.value = state.startDate;
       endDate.value = state.endDate;
-      planSlots.innerHTML = state.weeklySlots.length ? state.weeklySlots.map(slot => `
-        <div class="bk-plan-slot"><strong>${slotText(slot)}<em>每节 ${lengthText(YZB.slotMinutes(slot))} · ${lessonsText(YZB.slotLessons(slot))} 课时</em></strong></div>
+      planSlots.innerHTML = state.weeklySlots.length ? planGroups().map(group => `
+        <div class="bk-plan-slot"><strong>${daysText(group.days)} ${YZB.timeRangeText(group.time, group.end)}<em>每节 ${lengthText(YZB.slotMinutes(group))} · ${lessonsText(YZB.slotLessons(group))} 课时</em></strong></div>
       `).join('') : '<div class="bk-empty">该课程还没有固定上课计划，点右上角「修改」添加</div>';
       renderHours();
       renderSummary();
@@ -320,7 +337,7 @@
         : `${teacher.name} · 预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时`;
       confirmList.innerHTML = [
         `<div class="confirm-row"><span>上课周期</span><b>${state.startDate} 至 ${state.endDate}</b></div>`,
-        `<div class="confirm-row"><span>固定时间</span><b>${YZB.scheduleLabel(state.weeklySlots)}</b></div>`,
+        `<div class="confirm-row"><span>固定时间</span><b>${planLabel()}</b></div>`,
         `<div class="confirm-row"><span>每节时长</span><b>${planDurationLabel()}</b></div>`,
         `<div class="confirm-row"><span>提交方式</span><b>${mode === 'demand' ? '发布到抢单大厅' : '提交给当前老师'}</b></div>`
       ].join('');
@@ -398,4 +415,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260920-2"></script></body></html>
+<script src="原型开发说明.js?v=20260920-3"></script></body></html>
