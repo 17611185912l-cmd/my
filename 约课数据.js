@@ -53,6 +53,12 @@
     { id: 'words',     name: '英语单词', subject: '英语单词', grade: '高一', mode: '线上', place: '西安小寨交付中心' }
   ];
 
+  // 体验课：独立课包，仅 1 个课时（45 分钟），走单次约课，不写入固定周课表
+  var TRIAL_COURSES = [
+    { id: 'trial-function', name: '数学体验课', subject: '数学', grade: '高一', mode: '线下', place: '西安小寨校区', trial: true, minutes: 45, lessons: 1 }
+  ];
+  function trialCourses() { return clone(TRIAL_COURSES); }
+
   var MODE_PLACE = { '线上': '西安小寨交付中心', '线下': '西安小寨校区', '上门': '上门' };
 
   // 家长端「我的上课时间」：按课程维护的固定周课表（不含上课周期），约课时自动带入
@@ -1126,6 +1132,7 @@
     markReviewed: markReviewed,
     teachersFor: teachersFor,
     courses: courses,
+    trialCourses: trialCourses,
     plans: plans,
     planOf: planOf,
     savePlan: savePlan,

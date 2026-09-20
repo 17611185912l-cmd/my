@@ -89,9 +89,9 @@
     .bk-reason{margin-left:6px;padding:2px 6px;border-radius:4px;color:#356da9;background:#edf4ff;font-size:14px;font-style:normal;font-weight:400;white-space:nowrap}
     .bk-change{flex:0 0 auto;align-self:center;padding:6px 10px;border:1px solid #d8e1eb;border-radius:6px;color:#356da9;background:#fff;font-size:14px;line-height:20px}
 
-    .bk-plan-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .bk-plan-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.bk-plan-dates.single{grid-template-columns:1fr}#trialTimeField{margin-top:10px}.bk-plan-head[hidden]{display:none}.bk-plan-slots[hidden]{display:none}
     .bk-field{min-width:0}.bk-field label{display:block;margin-bottom:5px;color:#777a82;font-size:13px}
-    .bk-field input,.bk-plan-add select{width:100%;height:38px;padding:0 9px;border:1px solid #d8e1eb;border-radius:6px;outline:none;background:#fff;color:#24262b;font-size:14px}
+    .bk-field input,.bk-field select,.bk-plan-add select{width:100%;height:38px;padding:0 9px;border:1px solid #d8e1eb;border-radius:6px;outline:none;background:#fff;color:#24262b;font-size:14px}
     .bk-field input:focus,.bk-plan-add select:focus{border-color:#4b7fb8;box-shadow:0 0 0 2px rgba(75,127,184,.1)}
     .bk-plan-add{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end;margin-top:10px}
     .bk-time-field{min-width:0}.bk-time-field label{display:block;margin-bottom:5px;color:#777a82;font-size:13px}
@@ -120,12 +120,13 @@
       </section>
 
       <section class="card step-card" data-step="2">
-        <div class="step-head"><span class="step-index">2</span><div><strong>设置固定上课计划</strong><span class="step-note">先选周期；每周时间自动带入「我的上课时间」，点「修改」可调整</span></div></div>
-        <div class="bk-plan-dates">
-          <div class="bk-field"><label for="startDate">开始日期</label><input id="startDate" type="date"></div>
-          <div class="bk-field"><label for="endDate">结束日期</label><input id="endDate" type="date"></div>
+        <div class="step-head"><span class="step-index">2</span><div><strong id="step2Title">设置固定上课计划</strong><span class="step-note" id="step2Note">先选周期；每周时间自动带入「我的上课时间」，点「修改」可调整</span></div></div>
+        <div class="bk-plan-dates" id="planDates">
+          <div class="bk-field"><label for="startDate" id="startDateLabel">开始日期</label><input id="startDate" type="date"></div>
+          <div class="bk-field" id="endDateField"><label for="endDate">结束日期</label><input id="endDate" type="date"></div>
         </div>
-        <div class="bk-plan-head"><strong>我的上课时间</strong><button id="editPlan" type="button">修改</button></div>
+        <div class="bk-field" id="trialTimeField" hidden><label for="trialTime">开始时间</label><select id="trialTime"></select></div>
+        <div class="bk-plan-head" id="planHead"><strong>我的上课时间</strong><button id="editPlan" type="button">修改</button></div>
         <div class="bk-plan-slots" id="planSlots" aria-live="polite"></div>
         <div class="bk-plan-hint" id="planFromHint">计划按课程维护，每次约课自动带入；改好后返回本页继续</div>
         <div class="bk-hours" id="planNote"></div>
@@ -156,6 +157,7 @@
     const CLASS_MINUTES = YZB.DEFAULT_CLASS_MINUTES;
     const CLASS_LESSONS = YZB.DEFAULT_CLASS_LESSONS;
     const CLASS_LABEL = '1.5 小时/次';
+    const TRIAL_MINUTES = 45;
     const PURCHASED_COURSE_IDS = ['sequence', 'function'];   // 演示数据：该学员家长已购买的课程（约课页卡片只列已购课程，与「我的上课时间」无关）
     const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     const bookingParams = new URLSearchParams(location.search);
@@ -174,12 +176,22 @@
       startDate: requestedStart || '2026-09-01',
       endDate: requestedEnd || '2027-01-15',
       weeklySlots: planSlotsOf(initialCourseId),
+      trialTime: '19:00',
       submitMode: initialDemand ? 'demand' : 'designated'
     };
 
     const courseList = document.querySelector('#courseList');
     const startDate = document.querySelector('#startDate');
     const endDate = document.querySelector('#endDate');
+    const planDates = document.querySelector('#planDates');
+    const endDateField = document.querySelector('#endDateField');
+    const startDateLabel = document.querySelector('#startDateLabel');
+    const step2Title = document.querySelector('#step2Title');
+    const step2Note = document.querySelector('#step2Note');
+    const planHead = document.querySelector('#planHead');
+    const planFromHint = document.querySelector('#planFromHint');
+    const trialTimeField = document.querySelector('#trialTimeField');
+    const trialTime = document.querySelector('#trialTime');
     const editPlan = document.querySelector('#editPlan');
     const planSlots = document.querySelector('#planSlots');
     const planNote = document.querySelector('#planNote');
@@ -202,16 +214,33 @@
       clearTimeout(showToast.timer);
       showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
     }
-    function courseById(id) { return YZB.courses().filter(item => item.id === id)[0]; }
+    function courseById(id) { return YZB.courses().concat(YZB.trialCourses()).filter(item => item.id === id)[0]; }
     // 约课页课程卡片 = 家长已购买的课程；若从其他页面带入未列入的课程，则把该课程追加进来，保证卡片与当前所选一致
     function purchasedCourses() {
-      const all = YZB.courses();
-      const ids = PURCHASED_COURSE_IDS.slice();
+      const all = YZB.courses().concat(YZB.trialCourses());
+      const ids = PURCHASED_COURSE_IDS.concat(YZB.trialCourses().map(course => course.id));
       if (state.courseId && ids.indexOf(state.courseId) < 0) ids.push(state.courseId);
       return ids.map(id => all.filter(course => course.id === id)[0]).filter(Boolean);
     }
-    function stats() { return YZB.planStats(state.startDate, state.endDate, state.weeklySlots); }
+    function isTrial(courseId) { return YZB.trialCourses().some(course => course.id === courseId); }
+    function minutesText(minutes) { return String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0'); }
+    function trialEnd(time) { return minutesText(YZB.timeToMinutes(time) + TRIAL_MINUTES); }
+    function trialSlot() {
+      const date = new Date(state.startDate + 'T00:00:00');
+      const weekday = isNaN(date.getTime()) ? 0 : (date.getDay() + 6) % 7;
+      return { weekday, time: state.trialTime, end: trialEnd(state.trialTime) };
+    }
+    function trialDateText() {
+      const date = new Date(state.startDate + 'T00:00:00');
+      if (isNaN(date.getTime())) return '未选择日期';
+      return state.startDate + '（' + WEEKDAYS[(date.getDay() + 6) % 7] + '）';
+    }
+    function stats() {
+      if (isTrial(state.courseId)) return { sessions: 1, lessons: 1 };
+      return YZB.planStats(state.startDate, state.endDate, state.weeklySlots);
+    }
     function validPlan() {
+      if (isTrial(state.courseId)) return !!state.startDate && !!state.trialTime;
       return !!state.startDate && !!state.endDate && state.startDate <= state.endDate && state.weeklySlots.length > 0;
     }
     function planGroups() {
@@ -250,6 +279,10 @@
     function lessonsText(value) { return Number.isInteger(value) ? value : (Math.round(value * 10) / 10); }
     function planSlotsOf(courseId) { return YZB.planOf(courseId).map(slot => ({ weekday: Number(slot.weekday), time: slot.time, end: slot.end })); }
     function renderHours() {
+      if (isTrial(state.courseId)) {
+        planNote.innerHTML = '体验课包剩余 <b>1</b> 课时 · 本次消耗 <b>1</b> 课时<br>体验课为单次 45 分钟（1 课时），提交后进入待确认';
+        return;
+      }
       const hours = YZB.hours();
       const current = stats();
       planNote.innerHTML = `本课程剩余 <b>${hours.available}</b> 课时 · 当前计划预计 <b>${lessonsText(current.lessons)}</b> 课时<br>按每周时段与每节时长估算，节假日和请假可在具体课次中调整`;
@@ -259,17 +292,35 @@
       const hours = YZB.hours();
       courseList.innerHTML = purchasedCourses().map(course => `
         <button class="bk-course ${course.id === state.courseId ? 'active' : ''}" type="button" data-course="${course.id}">
-          <span class="bk-teacher-copy"><strong>${course.name}</strong><span>${course.grade} · ${course.subject} · ${course.mode}</span><span class="bk-course-duration">默认每节 ${CLASS_LABEL} · ${CLASS_LESSONS} 课时</span></span>
-          <span class="bk-badge">剩余 <b>${hours.available}</b> 课时</span>
+          <span class="bk-teacher-copy"><strong>${course.name}</strong><span>${course.grade} · ${course.subject} · ${course.mode}</span><span class="bk-course-duration">${isTrial(course.id) ? `独立课包 · 单次 ${TRIAL_MINUTES} 分钟 · 1 课时` : `默认每节 ${CLASS_LABEL} · ${CLASS_LESSONS} 课时`}</span></span>
+          <span class="bk-badge">剩余 <b>${isTrial(course.id) ? 1 : hours.available}</b> 课时</span>
         </button>`).join('');
     }
 
     function renderSchedule() {
       startDate.value = state.startDate;
       endDate.value = state.endDate;
-      planSlots.innerHTML = state.weeklySlots.length ? planGroups().map(group => `
+      const trial = isTrial(state.courseId);
+      planDates.classList.toggle('single', trial);
+      endDateField.hidden = trial;
+      startDateLabel.textContent = trial ? '上课日期' : '开始日期';
+      planHead.hidden = trial;
+      planFromHint.hidden = trial;
+      trialTimeField.hidden = !trial;
+      planSlots.hidden = trial;
+      step2Title.textContent = trial ? '选择体验课时间' : '设置固定上课计划';
+      step2Note.textContent = trial ? '体验课为单次课：选择上课日期与开始时间（45 分钟 = 1 课时）' : '先选周期；每周时间自动带入「我的上课时间」，点「修改」可调整';
+      if (trial) {
+        const options = YZB.times().filter(time => YZB.timeToMinutes(time) + TRIAL_MINUTES <= 23 * 60 + 30);
+        trialTime.innerHTML = options.map(time => `<option value="${time}">${time}</option>`).join('');
+        trialTime.value = options.indexOf(state.trialTime) >= 0 ? state.trialTime : (options.indexOf('19:00') >= 0 ? '19:00' : options[0]);
+        state.trialTime = trialTime.value;
+        planSlots.innerHTML = '';
+      } else {
+        planSlots.innerHTML = state.weeklySlots.length ? planGroups().map(group => `
         <div class="bk-plan-slot"><strong>${daysText(group.days)} ${YZB.timeRangeText(group.time, group.end)}<em>每节 ${lengthText(YZB.slotMinutes(group))} · ${lessonsText(YZB.slotLessons(group))} 课时</em></strong></div>
-      `).join('') : '<div class="bk-empty">该课程还没有固定上课计划，点右上角「修改」添加</div>';
+        `).join('') : '<div class="bk-empty">该课程还没有固定上课计划，点右上角「修改」添加</div>';
+      }
       renderHours();
       renderSummary();
     }
@@ -297,15 +348,16 @@
 
     function renderSummary() {
       const current = stats();
+      const trial = isTrial(state.courseId);
       submit.textContent = '提交约课';
       if (!validPlan()) {
-        summary.textContent = state.weeklySlots.length ? '请先设置开始日期、结束日期' : '该课程还没有上课计划，请先点「修改」设置';
+        summary.textContent = trial ? '请先选择上课日期与开始时间' : (state.weeklySlots.length ? '请先设置开始日期、结束日期' : '该课程还没有上课计划，请先点「修改」设置');
         submit.disabled = true;
         return;
       }
       const teacher = state.demand ? null : YZB.teacher(state.teacherId);
       if (teacher) {
-        summary.innerHTML = `${teacher.name} · 每周计划 · 预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时`;
+        summary.innerHTML = `${teacher.name} · ${trial ? '体验课单次' : '每周计划'} · 预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时`;
         submit.disabled = false;
         return;
       }
@@ -315,7 +367,9 @@
         submit.disabled = false;
         return;
       }
-      summary.innerHTML = `固定计划预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时 · 请选择老师或发布需求`;
+      summary.innerHTML = trial
+        ? `体验课单次 ${TRIAL_MINUTES} 分钟 · 1 课时 · 请选择老师或发布需求`
+        : `固定计划预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时 · 请选择老师或发布需求`;
       submit.disabled = true;
     }
 
@@ -335,12 +389,17 @@
       confirmSummary.innerHTML = mode === 'demand'
         ? `不指定老师 · 预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时`
         : `${teacher.name} · 预计 <b>${current.sessions}</b> 次 / <b>${lessonsText(current.lessons)}</b> 课时`;
-      confirmList.innerHTML = [
+      const trial = isTrial(state.courseId);
+      confirmList.innerHTML = (trial ? [
+        `<div class="confirm-row"><span>上课时间</span><b>${trialDateText()} ${YZB.timeRangeText(state.trialTime, trialEnd(state.trialTime))}</b></div>`,
+        `<div class="confirm-row"><span>课程类型</span><b>体验课 · 单次 ${TRIAL_MINUTES} 分钟 · 1 课时</b></div>`
+      ] : [
         `<div class="confirm-row"><span>上课周期</span><b>${state.startDate} 至 ${state.endDate}</b></div>`,
         `<div class="confirm-row"><span>固定时间</span><b>${planLabel()}</b></div>`,
-        `<div class="confirm-row"><span>每节时长</span><b>${planDurationLabel()}</b></div>`,
+        `<div class="confirm-row"><span>每节时长</span><b>${planDurationLabel()}</b></div>`
+      ]).concat([
         `<div class="confirm-row"><span>提交方式</span><b>${mode === 'demand' ? '发布到抢单大厅' : '提交给当前老师'}</b></div>`
-      ].join('');
+      ]).join('');
       confirmMask.hidden = false;
       confirmDialog.hidden = false;
     }
@@ -357,7 +416,8 @@
       renderMatchedTeachers();
     });
 
-    startDate.addEventListener('change', () => { state.startDate = startDate.value; renderHours(); renderSummary(); });
+    startDate.addEventListener('change', () => { state.startDate = startDate.value; renderSchedule(); });
+    trialTime.addEventListener('change', () => { state.trialTime = trialTime.value; renderSchedule(); });
     endDate.addEventListener('change', () => { state.endDate = endDate.value; renderHours(); renderSummary(); });
     editPlan.addEventListener('click', () => {
       const params = new URLSearchParams({ course: state.courseId, from: 'booking', start: state.startDate, end: state.endDate });
@@ -393,14 +453,18 @@
       const teacher = state.submitMode === 'designated' ? YZB.teacher(state.teacherId) : null;
       if (!course || !validPlan() || (state.submitMode === 'designated' && !teacher)) return;
       const isDemand = state.submitMode === 'demand';
+      const trial = isTrial(state.courseId);
+      const slots = trial ? [trialSlot()] : state.weeklySlots.map(slot => ({ weekday: slot.weekday, time: slot.time, end: slot.end }));
       YZB.add({
         id: YZB.makeId(), isPlan: true, orderMode: isDemand ? 'demand' : 'designated', student: STUDENT,
         courseId: course.id, courseName: course.name, subject: course.subject, grade: course.grade,
         teacherId: isDemand ? '' : teacher.id, teacherName: isDemand ? '待匹配' : teacher.name, teacherAccepted: false,
-        startDate: state.startDate, endDate: state.endDate, weeklySlots: state.weeklySlots.map(slot => ({ weekday: slot.weekday, time: slot.time, end: slot.end })),
-        scheduleLabel: YZB.scheduleLabel(state.weeklySlots), sessionCount: current.sessions, lessons: current.lessons,
-        lessonMinutes: state.weeklySlots.length ? Math.min.apply(null, state.weeklySlots.map(slot => YZB.slotMinutes(slot))) : CLASS_MINUTES,
-        durationLabel: planDurationLabel(), mode: course.mode, place: course.place, remark: '',
+        startDate: state.startDate, endDate: trial ? state.startDate : state.endDate, weeklySlots: slots,
+        trial: trial,
+        scheduleLabel: trial ? `${state.startDate} ${YZB.timeRangeText(state.trialTime, trialEnd(state.trialTime))}` : YZB.scheduleLabel(state.weeklySlots),
+        sessionCount: current.sessions, lessons: current.lessons,
+        lessonMinutes: trial ? TRIAL_MINUTES : (state.weeklySlots.length ? Math.min.apply(null, state.weeklySlots.map(slot => YZB.slotMinutes(slot))) : CLASS_MINUTES),
+        durationLabel: trial ? `单次 ${TRIAL_MINUTES} 分钟 · 1 课时` : planDurationLabel(), mode: course.mode, place: course.place, remark: '',
         status: 'pending', occurrences: [], createdAt: YZB.nowLabel(), confirmedAt: '', deducted: false, cancelReason: '', cancelledBy: ''
       });
       closeConfirm();
@@ -415,4 +479,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20260920-3"></script></body></html>
+<script src="原型开发说明.js?v=20260920-5"></script></body></html>
