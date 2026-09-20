@@ -146,6 +146,12 @@
     .sheet-close{width:30px;height:30px;flex:0 0 auto;border-radius:50%;color:#6b7480;background:#f1f3f6;font-size:18px;line-height:28px}
     .plan-sheet .day-actions{margin-top:12px}
     .plan-sheet[hidden],.sheet-mask[hidden]{display:none}
+    .quick-ranges{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+    .quick-range{padding:6px 2px 5px;border:1px solid #dbe3ec;border-radius:6px;background:#fff;color:#41506b;text-align:center;line-height:1;transition:border-color .15s,background .15s,color .15s}
+    .quick-range b{display:block;font-size:12.5px;font-weight:600;line-height:17px}
+    .quick-range span{display:block;margin-top:2px;color:#8a94a1;font-size:10.5px;line-height:14px;font-variant-numeric:tabular-nums}
+    .quick-range.active{border-color:#4b7fb8;background:#f0f6fd;color:#356da9}
+    .quick-range.active span{color:#5c8cc4}
     @keyframes sheet-up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
   </style>
 </head>
@@ -162,7 +168,7 @@
     <div class="sheet-mask" id="planSheetMask" hidden></div>
     <section class="plan-sheet" id="planSheet" role="dialog" aria-modal="true" aria-labelledby="planSheetTitle" hidden>
       <div class="sheet-head">
-        <div><strong id="planSheetTitle">添加时段</strong><span id="planSheetNote">先选课程，再选上课时间；星期可多选</span></div>
+        <div><strong id="planSheetTitle">添加时段</strong><span id="planSheetNote"></span></div>
         <button class="sheet-close" type="button" id="closeSheet" aria-label="关闭">×</button>
       </div>
       <div class="plan-editor">
@@ -173,6 +179,11 @@
         <div class="pick-block time-block">
           <div class="pick-title"><span class="pick-step">2</span>选择上课时间<span class="pick-note">星期可多选</span></div>
           <div class="day-chips" id="dayChips" role="group" aria-label="星期"></div>
+          <div class="quick-ranges" role="group" aria-label="快捷时间段">
+            <button type="button" class="quick-range" data-start="09:00" data-end="12:00"><b>上午</b><span>09:00-12:00</span></button>
+            <button type="button" class="quick-range" data-start="14:00" data-end="18:00"><b>下午</b><span>14:00-18:00</span></button>
+            <button type="button" class="quick-range" data-start="19:00" data-end="22:00"><b>晚上</b><span>19:00-22:00</span></button>
+          </div>
           <div class="plan-editor-grid">
             <div><label for="startTime">开始时间</label><select id="startTime"></select></div>
             <div><label for="endTime">结束时间</label><select id="endTime"></select></div>
@@ -202,7 +213,7 @@
     const bookingCourseId = courseList.some(course => course.id === requestedCourse) ? requestedCourse : courseList[0].id;
     let slots = loadSlots();
     let selectedDays = new Set();
-    let editingIndex = -1;
+    let editingKey = null;
 
     const addSlot = document.querySelector('#addSlot');
     const planSheet = document.querySelector('#planSheet');
@@ -227,6 +238,21 @@
       showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
     }
     function sortSlots(a, b) { return a.weekday - b.weekday || a.time.localeCompare(b.time) || courseList.findIndex(course => course.id === a.courseId) - courseList.findIndex(course => course.id === b.courseId); }
+    function keyOf(slot) { return slot.courseId + '|' + slot.time + '|' + slot.end; }
+    function daysText(days) {
+      const sorted = days.slice().sort((a, b) => a - b);
+      return sorted.length === 7 ? '每天' : '每' + sorted.map(day => WEEKDAYS[day]).join('、');
+    }
+    function groupedSlots() {
+      const groups = [];
+      slots.forEach((slot, index) => {
+        const key = keyOf(slot);
+        let group = groups.find(item => item.key === key);
+        if (!group) { group = { key, courseId: slot.courseId, time: slot.time, end: slot.end, days: [], index }; groups.push(group); }
+        if (group.days.indexOf(slot.weekday) < 0) group.days.push(slot.weekday);
+      });
+      return groups;
+    }
     function loadSlots() {
       const plans = YZB.plans();
       return courseList.reduce((list, course) => list.concat((plans[course.id] || []).map(slot => ({ courseId: course.id, weekday: Number(slot.weekday), time: slot.time, end: slot.end }))), []).sort(sortSlots);
@@ -265,6 +291,7 @@
     }
     function renderTip() {
       const start = startTime.value, end = endTime.value;
+      document.querySelectorAll('.quick-range').forEach(button => button.classList.toggle('active', button.dataset.start === start && button.dataset.end === end));
       if (!start || !end) { durationTip.textContent = '该开始时间没有可用的结束时间，请换一个开始时间'; return; }
       const slot = { time: start, end: end };
       durationTip.textContent = '每节 ' + lengthText(YZB.slotMinutes(slot)) + ' · ' + lessonsText(YZB.slotLessons(slot)) + ' 课时（45 分钟 = 1 课时，按整课时计）';
@@ -276,34 +303,36 @@
       courseSelect.value = courseList.some(course => course.id === preferred) ? preferred : courseList[0].id;
     }
     function renderList() {
-      planList.innerHTML = slots.length ? slots.map((slot, index) => `
+      const groups = groupedSlots();
+      planList.innerHTML = groups.length ? groups.map(group => `
         <div class="plan-row">
-          <span><strong>每${WEEKDAYS[slot.weekday]} ${YZB.timeRangeText(slot.time, slot.end)} · ${subjectOf(slot.courseId)}</strong><em>每节 ${lengthText(YZB.slotMinutes(slot))} · ${lessonsText(YZB.slotLessons(slot))} 课时</em></span>
-          <span class="row-actions"><button type="button" data-edit="${index}">编辑</button><button class="danger" type="button" data-remove="${index}">删除</button></span>
+          <span><strong>${daysText(group.days)} ${YZB.timeRangeText(group.time, group.end)} · ${subjectOf(group.courseId)}</strong><em>每节 ${lengthText(YZB.slotMinutes(group))} · ${lessonsText(YZB.slotLessons(group))} 课时</em></span>
+          <span class="row-actions"><button type="button" data-edit="${group.index}">编辑</button><button class="danger" type="button" data-remove="${group.index}">删除</button></span>
         </div>`).join('') : '<div class="plan-empty">还没有上课时间，请添加</div>';
     }
     function renderEditor() {
-      applySlot.textContent = editingIndex >= 0 ? '保存修改' : '添加到计划';
+      applySlot.textContent = editingKey ? '保存修改' : '添加到计划';
       renderDays();
       renderTimeSelects();
       renderTip();
     }
     function sheetNoteText() {
-      if (editingIndex < 0) return '先选课程，再选上课时间；星期可多选';
-      const slot = slots[editingIndex];
-      return '正在编辑：每' + WEEKDAYS[slot.weekday] + ' ' + YZB.timeRangeText(slot.time, slot.end) + ' · ' + subjectOf(slot.courseId);
+      if (!editingKey) return '';
+      const group = groupedSlots().find(item => item.key === editingKey);
+      if (!group) return '';
+      return '正在编辑：' + daysText(group.days) + ' ' + YZB.timeRangeText(group.time, group.end) + ' · ' + subjectOf(group.courseId);
     }
     function openSheet(index) {
       if (index >= 0) {
         const slot = slots[index];
-        editingIndex = index;
-        selectedDays = new Set([slot.weekday]);
+        editingKey = keyOf(slot);
+        selectedDays = new Set(slots.filter(item => keyOf(item) === editingKey).map(item => item.weekday));
         courseSelect.value = slot.courseId;
         startTime.value = slot.time;
         endTime.value = slot.end;
         planSheetTitle.textContent = '编辑时段';
       } else {
-        editingIndex = -1;
+        editingKey = null;
         selectedDays = new Set();
         courseSelect.value = bookingCourseId;
         startTime.value = '19:00';
@@ -318,7 +347,7 @@
     function closeSheetEditor() {
       planSheet.hidden = true;
       planSheetMask.hidden = true;
-      editingIndex = -1;
+      editingKey = null;
       selectedDays = new Set();
       renderEditor();
     }
@@ -337,9 +366,10 @@
       }
       const remove = event.target.closest('[data-remove]');
       if (!remove) return;
-      slots.splice(Number(remove.dataset.remove), 1);
+      const target = slots[Number(remove.dataset.remove)];
+      if (target) slots = slots.filter(slot => keyOf(slot) !== keyOf(target));
       selectedDays = new Set();
-      editingIndex = -1;
+      editingKey = null;
       persistPlans();
       renderAll();
       showToast('已删除');
@@ -348,31 +378,34 @@
       const chip = event.target.closest('[data-day]');
       if (!chip) return;
       const index = Number(chip.dataset.day);
-      if (editingIndex >= 0) selectedDays = new Set([index]);
-      else if (selectedDays.has(index)) selectedDays.delete(index); else selectedDays.add(index);
+      if (selectedDays.has(index)) selectedDays.delete(index); else selectedDays.add(index);
       renderDays();
     });
     startTime.addEventListener('change', () => { renderTimeSelects(); renderTip(); });
     endTime.addEventListener('change', renderTip);
+    document.querySelectorAll('.quick-range').forEach(button => {
+      button.addEventListener('click', () => {
+        startTime.value = button.dataset.start;
+        renderTimeSelects();
+        endTime.value = button.dataset.end;
+        renderTip();
+      });
+    });
     applySlot.addEventListener('click', () => {
       const days = Array.from(selectedDays).sort((a, b) => a - b);
       if (!days.length) { showToast('请先选择星期'); return; }
       const time = startTime.value, end = endTime.value, courseId = courseSelect.value;
       if (!time || !end || end <= time) { showToast('请选择正确的起止时间'); return; }
-      const wasEditing = editingIndex >= 0;
-      if (wasEditing) {
-        if (slots.some((slot, index) => index !== editingIndex && slot.weekday === days[0] && slot.time === time && slot.end === end)) { showToast('这个时间已经有其他课程'); return; }
-        slots[editingIndex] = { courseId, weekday: days[0], time, end };
-      } else {
-        const added = [];
-        days.forEach(day => {
-          if (slots.some(slot => slot.weekday === day && slot.time === time && slot.end === end)) return;
-          slots.push({ courseId, weekday: day, time, end });
-          added.push(day);
-        });
-        if (!added.length) { showToast('这些时间已经在计划里了'); return; }
-      }
-      slots.sort(sortSlots);
+      const wasEditing = !!editingKey;
+      const base = wasEditing ? slots.filter(slot => keyOf(slot) !== editingKey) : slots.slice();
+      const added = [];
+      days.forEach(day => {
+        if (base.some(slot => slot.weekday === day && slot.time === time && slot.end === end)) return;
+        base.push({ courseId, weekday: day, time, end });
+        added.push(day);
+      });
+      if (!added.length) { showToast('这些时间已经在计划里了'); return; }
+      slots = base.sort(sortSlots);
       persistPlans();
       renderAll();
       closeSheetEditor();
@@ -392,4 +425,4 @@
     fit(); addEventListener('resize', fit, { passive: true });
 
   </script>
-<script src="原型开发说明.js?v=20260918-20"></script></body></html>
+<script src="原型开发说明.js?v=20260920-2"></script></body></html>
