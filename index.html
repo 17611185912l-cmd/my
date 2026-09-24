@@ -81,6 +81,20 @@
   .legend i{width:22px;height:0;border-top:2px dashed var(--purple);display:inline-block}
   .legend i.solid{border-top-style:solid;border-color:#6E7781}
   .legend b{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .state-machine{margin-top:20px;border:1px solid var(--line);border-radius:12px;background:#F8FAFC;padding:16px 18px}
+  .state-machine h3{margin:0;font-size:15px;color:var(--ink)}
+  .state-machine .state-lead{margin:5px 0 14px;color:var(--muted);font-size:12.5px;line-height:1.7}
+  .state-flow{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:4px 2px 10px}
+  .state-node{flex:0 0 auto;min-width:102px;text-align:center;border:1px solid #CBD5E1;border-radius:9px;background:#fff;padding:9px 10px;font-size:13px;font-weight:600;color:#334155;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .state-node small{display:block;margin-top:3px;font-size:11px;font-weight:400;color:var(--muted)}
+  .state-node.active{border-color:#8BB39A;background:var(--green-soft);color:#235c37}
+  .state-node.wait{border-color:#9BB7E0;background:var(--brand-soft);color:#1e3f74}
+  .state-node.done{border-color:#C8B8E2;background:var(--purple-soft);color:#5b4388}
+  .state-arrow{flex:0 0 auto;color:#94A3B8;font-size:17px}
+  .state-branches{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:10px;margin-top:4px}
+  .state-branch{border:1px dashed #CBD5E1;border-radius:9px;background:#fff;padding:10px 12px;color:#475569;font-size:12.5px;line-height:1.7}
+  .state-branch b{color:var(--ink)}
+  @media (max-width:700px){.state-branches{grid-template-columns:1fr}}
   @media (max-width:900px){
     .topbar{flex-wrap:wrap;height:auto;padding:10px 14px;gap:10px}
     nav.tabs{order:3;width:100%;overflow:auto}
@@ -258,6 +272,28 @@
           <p class="branch-note">请假说明：<b>待上课阶段</b>任一方可发起请假（填写原因 + 调整上课时间 / 直接取消本次排课），另一方只能「按新时间确认」或「直接取消课程」，一次响应即终态；距开课不足 2 小时不可发起，对方响应前可撤回。</p>
 
           <p class="branch-note">分支说明：<b>A 指定老师</b>——教师拒绝或超时未确认时，家长可重新选择老师，或改为发布需求；<b>B 发布需求</b>——在家长确认接单老师前，需求在抢单大厅保持可抢状态（接单后家长取消则不再进入后续流程）。两条路径汇合于「预约生效 · 拆分单节课程」。</p>
+
+          <div class="state-machine" aria-label="课程状态机">
+            <h3>课程状态机</h3>
+            <p class="state-lead">状态以单节课程为单位记录；请假是待上课期间的处理中间状态，最终回到待上课或进入已取消。</p>
+            <div class="state-flow" aria-label="课程正常状态流转">
+              <div class="state-node wait">待确认<small>等待老师确认</small></div>
+              <span class="state-arrow" aria-hidden="true">→</span>
+              <div class="state-node active">待上课<small>课时已冻结</small></div>
+              <span class="state-arrow" aria-hidden="true">→</span>
+              <div class="state-node active">待反馈<small>完成上课</small></div>
+              <span class="state-arrow" aria-hidden="true">→</span>
+              <div class="state-node wait">待评价<small>家长评价</small></div>
+              <span class="state-arrow" aria-hidden="true">→</span>
+              <div class="state-node done">已完成<small>流程闭环</small></div>
+            </div>
+            <div class="state-branches">
+              <div class="state-branch"><b>待确认 → 已取消</b><br>家长取消需求、老师拒绝或确认超时，未冻结的预约结束。</div>
+              <div class="state-branch"><b>待上课 → 请假处理中</b><br>任一方填写原因并选择改期或取消；对方一次响应后，不重复确认或拒绝。</div>
+              <div class="state-branch"><b>请假处理中 → 待上课</b><br>对方按新时间确认，课程改期，课时继续冻结。</div>
+              <div class="state-branch"><b>请假处理中 → 已取消</b><br>对方直接取消课程，平台记录处理并归还冻结课时。</div>
+            </div>
+          </div>
 
           <div class="btn-row">
             <a href="./交付文档/preview/flowchart-v2.svg" target="_blank" rel="noopener">在新标签打开大图</a>
