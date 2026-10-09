@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#d7e9e5">
+  <title>个人中心改版 · 主页面还原</title>
+  <style>
+    :root {
+      --blue: #c87312;
+      --green: #09c978;
+      --orange: #ff6b0a;
+      --ink: #111318;
+      --muted: #6c7079;
+      --icon: #506076;
+      --page: #f5f5f7;
+      --bubble: #f0f4f8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100svh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      background: #e7eaee;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { margin: 0; padding: 0; border: 0; color: inherit; font: inherit; background: none; cursor: pointer; }
+    svg { display: block; }
+    .icon { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+
+    .phone-shell {
+      position: relative;
+      isolation: isolate;
+      width: min(464px, calc(100vw - 32px), calc(47.347svh - 15.15px));
+      aspect-ratio: 464 / 980;
+      padding: 12px;
+      border: 1px solid #777d84;
+      border-radius: 66px;
+      background: linear-gradient(135deg, #bfc3c7 0%, #f4f5f6 20%, #8d9298 49%, #d9dcdf 72%, #73787e 100%);
+      box-shadow: 0 34px 70px rgba(32,38,45,.28), 0 10px 22px rgba(32,38,45,.18), inset 0 0 0 1px rgba(255,255,255,.75), inset 0 0 0 3px rgba(33,36,40,.68);
+    }
+    .phone-shell::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      left: -4px;
+      top: 173px;
+      width: 4px;
+      height: 61px;
+      border-radius: 3px 0 0 3px;
+      background: #737980;
+      box-shadow: 0 78px 0 #737980;
+    }
+    .phone-shell::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      right: -4px;
+      top: 222px;
+      width: 4px;
+      height: 94px;
+      border-radius: 0 3px 3px 0;
+      background: #737980;
+    }
+    .dynamic-island {
+      position: absolute;
+      z-index: 30;
+      top: 22px;
+      left: 50%;
+      width: 126px;
+      height: 34px;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #050505;
+      box-shadow: 0 1px 2px rgba(255,255,255,.12), inset 0 0 0 1px #000;
+      pointer-events: none;
+    }
+    .dynamic-island::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 11px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #111a25;
+      box-shadow: inset 0 0 0 2px #080b10, 0 0 2px #1a4d79;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 54px;
+      background: var(--page);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.52);
+    }
+    .page {
+      width: 100%;
+      height: 100%;
+      padding: 0 12px 104px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    .page::-webkit-scrollbar { display: none; }
+
+    .statusbar {
+      height: 32px;
+      padding: 11px 22px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      color: #050505;
+      font-size: 15px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .device-status { display: flex; align-items: center; gap: 8px; }
+    .signal { width: 18px; height: 12px; display: flex; align-items: flex-end; gap: 2px; }
+    .signal i { width: 3px; border-radius: 2px 2px 0 0; background: #050505; }
+    .signal i:nth-child(1) { height: 4px; }
+    .signal i:nth-child(2) { height: 7px; }
+    .signal i:nth-child(3) { height: 10px; }
+    .signal i:nth-child(4) { height: 12px; }
+    .wifi { position: relative; width: 18px; height: 13px; overflow: hidden; }
+    .wifi::before, .wifi::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      border: 2px solid #050505;
+      border-color: #050505 transparent transparent;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .wifi::before { top: 0; width: 19px; height: 17px; }
+    .wifi::after { top: 5px; width: 10px; height: 9px; }
+    .wifi i { position: absolute; left: 8px; bottom: 0; width: 3px; height: 3px; border-radius: 50%; background: #050505; }
+    .battery { position: relative; width: 23px; height: 11px; padding: 2px; border: 1.5px solid #919191; border-radius: 3px; }
+    .battery::before { content: ""; display: block; width: 100%; height: 100%; border-radius: 1px; background: #050505; }
+    .battery::after { content: ""; position: absolute; top: 3px; right: -3px; width: 2px; height: 5px; border-radius: 0 2px 2px 0; background: #b4b4b4; }
+
+    .titlebar { position: relative; height: 56px; display: flex; align-items: center; }
+    .titlebar h1 { width: 100%; margin: 0 0 1px; color: #303135; font-size: 20px; line-height: 1; font-weight: 600; letter-spacing: 0; text-align: center; }
+    .capsule {
+      position: absolute;
+      right: 5px;
+      top: 9px;
+      width: 80px;
+      height: 28px;
+      border: 1px solid #ebe8e6;
+      border-radius: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      background: rgba(255,255,255,.9);
+    }
+    .dots { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .dots i { width: 4px; height: 4px; border-radius: 50%; background: #15171b; }
+    .mini-ring { width: 15px; height: 15px; margin: auto; border: 1.8px solid #111318; border-radius: 50%; position: relative; }
+    .mini-ring::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #111318; }
+
+    .card { background: #fff; border-radius: 11px; }
+    .profile {
+      position: relative;
+      height: 88px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      align-items: center;
+      padding: 9px 12px 8px 15px;
+      background: #fff;
+    }
+    .profile-avatar { width: 62px; height: 62px; object-fit: cover; border-radius: 50%; }
+    .profile-copy { min-width: 0; padding-left: 7px; }
+    .name-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .name-row strong { overflow: hidden; text-overflow: ellipsis; font-size: 17px; line-height: 22px; }
+    .role-tag { padding: 2px 6px; border-radius: 4px; color: #535965; background: #f1f3f6; font-size: 14px; }
+    .section { margin-top: 12px; padding: 17px 15px 14px; }
+    .section-head { height: 23px; display: flex; align-items: center; justify-content: space-between; }
+    .section h2 { margin: 0; font-size: 18px; line-height: 23px; font-weight: 700; letter-spacing: 0; }
+    .more { display: flex; align-items: center; gap: 7px; color: #777a81; font-size: 14px; text-decoration: none; }
+    .more::after { content: ""; width: 7px; height: 7px; border: solid #9299a5; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+
+    .maker { height: 154px; }
+    .maker-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .stat { display: flex; flex-direction: column; align-items: center; }
+    .stat .bubble { width: 47px; height: 47px; }
+    .stat .icon { width: 30px; height: 30px; stroke-width: 0; }
+    .stat-value { margin-top: 3px; font-size: 16px; line-height: 20px; }
+    .stat:nth-child(1) .stat-value { color: #1675f6; }
+    .stat:nth-child(2) .stat-value { color: #13c878; }
+    .stat:nth-child(3) .stat-value { color: #f06c16; }
+    .stat-value small { font-size: 14px; }
+    .stat-label { margin-top: 1px; font-size: 14px; line-height: 18px; }
+    .bubble { border-radius: 50%; display: grid; place-items: center; color: var(--icon); background: var(--bubble); }
+    .stat:nth-child(1) .bubble { color: #2f83f5; background: #eef5ff; }
+    .stat:nth-child(2) .bubble { color: #04c86f; background: #ebf9f2; }
+    .stat:nth-child(3) .bubble { color: var(--orange); background: #fff3ec; }
+
+    .menu-section { height: 128px; margin-top: 13px; padding-top: 17px; }
+    .maker + .menu-section { height: 127px; }
+    .menu-section,
+    .maker + .menu-section { height: 78px; padding: 9px 15px; }
+    .partnership-entry { grid-template-columns: 40px minmax(0, 1fr) 7px; }
+    .partnership-entry .bubble { color: #548a74; background: #edf5f0; }
+    .partnership-entry.has-secondary { grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 0; }
+    .partnership-entry.has-secondary > .promotion-arrow { display: none; }
+    .partnership-entry .partnership-divider { width: 1px; height: 28px; background: #e2e9e5; }
+    .partnership-entry .partnership-item { min-width: 0; display: flex; align-items: center; gap: 10px; color: inherit; white-space: nowrap; }
+    .partnership-entry:not(.has-secondary) > .partnership-item:first-child { display: contents; }
+    .partnership-entry:not(.has-secondary) > .partnership-divider { display: none; }
+    .partnership-entry:not(.has-secondary) > .secondary-entry { display: none; }
+    .partnership-entry.teacher-only > .partnership-item:first-child { display: none; }
+    .partnership-entry.teacher-only > .partnership-divider { display: none; }
+    .partnership-entry.teacher-only > .secondary-entry { display: contents; }
+    .partnership-entry.has-secondary .partnership-item { min-width: 0; display: flex; align-items: center; justify-content: center; gap: 9px; color: inherit; white-space: nowrap; }
+    .partnership-entry.has-secondary > .secondary-entry[hidden] { display: none; }
+    .partnership-entry .partnership-item .bubble { flex: 0 0 40px; }
+    .partnership-entry .partnership-item:last-of-type { pointer-events: none; }
+    .partnership-entry .secondary-entry[hidden] { display: none; }
+    .partnership-entry.has-secondary:has(.secondary-entry[hidden]) { grid-template-columns: 40px minmax(0, 1fr) 7px; }
+    .partnership-entry.has-secondary:has(.secondary-entry[hidden]) .partnership-divider { display: none; }
+    .menu-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); }
+    .menu-item { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; color: inherit; font-size: 14px; text-decoration: none; white-space: nowrap; }
+    .menu-item .bubble { width: 39px; height: 39px; }
+    .menu-item .icon { width: 21px; height: 21px; stroke-width: 2; }
+    .promotion-entry {
+      width: 100%;
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) 7px;
+      align-items: center;
+      gap: 10px;
+      color: #28445f;
+      text-align: left;
+      text-decoration: none;
+    }
+    .promotion-entry .bubble {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      color: #3973ad;
+      background: #eaf4ff;
+    }
+    .promotion-entry .icon { width: 22px; height: 22px; stroke-width: 2; }
+    .promotion-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .promotion-copy strong { font-size: 16px; line-height: 22px; font-weight: 650; }
+    .promotion-copy small { overflow: hidden; color: #718091; font-size: 14px; line-height: 20px; text-overflow: ellipsis; white-space: nowrap; }
+    .promotion-arrow { width: 7px; height: 7px; border: solid #8c99a8; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+    .service-section { height: 128px; }
+    .service-section .menu-grid { grid-template-columns: repeat(3, 1fr); }
+    .service-section .menu-item .bubble { width: 39px; height: 39px; }
+
+    .quick-links { height: 82px; margin-top: 12px; padding: 11px 0 8px; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .quick-link { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; }
+    .quick-link + .quick-link::before { content: ""; position: absolute; left: 0; top: 8px; width: 1px; height: 34px; background: #e5e5e5; }
+    .quick-link .icon { width: 23px; height: 23px; color: var(--blue); stroke-width: 2; }
+
+    .info-card { height: 115px; margin-top: 12px; padding: 15px; }
+    .info-row { width: 100%; height: 41px; display: flex; align-items: center; gap: 11px; text-align: left; font-size: 14px; }
+    .info-row[hidden] { display: none; }
+    .info-row + .info-row { border-top: 1px solid #e5e5e5; }
+    .info-row .icon { width: 18px; height: 18px; color: var(--icon); stroke-width: 2; }
+    .info-row::after { content: ""; width: 7px; height: 7px; margin-left: auto; border: solid #9098a5; border-width: 2px 2px 0 0; transform: rotate(45deg); }
+    .logout-action {
+      width: 100%;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      margin-top: 6px;
+      border-radius: 11px;
+      color: #df4b4b;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .tabbar {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: calc(88px + env(safe-area-inset-bottom));
+      padding: 4px 0 env(safe-area-inset-bottom);
+      transform: none;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: rgba(255,255,255,.98);
+      box-shadow: 0 -6px 14px rgba(45,52,67,.08);
+    }
+    .tab { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #999b9d; font-size: 14px; white-space: nowrap; }
+    .tab .icon { width: 22px; height: 22px; stroke-width: 2; }
+    .tab.active { color: #c87312; font-weight: 700; }
+    .tab.crown .icon { fill: currentColor; stroke: none; }
+    .tab.message .icon { fill: currentColor; stroke: none; }
+    .tab.mine .icon { fill: currentColor; stroke: none; }
+    .home-indicator {
+      position: absolute;
+      z-index: 25;
+      left: 50%;
+      bottom: 6px;
+      width: 126px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 4px;
+      background: #111;
+      pointer-events: none;
+    }
+
+    @media (max-width: 370px) {
+      .page { padding-inline: 9px; }
+      .profile { grid-template-columns: 61px minmax(0, 1fr); padding-inline: 11px 8px; }
+      .profile-copy { padding-left: 5px; }
+      .name-row strong { font-size: 16px; }
+      .menu-item { font-size: 14px; }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 16px; }
+      .phone-shell { width: min(464px, calc(100vw - 24px), calc(47.347svh - 11.36px)); }
+    }
+
+    /* Reference canvas: 464 x 1090, with a 440px mini-program viewport. */
+    body {
+      min-height: 100svh;
+      padding: 0;
+      display: block;
+      position: relative;
+      overflow-x: hidden;
+      background: #050505;
+    }
+    .phone-shell {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 464px;
+      height: 1090px;
+      aspect-ratio: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #050505;
+      box-shadow: none;
+      transform: translateX(-50%) scale(var(--page-scale, 1));
+      transform-origin: top center;
+    }
+    .phone-shell::before,
+    .phone-shell::after,
+    .dynamic-island,
+    .home-indicator { display: none; }
+    .app {
+      position: absolute;
+      left: 12px;
+      top: 0;
+      width: 440px;
+      height: 1082px;
+      border-radius: 0;
+      background: #f5f4f6;
+      box-shadow: none;
+    }
+    .page {
+      height: 1002px;
+      padding: 0 12px;
+      overflow: hidden;
+    }
+    .statusbar {
+      height: 36px;
+      padding: 17px 24px 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .device-status { gap: 8px; }
+    .titlebar {
+      height: 44px;
+      align-items: flex-start;
+    }
+    .titlebar h1 {
+      margin: 12px 0 0;
+      padding: 0;
+      font-size: 18px;
+      line-height: 26px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .capsule {
+      right: 5px;
+      top: 13px;
+      width: 84px;
+      height: 30px;
+      border-radius: 16px;
+    }
+    .card { border-radius: 14px; }
+    .profile {
+      z-index: 2;
+      height: 80px;
+      width: calc(100% + 8px);
+      margin: -30px 0 0 -8px;
+      grid-template-columns: 90px minmax(0, 1fr);
+      padding: 0 16px 0 10px;
+      overflow: visible;
+      border-radius: 0;
+      background: transparent;
+    }
+    .profile::after {
+      display: none;
+    }
+    .avatar-wrap {
+      position: relative;
+      z-index: 1;
+      width: 90px;
+      height: 90px;
+      transform: translateX(-2px);
+      overflow: hidden;
+      border-radius: 50%;
+      background: transparent;
+    }
+    .profile-avatar {
+      position: absolute;
+      inset: 0;
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 50%;
+    }
+    .profile-copy { position: relative; z-index: 1; padding-left: 2px; }
+    .name-row { gap: 8px; }
+    .avatar-wrap,
+    .profile-name-link { color: inherit; text-decoration: none; }
+    .profile-name-link { display: inline-flex; }
+    .name-row strong { color: #592d0b; font-size: 18px; line-height: 24px; }
+    .role-tag { padding: 2px 6px; color: var(--ink); background: #fff; font-size: 14px; }
+    .role-tag-school { color: #9a5b18; background: #ffe4bd; }
+    .role-tag-sales-consultant { color: #5b7656; background: #e8f0e5; }
+    .role-tag-course-advisor { color: #76518f; background: #eee1f7; }
+    .role-tag-teacher { color: #416b9b; background: #e1edf9; }
+    .role-tag-parent { color: #98645e; background: #f8e5e2; }
+    .section { padding: 17px 15px 14px; }
+    .section h2 { font-size: 14px; }
+    .maker {
+      position: relative;
+      margin: 10px 2px 0;
+      height: auto;
+      padding: 16px;
+      border: 1px solid #c9ded8;
+      border-radius: 16px;
+      background: linear-gradient(125deg, #ffffff, #f2f8f5);
+      box-shadow: 0 5px 16px rgba(49,95,88,.07);
+    }
+    .maker-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .maker-total-label { display: block; color: #536561; font-size: 14px; line-height: 20px; }
+    .maker-total { display: block; margin-top: 4px; color: #2e7065; font-size: 24.3px; line-height: 31px; font-weight: 700; }
+    .maker-total small { font-size: 15px; margin-right: 3px; }
+    .maker-locked { position: relative; margin: 10px 0 0; width: 100%; }
+    .channel-label { position: absolute; color: #fff; font-weight: 600; line-height: 1; font-size: 15px; }
+    .channel-label.title { left: 3.3%; top: 12%; }
+    .channel-label.status { left: 56.3%; top: 22%; }
+    .center-shortcuts[hidden] { display: none; }
+    .maker-locked img { display: block; width: 100%; height: auto; }
+    .maker-locked.channel-theme img { filter: hue-rotate(-105deg) saturate(.62) brightness(1.06); }
+    .maker[hidden], .maker-locked[hidden] { display: none; }
+    .maker-demo { padding: 2px 8px; border: 1px solid #cfd6df; border-radius: 6px; background: #fff; white-space: nowrap; }
+    .maker-demo[aria-pressed="true"] { color: #3154da; background: #eef2ff; border-color: #9bacf4; }
+    .maker .more { flex: 0 0 auto; gap: 7px; padding: 9px 12px; border-radius: 22px; color: #376e62; background: #e0eee7; font-size: 13px; line-height: 18px; }
+    .maker .more::after { width: 6px; height: 6px; border-color: #376e62; }
+    .maker.consultant-sales { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 7px 14px 0; border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(49,95,88,.07); }
+    .maker.consultant-sales .maker-summary { display: contents; }
+    .maker.consultant-sales .maker-summary > div { display: none; }
+    .maker.consultant-sales .maker-total { display: none; }
+    .maker.consultant-sales .more { grid-column: 1 / -1; grid-row: 2; justify-content: center; margin-top: 4px; padding: 6px 0 7px; border-top: 1px solid #eee9e3; border-radius: 0; color: #252a31; background: transparent; font-size: 14px; line-height: 20px; }
+    .maker.consultant-sales .more::after { width: 7px; height: 7px; border-color: #9299a5; }
+    .maker.consultant-sales .maker-grid { display: contents; }
+    .maker.consultant-sales .stat { grid-row: 1; flex-direction: column-reverse; justify-content: center; gap: 1px; padding: 5px 4px; }
+    .maker.consultant-sales .stat + .stat { border-left: 1px solid #eee9e3; }
+    .maker.consultant-sales .stat-label { color: #252a31; font-size: 13px; line-height: 17px; }
+    .maker.consultant-sales .stat .stat-value,
+    .maker.consultant-sales .default-stat + .default-stat .stat-value { color: #319b83; font-size: 23px; line-height: 27px; font-weight: 700; }
+    .maker.consultant-sales .default-stat:nth-child(2) .stat-value { color: #4b82ad; }
+    .maker.consultant-sales .stat-value small { margin-left: 4px; font-size: 14px; }
+    .maker .maker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; margin-top: 14px; padding-top: 12px; border-top: 1px solid #d6e4de; }
+    .maker .stat { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 7px; min-width: 0; }
+    .maker .stat[hidden] { display: none; }
+    .maker .default-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    .maker .stat-label { color: #536561; font-size: 14px; line-height: 24px; }
+    .maker .stat .stat-value { margin: 0; color: #477ca6; font-size: 21.85px; line-height: 27px; font-weight: 650; }
+    .maker .default-stat + .default-stat .stat-value { color: #359782; }
+    .maker .stat-value small { margin-left: 3px; font-size: 13px; font-weight: 400; }
+    .maker:not(.school-mode) { padding-top: 11px; padding-bottom: 11px; }
+    .maker:not(.school-mode) .maker-grid { margin-top: 8px; padding-top: 8px; }
+    /* 加盟校专属卡片：左右数据区与底部入口 */
+    .maker.school-mode {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      align-items: start;
+      height: auto;
+      padding: 0;
+      overflow: hidden;
+      border-color: #cfdfd9;
+      background: linear-gradient(115deg, #fff 25%, #f0f6f3 100%);
+      box-shadow: 0 4px 14px rgba(49, 95, 88, .06);
+    }
+    .maker.school-mode .maker-summary { display: contents; }
+    .maker.school-mode .maker-summary > div { grid-column: 1; grid-row: 1; min-width: 0; padding: 8px 0 7px 18px; }
+    .maker.school-mode .maker-total-label,
+    .maker.school-mode .stat-label { margin: 0; color: #697a74; font-size: 13px; line-height: 20px; }
+    .maker.school-mode .maker-total { margin-top: 5px; color: #305f53; font-size: 24px; line-height: 30px; font-weight: 650; letter-spacing: -.6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .maker.school-mode .maker-total small { margin-right: 2px; font-size: 14px; font-weight: 500; }
+    .maker.school-mode .maker-grid { grid-column: 2; grid-row: 1; display: flex; align-items: flex-start; justify-content: center; margin: 0; padding: 8px 12px 7px; border: 0; }
+    .maker.school-mode .maker-grid { position: relative; }
+    .maker.school-mode .maker-grid::before { content: ""; position: absolute; left: 0; top: 11px; bottom: 11px; width: 1px; background: #d5e2dc; }
+    .maker.school-mode .school-stat { flex-direction: column; align-items: flex-start; gap: 5px; }
+    .maker.school-mode .school-stat .stat-value { color: #305f53; font-size: 24px; line-height: 30px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .maker.school-mode .school-stat .stat-value small { margin-left: 5px; color: #697a74; font-size: 12px; }
+    .maker.school-mode .more { grid-column: 1 / -1; justify-self: stretch; justify-content: center; gap: 8px; margin: 0; padding: 5px 16px; border-top: 1px solid #dce8e2; border-radius: 0; color: #416b5e; background: transparent; font-size: 13px; font-weight: 500; line-height: 20px; }
+    .maker.school-mode .more::after { width: 5px; height: 5px; border-color: #638477; }
+    /* 课程顾问专属：三列团队数据 */
+    .maker.advisor-mode { padding-top: 8px; padding-bottom: 8px; }
+    .maker.advisor-mode .maker-total { margin-top: 2px; }
+    .maker.advisor-mode .maker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; padding-top: 6px; }
+    .maker.advisor-mode .stat { flex-direction: column-reverse; gap: 0; }
+    .maker.advisor-mode .stat-label { font-size: 12px; line-height: 18px; }
+    .maker.advisor-mode .stat-value { font-size: 21.85px; line-height: 27px; font-variant-numeric: tabular-nums; }
+    .maker.advisor-mode .school-stat .stat-value { color: #305f53; }
+    .maker.advisor-mode .school-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    .maker.consultant-sales.advisor-mode .school-stat + .default-stat { border-left: 0; }
+    /* 课程顾问仅展示一星、二星团队，均分两列且不留隐藏统计的边线 */
+    .maker.course-advisor-mode { height: auto; padding: 11px 15px; }
+    .maker.course-advisor-mode .maker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; padding-top: 8px; }
+    .maker.course-advisor-mode .school-stat + .default-stat { border-left: 0; }
+    .maker.course-advisor-mode .default-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    /* 加盟校以外角色统一团队统计：标签与人数横排，两列均分 */
+    .maker.team-stat-unified .default-stat { flex-direction: row; align-items: center; justify-content: center; gap: 7px; min-width: 0; padding: 0; }
+    .maker.team-stat-unified .school-stat + .default-stat { border-left: 0; }
+    .maker.team-stat-unified .default-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    .maker.team-stat-unified .default-stat .stat-label { color: #536561; font-size: 14px; line-height: 24px; }
+    .maker.team-stat-unified .default-stat .stat-value { margin: 0; color: #477ca6; font-size: 21.85px; line-height: 27px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .maker.team-stat-unified .default-stat + .default-stat .stat-value { color: #359782; }
+    .maker.team-stat-unified .default-stat .stat-value small { margin-left: 3px; font-size: 13px; font-weight: 400; }
+    .center-shortcuts {
+      margin: 10px 2px 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .center-shortcuts:has(.teaching[hidden]) { grid-template-columns: minmax(0, 1fr); }
+    .center-card {
+      position: relative;
+      height: 84px;
+      min-width: 0;
+      padding: 12px 11px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 7px;
+      align-items: center;
+      gap: 9px;
+      overflow: hidden;
+      color: #28445f;
+      text-decoration: none;
+      box-shadow: 0 3px 10px rgba(54,88,118,.07);
+    }
+    .center-card.teaching { border-color: #dbeafa; background: #eef6ff; }
+    .center-card.learning { border-color: #dcefe6; background: #eef9f4; }
+    .center-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.9);
+    }
+    .center-card.teaching .center-icon { color: #3f72ad; }
+    .center-card.learning .center-icon { color: #34765d; }
+    .center-icon .icon { width: 21px; height: 21px; stroke-width: 2; }
+    .center-copy { min-width: 0; display: flex; flex-direction: column; }
+    .center-title { min-width: 0; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .center-title strong { display: block; flex: 0 0 auto; font-size: 15px; line-height: 20px; font-weight: 650; }
+    .center-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; line-height: 20px; }
+    .center-role { flex: 0 0 auto; color: #496b8f; font-size: 15px; line-height: 20px; font-weight: 500; }
+    .center-desc { color: #718091; }
+    .center-card.learning .center-role { color: #477963; }
+    .center-card.learning .center-desc { color: #71847a; }
+    .center-arrow { width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; opacity: .55; transform: rotate(45deg); }
+    .menu-section,
+    .maker + .menu-section,
+    .service-section {
+      height: 122px;
+      margin-top: 10px;
+      padding: 13px 15px 8px;
+    }
+    .menu-section,
+    .maker + .menu-section { height: 78px; padding: 9px 15px; }
+    .promotion-section { height: 78px; padding: 9px 15px; }
+    .promotion-section .promotion-entry { min-height: 60px; }
+    .menu-section .partnership-entry { min-height: 60px; }
+    .menu-grid { margin-top: 10px; }
+    .menu-section .menu-grid { margin-top: 5px; }
+    .menu-item { gap: 5px; font-size: 14px; }
+    .menu-item .bubble,
+    .service-section .menu-item .bubble { width: 42px; height: 42px; }
+    .quick-links {
+      height: 82px;
+      margin-top: 6px;
+      padding: 11px 0 8px;
+    }
+    .info-card {
+      height: auto;
+      margin-top: 10px;
+      padding: 14px 16px;
+    }
+    .info-row { height: 48px; }
+    .logout-action { height: 50px; margin-top: 10px; }
+    .tabbar {
+      bottom: 0;
+      height: 92px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 -8px 18px rgba(45,52,67,.09);
+    }
+    .tab-art-set {
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      pointer-events: none;
+    }
+    .tab-art-piece {
+      position: absolute;
+      top: 0;
+      width: 80px;
+      height: 34px;
+      overflow: hidden;
+    }
+    .tab-art-piece:nth-child(1) { left: 4px; }
+    .tab-art-piece:nth-child(2) { left: 92px; }
+    .tab-art-piece:nth-child(3) { left: 180px; }
+    .tab-art-piece:nth-child(4) { left: 268px; }
+    .tab-art-piece:nth-child(5) { left: 356px; }
+    .tab-art-piece img {
+      position: absolute;
+      top: 0;
+      width: 484px;
+      max-width: none;
+      height: auto;
+    }
+    .tab-art-piece:nth-child(1) img { left: -14px; }
+    .tab-art-piece:nth-child(2) img { left: -107px; }
+    .tab-art-piece:nth-child(3) img { left: -201px; }
+    .tab-art-piece:nth-child(4) img { left: -295px; }
+    .tab-art-piece:nth-child(5) img { left: -389px; }
+    .tab-art-piece .active-art { opacity: 0; }
+    .tabbar[data-active-tab="0"] .tab-art-piece:nth-child(1) .active-art,
+    .tabbar[data-active-tab="1"] .tab-art-piece:nth-child(2) .active-art,
+    .tabbar[data-active-tab="2"] .tab-art-piece:nth-child(3) .active-art,
+    .tabbar[data-active-tab="3"] .tab-art-piece:nth-child(4) .active-art,
+    .tabbar[data-active-tab="4"] .tab-art-piece:nth-child(5) .active-art { opacity: 1; }
+    .tab {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      color: transparent;
+      font-size: 0;
+    }
+    .tab .icon,
+    .tab span { display: none; }
+    .tab > span { position: absolute; right: 0; bottom: 7px; left: 0; z-index: 3; display: block; color: #96999d; background: rgba(255,255,255,.96); font-size: 12px; line-height: 16px; text-align: center; }
+    .tab.active > span { color: #c87312; font-weight: 700; }
+
+    @media (max-width: 463px) {
+      body { background: #f5f4f6; }
+    }
+
+    /* iPhone 17 Pro Max frame: 440 x 956 logical screen inside a 464 x 980 shell. */
+    body {
+      height: 100svh;
+      min-height: 100svh;
+      padding: 16px;
+      display: grid;
+      grid-template-rows: 100%;
+      place-items: center;
+      overflow: hidden;
+      background: #e7eaee;
+    }
+    .role-switch {
+      position: fixed;
+      z-index: 100;
+      top: 18px;
+      left: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px 6px 10px;
+      border: 1px solid #d8dde4;
+      border-radius: 9px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 4px 14px rgba(35,45,58,.12);
+      color: #59616d;
+      font-size: 13px;
+      line-height: 22px;
+    }
+    .role-switch-label { white-space: nowrap; }
+    .role-switch select {
+      height: 26px;
+      padding: 0 22px 0 7px;
+      border: 1px solid #cfd6df;
+      border-radius: 6px;
+      background: #fff;
+      color: #242a33;
+      font: inherit;
+      cursor: pointer;
+    }
+    .role-switch select:focus { outline: 2px solid rgba(200,115,18,.22); outline-offset: 1px; }
+    .center-card.teaching[hidden] { display: none; }
+    .center-card.role-entry[hidden] { display: none; }
+    @media (max-width: 520px) {
+      .role-switch { top: 8px; left: 8px; }
+    }
+    .phone-shell {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 464px;
+      height: 980px;
+      padding: 11px;
+      border: 1px solid #777d84;
+      border-radius: 66px;
+      background: linear-gradient(135deg, #bfc3c7 0%, #f4f5f6 20%, #8d9298 49%, #d9dcdf 72%, #73787e 100%);
+      box-shadow: 0 34px 70px rgba(32,38,45,.28), 0 10px 22px rgba(32,38,45,.18), inset 0 0 0 1px rgba(255,255,255,.75), inset 0 0 0 3px rgba(33,36,40,.68);
+      transform: scale(var(--device-scale, 1));
+      transform-origin: center;
+    }
+    .phone-shell::before {
+      display: block;
+      left: -4px;
+      top: 173px;
+      width: 4px;
+      height: 61px;
+      border-radius: 3px 0 0 3px;
+      background: #737980;
+      box-shadow: 0 78px 0 #737980;
+    }
+    .phone-shell::after {
+      display: block;
+      right: -4px;
+      top: 222px;
+      width: 4px;
+      height: 94px;
+      border-radius: 0 3px 3px 0;
+      background: #737980;
+    }
+    .dynamic-island {
+      display: block;
+      top: 22px;
+    }
+    .app {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 440px;
+      height: 956px;
+      overflow: hidden;
+      border-radius: 54px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.52);
+    }
+    .page {
+      width: 100%;
+      height: 100%;
+      padding: 0 12px 106px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background:
+        linear-gradient(to bottom, rgba(245,244,246,0) 235px, #f5f4f6 285px),
+        linear-gradient(105deg, transparent 16%, rgba(255,255,255,.3) 35%, transparent 54%),
+        radial-gradient(ellipse 210px 125px at 18% 24px, rgba(255,255,255,.56), transparent 72%),
+        linear-gradient(118deg, #e9f1ef 0%, #cbdcd8 50%, #a9c4bd 100%);
+      background-attachment: local;
+    }
+    .titlebar h1 { color: #315f58; }
+    .capsule { border-color: rgba(56,107,99,.18); }
+    .tabbar { height: 80px; }
+
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-teacher" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-1.5a7 7 0 0 1 14 0V21M4 4h3M17 4h3M12 2v2"/></symbol>
+    <symbol id="i-graduation" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5M22 10v6"/></symbol>
+    <symbol id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0L11 11.4a1 1 0 0 1-3-3l2.4-2.4a4 4 0 0 1 5.6 0l.5.5"/><path d="m18 8 1-1 4 4-5 5M6 8 5 7l-4 4 5 5M8 16l-1 1a1 1 0 0 0 3 3l1-1"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.5 4A2.5 2.5 0 0 0 7 6.5v.4a3 3 0 0 0-2 4.6 3 3 0 0 0 2.5 4.5H9"/><path d="M14.5 4A2.5 2.5 0 0 1 17 6.5v.4a3 3 0 0 1 2 4.6 3 3 0 0 1-2.5 4.5H15"/><path d="M12 3v18M8 9a3 3 0 0 0 4-3M16 9a3 3 0 0 1-4-3M8 15a3 3 0 0 1 4 3M16 15a3 3 0 0 0-4 3"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.5a1.5 1.5 0 0 0 1.1-2.5l-.5-.5a1.5 1.5 0 0 1 1.1-2.5H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3Z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/><circle cx="17" cy="11" r="1"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M3 11v2a2 2 0 0 0 2 2h2l8 4V5L7 9H5a2 2 0 0 0-2 2Z"/><path d="M7 15l1 5h3M19 8a5 5 0 0 1 0 8M17 10a3 3 0 0 1 0 4"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 18v3"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2.5 3 6 6.6 1-4.8 4.6 1.1 6.5-5.9-3.1-5.9 3.1 1.1-6.5-4.8-4.6 6.6-1Z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1.1.9-1.1 1.7M12 17h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+  </svg>
+
+  <div class="role-switch" aria-label="原型角色切换">
+    <span class="role-switch-label">当前角色</span>
+    <select id="role-switch" aria-label="切换角色">
+      <option value="school">加盟校</option>
+      <option value="course-advisor">课程顾问</option>
+      <option value="teacher">老师</option>
+      <option value="parent">家长</option>
+      <option value="sales-consultant">顾问/销售</option>
+    </select>
+    <button type="button" class="maker-demo" id="maker-demo" aria-pressed="false">演示未开通</button>
+  </div>
+  <div class="phone-shell" aria-label="iPhone 17 Pro Max 手机模型">
+    <div class="dynamic-island" aria-hidden="true"></div>
+    <main class="app">
+      <div class="page">
+      <header>
+        <div class="statusbar">
+          <span>23:58</span>
+          <div class="device-status" aria-label="手机状态">
+            <span class="signal"><i></i><i></i><i></i><i></i></span>
+            <span class="wifi"><i></i></span>
+            <span class="battery"></span>
+          </div>
+        </div>
+        <div class="titlebar">
+          <div class="capsule" aria-label="小程序菜单">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="mini-ring" aria-hidden="true"></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="profile card">
+        <span class="avatar-wrap"><img class="profile-avatar" src="assets/user-avatar.png" alt="优坐标"></span>
+        <div class="profile-copy">
+          <div class="name-row"><strong>张三</strong></div>
+        </div>
+      </section>
+
+      <nav class="center-shortcuts" aria-label="中心入口">
+          <div class="center-card teaching"><span class="center-icon"><svg class="icon"><use href="#i-tablet"/></svg></span><span class="center-copy"><span class="center-title"><strong>授课中心</strong><span class="center-role">教师端</span></span><small class="center-desc">排课与教学</small></span><i class="center-arrow" aria-hidden="true"></i></div>
+          <div class="center-card learning"><span class="center-icon"><svg class="icon"><use href="#i-graduation"/></svg></span><span class="center-copy"><span class="center-title"><strong>学习中心</strong><span class="center-role">家长端</span></span><small class="center-desc">课程与学习</small></span><i class="center-arrow" aria-hidden="true"></i></div>
+      </nav>
+
+      <section class="section maker card">
+        <div class="maker-summary">
+          <div><span class="maker-total-label">累计收益</span><strong class="maker-total"><small>¥</small>186,420.50</strong></div>
+          <span class="more">进入创客中心</span>
+        </div>
+        <div class="maker-grid">
+          <div class="stat school-stat"><span class="stat-label">课程顾问</span><span class="stat-value">20<small>人</small></span></div>
+          <div class="stat default-stat"><span class="stat-label">一星团队</span><span class="stat-value">20<small>人</small></span></div>
+          <div class="stat default-stat"><span class="stat-label">二星团队</span><span class="stat-value">10<small>人</small></span></div>
+        </div>
+      </section>
+
+      <section class="section menu-section card">
+        <div class="promotion-entry partnership-entry">
+          <span class="partnership-item">
+            <span class="bubble"><svg class="icon"><use href="#i-handshake"/></svg></span>
+            <span class="promotion-copy"><strong>申请合伙人</strong></span>
+          </span>
+          <i class="partnership-divider" aria-hidden="true"></i>
+          <span class="partnership-item secondary-entry" id="teacher-onboarding" hidden>
+            <span class="bubble"><svg class="icon"><use href="#i-teacher"/></svg></span>
+            <span class="promotion-copy"><strong>教师入驻</strong></span>
+          </span>
+          <i class="promotion-arrow" aria-hidden="true"></i>
+        </div>
+      </section>
+
+      <section class="section promotion-section card">
+        <div class="promotion-entry">
+          <span class="bubble"><svg class="icon"><use href="#i-megaphone"/></svg></span>
+          <span class="promotion-copy"><strong>推广中心</strong><small>精选海报、图文与推广文案</small></span>
+          <i class="promotion-arrow" aria-hidden="true"></i>
+        </div>
+      </section>
+
+      <section class="maker-locked" id="maker-locked" aria-label="创客中心未开通" hidden>
+        <img src="assets/maker-center-locked.png" width="1260" height="366" alt="创客中心：创客中心未开通，加入团队，解锁更多收益。申请开通">
+        <span class="channel-label title" hidden>渠道商中心</span>
+        <span class="channel-label status" hidden>渠道商中心未开通</span>
+      </section>
+
+      <section class="info-card card">
+<div class="info-row"><svg class="icon"><use href="#i-qr"/></svg><span>我的邀请码</span></div>
+<div class="info-row" id="my-orders-entry"><svg class="icon"><use href="#i-file"/></svg><span>我的订单</span></div>
+<div class="info-row"><svg class="icon"><use href="#i-star"/></svg><span>我的收藏</span></div>
+<div class="info-row"><svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span></div>
+<div class="info-row"><svg class="icon"><use href="#i-info"/></svg><span>关于我们</span></div>
+      </section>
+      <div class="logout-action">退出登录</div>
+      </div>
+
+      <nav class="tabbar" data-active-tab="4" aria-label="底部导航">
+        <div class="tab-art-set" aria-hidden="true">
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+          <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
+        </div>
+        <div class="tab"><span>首页</span></div>
+        <div class="tab"><span>全部教员</span></div>
+        <div class="tab"><span>AI单词</span></div>
+        <div class="tab"><span>消息</span></div>
+        <div class="tab active"><span>我的</span></div>
+      </nav>
+    </main>
+  </div>
+
+  <script>
+    /* 窗口缩放与原型演示切换 */
+    function fitDevice() {
+      const scale = Math.min((window.innerWidth - 32) / 464, (window.innerHeight - 32) / 980, 1);
+      document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2));
+    }
+    fitDevice();
+    window.addEventListener('resize', fitDevice, { passive: true });
+
+    const roleSwitch = document.getElementById('role-switch');
+    const teachingCenter = document.querySelector('.center-card.teaching');
+    const learningCenter = document.querySelector('.center-card.learning');
+    const roleShortcuts = document.querySelector('.center-shortcuts');
+    const partnershipEntry = document.querySelector('.partnership-entry');
+    const teacherOnboarding = document.getElementById('teacher-onboarding');
+    const roleConfig = {
+      school: { tags: ['school', 'teacher', 'parent'], centers: ['teaching', 'learning'], channel: true },
+      'sales-consultant': { tags: ['sales-consultant'], centers: [], channel: true },
+      teacher: { tags: ['teacher', 'parent'], centers: ['teaching'] },
+      parent: { tags: ['parent'], centers: ['learning'] },
+      'course-advisor': { tags: ['course-advisor', 'parent'], centers: ['learning'], channel: true },
+    };
+    roleSwitch.addEventListener('change', function () {
+      const config = roleConfig[roleSwitch.value];
+      teachingCenter.hidden = !config.centers || !config.centers.includes('teaching');
+      learningCenter.hidden = !config.centers || !config.centers.includes('learning');
+      roleShortcuts.hidden = !config.centers || config.centers.length === 0;
+      document.getElementById('my-orders-entry').hidden = false;
+      const dualPartnershipRole = roleSwitch.value === 'parent';
+      const teacherOnlyRole = roleSwitch.value === 'course-advisor';
+      teacherOnboarding.hidden = !dualPartnershipRole && !teacherOnlyRole;
+      partnershipEntry.classList.toggle('has-secondary', dualPartnershipRole);
+      partnershipEntry.classList.toggle('teacher-only', teacherOnlyRole);
+      updateMakerVisibility();
+    });
+    const makerDemo = document.getElementById('maker-demo');
+    const makerOpen = document.querySelector('.maker');
+    const makerLocked = document.getElementById('maker-locked');
+    const makerMenu = document.querySelector('.menu-section');
+    function updateMakerVisibility() {
+      const channel = !!roleConfig[roleSwitch.value].channel;
+      const eligible = channel || ['teacher', 'parent'].includes(roleSwitch.value);
+      const name = channel ? '渠道商中心' : '创客中心';
+      const advisorMode = ['school', 'sales-consultant', 'course-advisor'].includes(roleSwitch.value);
+      makerOpen.classList.remove('school-mode');
+      makerOpen.classList.toggle('advisor-mode', advisorMode);
+      makerOpen.classList.toggle('consultant-sales', roleSwitch.value === 'sales-consultant');
+      makerOpen.classList.toggle('course-advisor-mode', roleSwitch.value === 'course-advisor');
+      makerOpen.classList.toggle('team-stat-unified', roleSwitch.value !== 'school');
+      makerOpen.querySelectorAll('.school-stat').forEach(function (item) { item.hidden = roleSwitch.value !== 'school'; });
+      makerOpen.querySelectorAll('.default-stat').forEach(function (item) { item.hidden = false; });
+      makerLocked.classList.toggle('channel-theme', channel);
+      makerOpen.querySelector('.more').textContent = roleSwitch.value === 'sales-consultant' ? '查看详情' : '进入' + name;
+      makerLocked.setAttribute('aria-label', name + '未开通');
+      const picture = makerLocked.querySelector('img');
+      picture.src = channel ? 'assets/channel-center-locked.png' : 'assets/maker-center-locked.png';
+      picture.alt = name + '：' + name + '未开通，加入团队，解锁更多收益。申请开通';
+      makerLocked.querySelectorAll('.channel-label').forEach(function (label) { label.hidden = !channel; });
+      const locked = makerDemo.getAttribute('aria-pressed') === 'true';
+      const demoEligible = eligible && roleSwitch.value !== 'sales-consultant';
+      if (channel && !locked) {
+        roleShortcuts.parentNode.insertBefore(makerOpen, roleShortcuts);
+      } else if (makerOpen.nextElementSibling !== makerMenu) {
+        makerMenu.parentNode.insertBefore(makerOpen, makerMenu);
+      }
+      makerDemo.hidden = !demoEligible;
+      makerOpen.hidden = !eligible || (demoEligible && locked);
+      makerLocked.hidden = !eligible || !demoEligible || !locked;
+      makerMenu.hidden = ['school', 'sales-consultant'].includes(roleSwitch.value);
+    }
+    makerDemo.addEventListener('click', function () {
+      const locked = makerDemo.getAttribute('aria-pressed') !== 'true';
+      makerDemo.setAttribute('aria-pressed', String(locked));
+      makerDemo.textContent = locked ? '恢复已开通' : '演示未开通';
+      updateMakerVisibility();
+    });
+    roleSwitch.dispatchEvent(new Event('change'));
+  </script>
+</body>
+</html>
