@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f5cf98">
-  <title>个人中心 v2.0</title>
+  <meta name="theme-color" content="#d7e9e5">
+  <title>个人中心改版 · 主页面还原</title>
   <style>
     :root {
       --blue: #c87312;
@@ -187,9 +187,6 @@
     .name-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
     .name-row strong { overflow: hidden; text-overflow: ellipsis; font-size: 17px; line-height: 22px; }
     .role-tag { padding: 2px 6px; border-radius: 4px; color: #535965; background: #f1f3f6; font-size: 14px; }
-    .membership { margin-top: 8px; display: flex; align-items: center; gap: 6px; color: #626572; font-size: 14px; white-space: nowrap; }
-    .membership b { color: #545b66; font-weight: 500; }
-    .membership-divider { width: 1px; height: 14px; background: #b77a3d; }
     .section { margin-top: 12px; padding: 17px 15px 14px; }
     .section-head { height: 23px; display: flex; align-items: center; justify-content: space-between; }
     .section h2 { margin: 0; font-size: 18px; line-height: 23px; font-weight: 700; letter-spacing: 0; }
@@ -214,6 +211,27 @@
 
     .menu-section { height: 128px; margin-top: 13px; padding-top: 17px; }
     .maker + .menu-section { height: 127px; }
+    .menu-section,
+    .maker + .menu-section { height: 78px; padding: 9px 15px; }
+    .partnership-entry { grid-template-columns: 40px minmax(0, 1fr) 7px; }
+    .partnership-entry .bubble { color: #548a74; background: #edf5f0; }
+    .partnership-entry.has-secondary { grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 0; }
+    .partnership-entry.has-secondary > .promotion-arrow { display: none; }
+    .partnership-entry .partnership-divider { width: 1px; height: 28px; background: #e2e9e5; }
+    .partnership-entry .partnership-item { min-width: 0; display: flex; align-items: center; gap: 10px; color: inherit; white-space: nowrap; }
+    .partnership-entry:not(.has-secondary) > .partnership-item:first-child { display: contents; }
+    .partnership-entry:not(.has-secondary) > .partnership-divider { display: none; }
+    .partnership-entry:not(.has-secondary) > .secondary-entry { display: none; }
+    .partnership-entry.teacher-only > .partnership-item:first-child { display: none; }
+    .partnership-entry.teacher-only > .partnership-divider { display: none; }
+    .partnership-entry.teacher-only > .secondary-entry { display: contents; }
+    .partnership-entry.has-secondary .partnership-item { min-width: 0; display: flex; align-items: center; justify-content: center; gap: 9px; color: inherit; white-space: nowrap; }
+    .partnership-entry.has-secondary > .secondary-entry[hidden] { display: none; }
+    .partnership-entry .partnership-item .bubble { flex: 0 0 40px; }
+    .partnership-entry .partnership-item:last-of-type { pointer-events: none; }
+    .partnership-entry .secondary-entry[hidden] { display: none; }
+    .partnership-entry.has-secondary:has(.secondary-entry[hidden]) { grid-template-columns: 40px minmax(0, 1fr) 7px; }
+    .partnership-entry.has-secondary:has(.secondary-entry[hidden]) .partnership-divider { display: none; }
     .menu-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); }
     .menu-item { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; color: inherit; font-size: 14px; text-decoration: none; white-space: nowrap; }
     .menu-item .bubble { width: 39px; height: 39px; }
@@ -252,12 +270,15 @@
 
     .info-card { height: 115px; margin-top: 12px; padding: 15px; }
     .info-row { width: 100%; height: 41px; display: flex; align-items: center; gap: 11px; text-align: left; font-size: 14px; }
+    .info-row[hidden] { display: none; }
     .info-row + .info-row { border-top: 1px solid #e5e5e5; }
     .info-row .icon { width: 18px; height: 18px; color: var(--icon); stroke-width: 2; }
     .info-row::after { content: ""; width: 7px; height: 7px; margin-left: auto; border: solid #9098a5; border-width: 2px 2px 0 0; transform: rotate(45deg); }
     .logout-action {
       width: 100%;
       height: 48px;
+      display: grid;
+      place-items: center;
       margin-top: 6px;
       border-radius: 11px;
       color: #df4b4b;
@@ -265,67 +286,6 @@
       font-size: 14px;
       font-weight: 500;
       text-align: center;
-    }
-    .logout-action:active { background: #fff5f5; }
-
-    .invite-modal {
-      position: absolute;
-      z-index: 50;
-      inset: 0;
-      padding: 24px;
-      display: grid;
-      place-items: center;
-      background: rgba(24, 29, 36, .5);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity .2s ease, visibility .2s ease;
-    }
-    .invite-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
-    .invite-panel {
-      position: relative;
-      width: min(330px, 100%);
-      padding: 22px 22px 20px;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 18px 42px rgba(24, 29, 36, .2);
-      text-align: center;
-      transform: translateY(10px);
-      transition: transform .2s ease;
-    }
-    .invite-modal.open .invite-panel { transform: translateY(0); }
-    .invite-panel h2 { margin: 0; font-size: 18px; line-height: 26px; font-weight: 650; }
-    .invite-close {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      color: #7b828c;
-      background: #f3f5f7;
-      font-size: 22px;
-      line-height: 28px;
-    }
-    .invite-qr {
-      display: block;
-      width: 220px;
-      height: 220px;
-      margin: 18px auto 8px;
-      object-fit: contain;
-    }
-    .invite-note { margin: 0; color: #737985; font-size: 14px; line-height: 21px; }
-    .invite-save {
-      height: 46px;
-      margin-top: 18px;
-      border-radius: 6px;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      background: #4b7fb8;
-      font-size: 16px;
-      font-weight: 600;
-      text-decoration: none;
     }
 
     .tabbar {
@@ -348,24 +308,6 @@
     .tab.crown .icon { fill: currentColor; stroke: none; }
     .tab.message .icon { fill: currentColor; stroke: none; }
     .tab.mine .icon { fill: currentColor; stroke: none; }
-
-    .toast {
-      position: absolute;
-      z-index: 40;
-      left: 50%;
-      bottom: 92px;
-      max-width: 280px;
-      padding: 8px 14px;
-      transform: translate(-50%, 10px);
-      border-radius: 5px;
-      color: #fff;
-      background: rgba(20,22,27,.86);
-      font-size: 14px;
-      opacity: 0;
-      pointer-events: none;
-      transition: .2s ease;
-    }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
     .home-indicator {
       position: absolute;
       z-index: 25;
@@ -378,8 +320,6 @@
       background: #111;
       pointer-events: none;
     }
-    .clickable { transition: transform .12s ease, opacity .12s ease; }
-    .clickable:active { transform: scale(.96); opacity: .72; }
 
     @media (max-width: 370px) {
       .page { padding-inline: 9px; }
@@ -504,98 +444,122 @@
     .profile-name-link { display: inline-flex; }
     .name-row strong { color: #592d0b; font-size: 18px; line-height: 24px; }
     .role-tag { padding: 2px 6px; color: var(--ink); background: #fff; font-size: 14px; }
-    .membership { margin-top: 7px; gap: 7px; color: #755d4b; font-size: 14px; }
-    .membership b { color: #a45b08; }
-    .membership-date { color: var(--ink); }
-    .renew-action { margin-left: 2px; padding: 2px 7px; border: 1px solid rgba(164,91,8,.28); border-radius: 4px; color: #a45b08; background: rgba(255,255,255,.78); font-size: 14px; line-height: 20px; white-space: nowrap; }
+    .role-tag-school { color: #9a5b18; background: #ffe4bd; }
+    .role-tag-sales-consultant { color: #5b7656; background: #e8f0e5; }
+    .role-tag-course-advisor { color: #76518f; background: #eee1f7; }
+    .role-tag-teacher { color: #416b9b; background: #e1edf9; }
+    .role-tag-parent { color: #98645e; background: #f8e5e2; }
     .section { padding: 17px 15px 14px; }
     .section h2 { font-size: 14px; }
     .maker {
       position: relative;
-      height: 132px;
-      margin: 4px 2px 0;
-      padding: 10px 14px 8px;
-      border-radius: 14px;
-      box-shadow: 0 5px 16px rgba(130,74,16,.11);
-    }
-    .maker .section-head {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 12px;
-      width: auto;
-      height: 24px;
-      padding-top: 4px;
-      justify-content: center;
-      border-top: 0;
-    }
-    .maker .section-head::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: -4px;
-      height: 1px;
-      background: #f0ebe4;
-    }
-    .maker .more {
-      width: auto;
+      margin: 10px 2px 0;
       height: auto;
-      gap: 7px;
-      overflow: visible;
-      border-radius: 0;
-      color: var(--ink);
-      background: none;
-      font-size: 14px;
+      padding: 16px;
+      border: 1px solid #c9ded8;
+      border-radius: 16px;
+      background: linear-gradient(125deg, #ffffff, #f2f8f5);
+      box-shadow: 0 5px 16px rgba(49,95,88,.07);
     }
-    .maker .more::after {
-      width: 5px;
-      height: 5px;
-      margin-left: 0;
-      border-color: #9299a5;
+    .maker-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .maker-total-label { display: block; color: #536561; font-size: 14px; line-height: 20px; }
+    .maker-total { display: block; margin-top: 4px; color: #2e7065; font-size: 24.3px; line-height: 31px; font-weight: 700; }
+    .maker-total small { font-size: 15px; margin-right: 3px; }
+    .maker-locked { position: relative; margin: 10px 0 0; width: 100%; }
+    .channel-label { position: absolute; color: #fff; font-weight: 600; line-height: 1; font-size: 15px; }
+    .channel-label.title { left: 3.3%; top: 12%; }
+    .channel-label.status { left: 56.3%; top: 22%; }
+    .center-shortcuts[hidden] { display: none; }
+    .maker-locked img { display: block; width: 100%; height: auto; }
+    .maker-locked.channel-theme img { filter: hue-rotate(-105deg) saturate(.62) brightness(1.06); }
+    .maker[hidden], .maker-locked[hidden] { display: none; }
+    .maker-demo { padding: 2px 8px; border: 1px solid #cfd6df; border-radius: 6px; background: #fff; white-space: nowrap; }
+    .maker-demo[aria-pressed="true"] { color: #3154da; background: #eef2ff; border-color: #9bacf4; }
+    .maker .more { flex: 0 0 auto; gap: 7px; padding: 9px 12px; border-radius: 22px; color: #376e62; background: #e0eee7; font-size: 13px; line-height: 18px; }
+    .maker .more::after { width: 6px; height: 6px; border-color: #376e62; }
+    .maker.consultant-sales { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 7px 14px 0; border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(49,95,88,.07); }
+    .maker.consultant-sales .maker-summary { display: contents; }
+    .maker.consultant-sales .maker-summary > div { display: none; }
+    .maker.consultant-sales .maker-total { display: none; }
+    .maker.consultant-sales .more { grid-column: 1 / -1; grid-row: 2; justify-content: center; margin-top: 4px; padding: 6px 0 7px; border-top: 1px solid #eee9e3; border-radius: 0; color: #252a31; background: transparent; font-size: 14px; line-height: 20px; }
+    .maker.consultant-sales .more::after { width: 7px; height: 7px; border-color: #9299a5; }
+    .maker.consultant-sales .maker-grid { display: contents; }
+    .maker.consultant-sales .stat { grid-row: 1; flex-direction: column-reverse; justify-content: center; gap: 1px; padding: 5px 4px; }
+    .maker.consultant-sales .stat + .stat { border-left: 1px solid #eee9e3; }
+    .maker.consultant-sales .stat-label { color: #252a31; font-size: 13px; line-height: 17px; }
+    .maker.consultant-sales .stat .stat-value,
+    .maker.consultant-sales .default-stat + .default-stat .stat-value { color: #319b83; font-size: 23px; line-height: 27px; font-weight: 700; }
+    .maker.consultant-sales .default-stat:nth-child(2) .stat-value { color: #4b82ad; }
+    .maker.consultant-sales .stat-value small { margin-left: 4px; font-size: 14px; }
+    .maker .maker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); height: auto; margin-top: 14px; padding-top: 12px; border-top: 1px solid #d6e4de; }
+    .maker .stat { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 7px; min-width: 0; }
+    .maker .stat[hidden] { display: none; }
+    .maker .default-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    .maker .stat-label { color: #536561; font-size: 14px; line-height: 24px; }
+    .maker .stat .stat-value { margin: 0; color: #477ca6; font-size: 21.85px; line-height: 27px; font-weight: 650; }
+    .maker .default-stat + .default-stat .stat-value { color: #359782; }
+    .maker .stat-value small { margin-left: 3px; font-size: 13px; font-weight: 400; }
+    .maker:not(.school-mode) { padding-top: 11px; padding-bottom: 11px; }
+    .maker:not(.school-mode) .maker-grid { margin-top: 8px; padding-top: 8px; }
+    /* 加盟校专属卡片：左右数据区与底部入口 */
+    .maker.school-mode {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      align-items: start;
+      height: auto;
+      padding: 0;
+      overflow: hidden;
+      border-color: #cfdfd9;
+      background: linear-gradient(115deg, #fff 25%, #f0f6f3 100%);
+      box-shadow: 0 4px 14px rgba(49, 95, 88, .06);
     }
-    .maker-grid {
-      height: 78px;
-      margin-top: 0;
-      align-items: center;
-    }
-    .maker .stat {
-      position: relative;
-      min-height: 44px;
-      justify-content: center;
-    }
-    .maker .stat + .stat::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 7px;
-      width: 1px;
-      height: 30px;
-      background: #eee6dc;
-    }
-    .maker .stat .bubble { display: none; }
-    .maker .stat-value {
-      margin-top: 0;
-      font-size: 22px;
-      line-height: 26px;
-      font-weight: 650;
-    }
-    .maker .stat-value small { font-size: 14px; }
-    .maker .stat-label {
-      margin-top: 2px;
-      color: var(--ink);
-      font-size: 14px;
-      line-height: 16px;
-    }
+    .maker.school-mode .maker-summary { display: contents; }
+    .maker.school-mode .maker-summary > div { grid-column: 1; grid-row: 1; min-width: 0; padding: 8px 0 7px 18px; }
+    .maker.school-mode .maker-total-label,
+    .maker.school-mode .stat-label { margin: 0; color: #697a74; font-size: 13px; line-height: 20px; }
+    .maker.school-mode .maker-total { margin-top: 5px; color: #305f53; font-size: 24px; line-height: 30px; font-weight: 650; letter-spacing: -.6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .maker.school-mode .maker-total small { margin-right: 2px; font-size: 14px; font-weight: 500; }
+    .maker.school-mode .maker-grid { grid-column: 2; grid-row: 1; display: flex; align-items: flex-start; justify-content: center; margin: 0; padding: 8px 12px 7px; border: 0; }
+    .maker.school-mode .maker-grid { position: relative; }
+    .maker.school-mode .maker-grid::before { content: ""; position: absolute; left: 0; top: 11px; bottom: 11px; width: 1px; background: #d5e2dc; }
+    .maker.school-mode .school-stat { flex-direction: column; align-items: flex-start; gap: 5px; }
+    .maker.school-mode .school-stat .stat-value { color: #305f53; font-size: 24px; line-height: 30px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .maker.school-mode .school-stat .stat-value small { margin-left: 5px; color: #697a74; font-size: 12px; }
+    .maker.school-mode .more { grid-column: 1 / -1; justify-self: stretch; justify-content: center; gap: 8px; margin: 0; padding: 5px 16px; border-top: 1px solid #dce8e2; border-radius: 0; color: #416b5e; background: transparent; font-size: 13px; font-weight: 500; line-height: 20px; }
+    .maker.school-mode .more::after { width: 5px; height: 5px; border-color: #638477; }
+    /* 课程顾问专属：三列团队数据 */
+    .maker.advisor-mode { padding-top: 8px; padding-bottom: 8px; }
+    .maker.advisor-mode .maker-total { margin-top: 2px; }
+    .maker.advisor-mode .maker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; padding-top: 6px; }
+    .maker.advisor-mode .stat { flex-direction: column-reverse; gap: 0; }
+    .maker.advisor-mode .stat-label { font-size: 12px; line-height: 18px; }
+    .maker.advisor-mode .stat-value { font-size: 21.85px; line-height: 27px; font-variant-numeric: tabular-nums; }
+    .maker.advisor-mode .school-stat .stat-value { color: #305f53; }
+    .maker.advisor-mode .school-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    .maker.consultant-sales.advisor-mode .school-stat + .default-stat { border-left: 0; }
+    /* 课程顾问仅展示一星、二星团队，均分两列且不留隐藏统计的边线 */
+    .maker.course-advisor-mode { height: auto; padding: 11px 15px; }
+    .maker.course-advisor-mode .maker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; padding-top: 8px; }
+    .maker.course-advisor-mode .school-stat + .default-stat { border-left: 0; }
+    .maker.course-advisor-mode .default-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    /* 加盟校以外角色统一团队统计：标签与人数横排，两列均分 */
+    .maker.team-stat-unified .default-stat { flex-direction: row; align-items: center; justify-content: center; gap: 7px; min-width: 0; padding: 0; }
+    .maker.team-stat-unified .school-stat + .default-stat { border-left: 0; }
+    .maker.team-stat-unified .default-stat + .default-stat { border-left: 1px solid #d6e4de; }
+    .maker.team-stat-unified .default-stat .stat-label { color: #536561; font-size: 14px; line-height: 24px; }
+    .maker.team-stat-unified .default-stat .stat-value { margin: 0; color: #477ca6; font-size: 21.85px; line-height: 27px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .maker.team-stat-unified .default-stat + .default-stat .stat-value { color: #359782; }
+    .maker.team-stat-unified .default-stat .stat-value small { margin-left: 3px; font-size: 13px; font-weight: 400; }
     .center-shortcuts {
       margin: 10px 2px 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
+    .center-shortcuts:has(.teaching[hidden]) { grid-template-columns: minmax(0, 1fr); }
     .center-card {
       position: relative;
-      height: 96px;
+      height: 84px;
       min-width: 0;
       padding: 12px 11px;
       border: 1px solid transparent;
@@ -638,8 +602,11 @@
       margin-top: 10px;
       padding: 13px 15px 8px;
     }
+    .menu-section,
+    .maker + .menu-section { height: 78px; padding: 9px 15px; }
     .promotion-section { height: 78px; padding: 9px 15px; }
     .promotion-section .promotion-entry { min-height: 60px; }
+    .menu-section .partnership-entry { min-height: 60px; }
     .menu-grid { margin-top: 10px; }
     .menu-section .menu-grid { margin-top: 5px; }
     .menu-item { gap: 5px; font-size: 14px; }
@@ -674,14 +641,14 @@
       position: absolute;
       top: 0;
       width: 80px;
-      height: 66px;
+      height: 34px;
       overflow: hidden;
     }
-    .tab-art-piece:nth-child(1) { left: 20px; }
-    .tab-art-piece:nth-child(2) { left: 100px; }
+    .tab-art-piece:nth-child(1) { left: 4px; }
+    .tab-art-piece:nth-child(2) { left: 92px; }
     .tab-art-piece:nth-child(3) { left: 180px; }
-    .tab-art-piece:nth-child(4) { left: 260px; }
-    .tab-art-piece:nth-child(5) { left: 340px; }
+    .tab-art-piece:nth-child(4) { left: 268px; }
+    .tab-art-piece:nth-child(5) { left: 356px; }
     .tab-art-piece img {
       position: absolute;
       top: 0;
@@ -710,7 +677,8 @@
     }
     .tab .icon,
     .tab span { display: none; }
-    .toast { bottom: 100px; }
+    .tab > span { position: absolute; right: 0; bottom: 7px; left: 0; z-index: 3; display: block; color: #96999d; background: rgba(255,255,255,.96); font-size: 12px; line-height: 16px; text-align: center; }
+    .tab.active > span { color: #c87312; font-weight: 700; }
 
     @media (max-width: 463px) {
       body { background: #f5f4f6; }
@@ -722,9 +690,44 @@
       min-height: 100svh;
       padding: 16px;
       display: grid;
+      grid-template-rows: 100%;
       place-items: center;
       overflow: hidden;
       background: #e7eaee;
+    }
+    .role-switch {
+      position: fixed;
+      z-index: 100;
+      top: 18px;
+      left: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px 6px 10px;
+      border: 1px solid #d8dde4;
+      border-radius: 9px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 4px 14px rgba(35,45,58,.12);
+      color: #59616d;
+      font-size: 13px;
+      line-height: 22px;
+    }
+    .role-switch-label { white-space: nowrap; }
+    .role-switch select {
+      height: 26px;
+      padding: 0 22px 0 7px;
+      border: 1px solid #cfd6df;
+      border-radius: 6px;
+      background: #fff;
+      color: #242a33;
+      font: inherit;
+      cursor: pointer;
+    }
+    .role-switch select:focus { outline: 2px solid rgba(200,115,18,.22); outline-offset: 1px; }
+    .center-card.teaching[hidden] { display: none; }
+    .center-card.role-entry[hidden] { display: none; }
+    @media (max-width: 520px) {
+      .role-switch { top: 8px; left: 8px; }
     }
     .phone-shell {
       position: relative;
@@ -784,41 +787,42 @@
         linear-gradient(to bottom, rgba(245,244,246,0) 235px, #f5f4f6 285px),
         linear-gradient(105deg, transparent 16%, rgba(255,255,255,.3) 35%, transparent 54%),
         radial-gradient(ellipse 210px 125px at 18% 24px, rgba(255,255,255,.56), transparent 72%),
-        linear-gradient(118deg, #fff0d2 0%, #f5cf98 50%, #e9ad62 100%);
+        linear-gradient(118deg, #e9f1ef 0%, #cbdcd8 50%, #a9c4bd 100%);
       background-attachment: local;
     }
-    .titlebar h1 { color: #63320b; }
-    .capsule { border-color: rgba(153,89,20,.18); }
+    .titlebar h1 { color: #315f58; }
+    .capsule { border-color: rgba(56,107,99,.18); }
     .tabbar { height: 80px; }
+
   </style>
 </head>
 <body>
   <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 17h14"/></symbol>
+    <symbol id="i-teacher" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-1.5a7 7 0 0 1 14 0V21M4 4h3M17 4h3M12 2v2"/></symbol>
+    <symbol id="i-graduation" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5M22 10v6"/></symbol>
     <symbol id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0L11 11.4a1 1 0 0 1-3-3l2.4-2.4a4 4 0 0 1 5.6 0l.5.5"/><path d="m18 8 1-1 4 4-5 5M6 8 5 7l-4 4 5 5M8 16l-1 1a1 1 0 0 0 3 3l1-1"/></symbol>
     <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.5 4A2.5 2.5 0 0 0 7 6.5v.4a3 3 0 0 0-2 4.6 3 3 0 0 0 2.5 4.5H9"/><path d="M14.5 4A2.5 2.5 0 0 1 17 6.5v.4a3 3 0 0 1 2 4.6 3 3 0 0 1-2.5 4.5H15"/><path d="M12 3v18M8 9a3 3 0 0 0 4-3M16 9a3 3 0 0 1-4-3M8 15a3 3 0 0 1 4 3M16 15a3 3 0 0 0-4 3"/></symbol>
-    <symbol id="i-graduation" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5M22 10v6"/></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.5a1.5 1.5 0 0 0 1.1-2.5l-.5-.5a1.5 1.5 0 0 1 1.1-2.5H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3Z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/><circle cx="17" cy="11" r="1"/></symbol>
-    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V4h8v3M8 20V10M16 20V10"/></symbol>
     <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M3 11v2a2 2 0 0 0 2 2h2l8 4V5L7 9H5a2 2 0 0 0-2 2Z"/><path d="M7 15l1 5h3M19 8a5 5 0 0 1 0 8M17 10a3 3 0 0 1 0 4"/></symbol>
-    <symbol id="i-building" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1M10 21v-3h4v3"/></symbol>
-    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
-    <symbol id="i-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M16 11l2 2 4-4"/></symbol>
-    <symbol id="i-notebook" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z"/><path d="M8 7h8M8 10h6M8 13h5M4 7H2M4 11H2M4 15H2"/></symbol>
-    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 17h14"/></symbol>
-    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></symbol>
     <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 18v3"/></symbol>
-    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v18a3 3 0 0 0-3-3H2Z"/><path d="M22 4a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v18a3 3 0 0 1 3-3h7Z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2.5 3 6 6.6 1-4.8 4.6 1.1 6.5-5.9-3.1-5.9 3.1 1.1-6.5-4.8-4.6 6.6-1Z"/></symbol>
     <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1.1.9-1.1 1.7M12 17h.01"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
-    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9H3Z"/><path d="M8 20v-5h8v5"/></symbol>
-    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 6 4 5 5-8 5 8 4-5-2 14H5Z"/></symbol>
-    <symbol id="i-message" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><circle cx="8" cy="11" r="1" fill="#fff"/><circle cx="12" cy="11" r="1" fill="#fff"/><circle cx="16" cy="11" r="1" fill="#fff"/></symbol>
-    <symbol id="i-user-solid" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22a8 8 0 0 1 16 0Z"/></symbol>
-    <symbol id="i-people-solid" viewBox="0 0 64 64"><circle cx="25" cy="20" r="12" fill="currentColor"/><circle cx="43" cy="25" r="9" fill="currentColor" opacity=".86"/><path d="M5 55c0-13 8-21 20-21s20 8 20 21Z" fill="currentColor"/><path d="M39 38c11 0 18 6 18 16H44c0-7-2-12-5-16Z" fill="currentColor" opacity=".86"/></symbol>
-    <symbol id="i-gift-solid" viewBox="0 0 64 64"><path d="M8 26h48v11H8ZM13 39h38v20H13ZM28 24H12c-5-12 8-15 16 0ZM36 24h16c5-12-8-15-16 0ZM28 24h8v35h-8Z" fill="currentColor"/></symbol>
   </svg>
 
+  <div class="role-switch" aria-label="原型角色切换">
+    <span class="role-switch-label">当前角色</span>
+    <select id="role-switch" aria-label="切换角色">
+      <option value="school">加盟校</option>
+      <option value="course-advisor">课程顾问</option>
+      <option value="teacher">老师</option>
+      <option value="parent">家长</option>
+      <option value="sales-consultant">顾问/销售</option>
+    </select>
+    <button type="button" class="maker-demo" id="maker-demo" aria-pressed="false">演示未开通</button>
+  </div>
   <div class="phone-shell" aria-label="iPhone 17 Pro Max 手机模型">
     <div class="dynamic-island" aria-hidden="true"></div>
     <main class="app">
@@ -834,60 +838,73 @@
         </div>
         <div class="titlebar">
           <div class="capsule" aria-label="小程序菜单">
-            <button class="dots clickable" data-action="更多"><i></i><i></i><i></i></button>
-            <button class="mini-ring clickable" data-action="小程序菜单" aria-label="小程序菜单"></button>
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="mini-ring" aria-hidden="true"></span>
           </div>
         </div>
       </header>
 
       <section class="profile card">
-        <a class="avatar-wrap clickable" href="个人资料_页面还原.html" aria-label="查看个人资料"><img class="profile-avatar" src="assets/user-avatar.png" alt="优坐标"></a>
+        <span class="avatar-wrap"><img class="profile-avatar" src="assets/user-avatar.png" alt="优坐标"></span>
         <div class="profile-copy">
-          <div class="name-row"><a class="profile-name-link clickable" href="个人资料_页面还原.html"><strong>张三</strong></a><span class="role-tag">合伙人</span><span class="role-tag">老师</span><span class="role-tag">家长</span></div>
-          <div class="membership"><b>卓越会员</b><span class="membership-divider" aria-hidden="true"></span><span class="membership-date">2027.05.05到期</span><button class="renew-action clickable" type="button" data-action="会员续费">会员续费</button></div>
+          <div class="name-row"><strong>张三</strong></div>
         </div>
       </section>
 
       <nav class="center-shortcuts" aria-label="中心入口">
-        <a class="center-card teaching clickable" href="授课中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-tablet"/></svg></span><span class="center-copy"><span class="center-title"><strong>授课中心</strong><span class="center-role">教师端</span></span><small class="center-desc">排课与教学</small></span><i class="center-arrow" aria-hidden="true"></i></a>
-        <a class="center-card learning clickable" href="学习中心_页面还原.html"><span class="center-icon"><svg class="icon"><use href="#i-graduation"/></svg></span><span class="center-copy"><span class="center-title"><strong>学习中心</strong><span class="center-role">家长端</span></span><small class="center-desc">课程与学习</small></span><i class="center-arrow" aria-hidden="true"></i></a>
+          <div class="center-card teaching"><span class="center-icon"><svg class="icon"><use href="#i-tablet"/></svg></span><span class="center-copy"><span class="center-title"><strong>授课中心</strong><span class="center-role">教师端</span></span><small class="center-desc">排课与教学</small></span><i class="center-arrow" aria-hidden="true"></i></div>
+          <div class="center-card learning"><span class="center-icon"><svg class="icon"><use href="#i-graduation"/></svg></span><span class="center-copy"><span class="center-title"><strong>学习中心</strong><span class="center-role">家长端</span></span><small class="center-desc">课程与学习</small></span><i class="center-arrow" aria-hidden="true"></i></div>
       </nav>
 
       <section class="section maker card">
-        <div class="section-head"><button class="more clickable" data-action="进入创客中心">进入创客中心</button></div>
+        <div class="maker-summary">
+          <div><span class="maker-total-label">累计收益</span><strong class="maker-total"><small>¥</small>186,420.50</strong></div>
+          <span class="more">进入创客中心</span>
+        </div>
         <div class="maker-grid">
-          <button class="stat clickable" data-action="一星团队"><span class="bubble"><svg class="icon"><use href="#i-people-solid"/></svg></span><span class="stat-value">20<small>人</small></span><span class="stat-label">一星团队</span></button>
-          <button class="stat clickable" data-action="二星团队"><span class="bubble"><svg class="icon"><use href="#i-people-solid"/></svg></span><span class="stat-value">10<small>人</small></span><span class="stat-label">二星团队</span></button>
-          <button class="stat clickable" data-action="累计奖金"><span class="bubble"><svg class="icon"><use href="#i-gift-solid"/></svg></span><span class="stat-value">¥123<small>元</small></span><span class="stat-label">累计奖金</span></button>
+          <div class="stat school-stat"><span class="stat-label">课程顾问</span><span class="stat-value">20<small>人</small></span></div>
+          <div class="stat default-stat"><span class="stat-label">一星团队</span><span class="stat-value">20<small>人</small></span></div>
+          <div class="stat default-stat"><span class="stat-label">二星团队</span><span class="stat-value">10<small>人</small></span></div>
         </div>
       </section>
 
       <section class="section menu-section card">
-        <div class="section-head"><h2>我要合作</h2></div>
-        <div class="menu-grid">
-          <button class="menu-item clickable" data-action="申请合伙人"><span class="bubble"><svg class="icon"><use href="#i-handshake"/></svg></span><span>申请合伙人</span></button>
-          <button class="menu-item clickable" data-action="心理加盟"><span class="bubble"><svg class="icon"><use href="#i-brain"/></svg></span><span>心理加盟</span></button>
-          <button class="menu-item clickable" data-action="升学加盟"><span class="bubble"><svg class="icon"><use href="#i-graduation"/></svg></span><span>升学加盟</span></button>
-          <button class="menu-item clickable" data-action="艺术加盟"><span class="bubble"><svg class="icon"><use href="#i-palette"/></svg></span><span>艺术加盟</span></button>
+        <div class="promotion-entry partnership-entry">
+          <span class="partnership-item">
+            <span class="bubble"><svg class="icon"><use href="#i-handshake"/></svg></span>
+            <span class="promotion-copy"><strong>申请合伙人</strong></span>
+          </span>
+          <i class="partnership-divider" aria-hidden="true"></i>
+          <span class="partnership-item secondary-entry" id="teacher-onboarding" hidden>
+            <span class="bubble"><svg class="icon"><use href="#i-teacher"/></svg></span>
+            <span class="promotion-copy"><strong>教师入驻</strong></span>
+          </span>
+          <i class="promotion-arrow" aria-hidden="true"></i>
         </div>
       </section>
 
       <section class="section promotion-section card">
-        <button class="promotion-entry clickable" type="button" data-action="进入推广中心">
+        <div class="promotion-entry">
           <span class="bubble"><svg class="icon"><use href="#i-megaphone"/></svg></span>
           <span class="promotion-copy"><strong>推广中心</strong><small>精选海报、图文与推广文案</small></span>
           <i class="promotion-arrow" aria-hidden="true"></i>
-        </button>
+        </div>
+      </section>
+
+      <section class="maker-locked" id="maker-locked" aria-label="创客中心未开通" hidden>
+        <img src="assets/maker-center-locked.png" width="1260" height="366" alt="创客中心：创客中心未开通，加入团队，解锁更多收益。申请开通">
+        <span class="channel-label title" hidden>渠道商中心</span>
+        <span class="channel-label status" hidden>渠道商中心未开通</span>
       </section>
 
       <section class="info-card card">
-        <button class="info-row clickable" data-action="我的邀请码"><svg class="icon"><use href="#i-qr"/></svg><span>我的邀请码</span></button>
-        <button class="info-row clickable" data-action="我的订单"><svg class="icon"><use href="#i-file"/></svg><span>我的订单</span></button>
-        <button class="info-row clickable" data-action="我的收藏"><svg class="icon"><use href="#i-star"/></svg><span>我的收藏</span></button>
-        <button class="info-row clickable" data-action="帮助中心"><svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span></button>
-        <button class="info-row clickable" data-action="关于我们"><svg class="icon"><use href="#i-info"/></svg><span>关于我们</span></button>
+<div class="info-row"><svg class="icon"><use href="#i-qr"/></svg><span>我的邀请码</span></div>
+<div class="info-row" id="my-orders-entry"><svg class="icon"><use href="#i-file"/></svg><span>我的订单</span></div>
+<div class="info-row"><svg class="icon"><use href="#i-star"/></svg><span>我的收藏</span></div>
+<div class="info-row"><svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span></div>
+<div class="info-row"><svg class="icon"><use href="#i-info"/></svg><span>关于我们</span></div>
       </section>
-      <button class="logout-action clickable" type="button" data-action="退出登录">退出登录</button>
+      <div class="logout-action">退出登录</div>
       </div>
 
       <nav class="tabbar" data-active-tab="4" aria-label="底部导航">
@@ -898,87 +915,92 @@
           <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
           <div class="tab-art-piece"><img src="assets/bottom-nav-muted.svg" alt=""><img class="active-art" src="assets/bottom-nav-active.svg" alt=""></div>
         </div>
-        <button class="tab clickable" data-tab="首页" aria-label="首页"></button>
-        <button class="tab clickable" data-tab="教员" aria-label="教员"></button>
-        <button class="tab clickable" data-tab="会员" aria-label="会员"></button>
-        <button class="tab clickable" data-tab="消息" aria-label="消息"></button>
-        <button class="tab active clickable" data-tab="我的" aria-label="我的"></button>
+        <div class="tab"><span>首页</span></div>
+        <div class="tab"><span>全部教员</span></div>
+        <div class="tab"><span>AI单词</span></div>
+        <div class="tab"><span>消息</span></div>
+        <div class="tab active"><span>我的</span></div>
       </nav>
-      <div class="home-indicator" aria-hidden="true"></div>
-      <div class="toast" role="status" aria-live="polite"></div>
-      <div class="invite-modal" aria-hidden="true">
-        <section class="invite-panel" role="dialog" aria-modal="true" aria-labelledby="inviteTitle">
-          <button class="invite-close clickable" type="button" aria-label="关闭邀请码弹窗">×</button>
-          <h2 id="inviteTitle">我的邀请二维码</h2>
-          <img class="invite-qr" src="assets/用户邀请小程序码-白底.png" alt="我的专属邀请小程序码">
-          <p class="invite-note">好友扫码后将自动绑定邀请关系</p>
-          <a class="invite-save clickable" href="assets/用户邀请小程序码-白底.png" download="优坐标-我的邀请码.png">保存图片</a>
-        </section>
-      </div>
     </main>
   </div>
 
   <script>
-    try {
-      const savedProfile = JSON.parse(window.name || '{}');
-      if (savedProfile.scope === 'youzuobiao-profile') {
-        if (savedProfile.name) document.querySelector('.name-row strong').textContent = savedProfile.name;
-        if (savedProfile.avatar) document.querySelector('.profile-avatar').src = savedProfile.avatar;
-      }
-    } catch {}
-    const toast = document.querySelector('.toast');
-    const inviteModal = document.querySelector('.invite-modal');
-    let toastTimer;
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 1300);
-    }
-
-    document.addEventListener('click', event => {
-      const action = event.target.closest('[data-action]');
-      if (action?.dataset.action === '我的邀请码') {
-        inviteModal.classList.add('open');
-        inviteModal.setAttribute('aria-hidden', 'false');
-        return;
-      }
-      if (action) showToast(action.dataset.action);
-
-      const tab = event.target.closest('[data-tab]');
-      if (!tab) return;
-      const tabs = [...document.querySelectorAll('.tab')];
-      tabs.forEach(item => item.classList.toggle('active', item === tab));
-      tab.closest('.tabbar').dataset.activeTab = tabs.indexOf(tab);
-      showToast(`已切换到${tab.dataset.tab}`);
-    });
-
-    function closeInviteModal() {
-      inviteModal.classList.remove('open');
-      inviteModal.setAttribute('aria-hidden', 'true');
-    }
-
-    document.querySelector('.invite-close').addEventListener('click', closeInviteModal);
-    inviteModal.addEventListener('click', event => {
-      if (event.target === inviteModal) closeInviteModal();
-    });
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && inviteModal.classList.contains('open')) closeInviteModal();
-    });
-
-    function fitReferenceCanvas() {
-      const horizontalScale = (window.innerWidth - 32) / 464;
-      const verticalScale = (window.innerHeight - 32) / 980;
-      const scale = Math.min(horizontalScale, verticalScale, 1);
+    /* 窗口缩放与原型演示切换 */
+    function fitDevice() {
+      const scale = Math.min((window.innerWidth - 32) / 464, (window.innerHeight - 32) / 980, 1);
       document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2));
-      document.body.style.minHeight = '100svh';
     }
+    fitDevice();
+    window.addEventListener('resize', fitDevice, { passive: true });
 
-    fitReferenceCanvas();
-    window.addEventListener('resize', fitReferenceCanvas, { passive: true });
-
-    window.parent.postMessage({ channel: 'personal-center-restored', page: 'profile' }, '*');
+    const roleSwitch = document.getElementById('role-switch');
+    const teachingCenter = document.querySelector('.center-card.teaching');
+    const learningCenter = document.querySelector('.center-card.learning');
+    const roleShortcuts = document.querySelector('.center-shortcuts');
+    const partnershipEntry = document.querySelector('.partnership-entry');
+    const teacherOnboarding = document.getElementById('teacher-onboarding');
+    const roleConfig = {
+      school: { tags: ['school', 'teacher', 'parent'], centers: ['teaching', 'learning'], channel: true },
+      'sales-consultant': { tags: ['sales-consultant'], centers: [], channel: true },
+      teacher: { tags: ['teacher', 'parent'], centers: ['teaching'] },
+      parent: { tags: ['parent'], centers: ['learning'] },
+      'course-advisor': { tags: ['course-advisor', 'parent'], centers: ['learning'], channel: true },
+    };
+    roleSwitch.addEventListener('change', function () {
+      const config = roleConfig[roleSwitch.value];
+      teachingCenter.hidden = !config.centers || !config.centers.includes('teaching');
+      learningCenter.hidden = !config.centers || !config.centers.includes('learning');
+      roleShortcuts.hidden = !config.centers || config.centers.length === 0;
+      document.getElementById('my-orders-entry').hidden = false;
+      const dualPartnershipRole = roleSwitch.value === 'parent';
+      const teacherOnlyRole = roleSwitch.value === 'course-advisor';
+      teacherOnboarding.hidden = !dualPartnershipRole && !teacherOnlyRole;
+      partnershipEntry.classList.toggle('has-secondary', dualPartnershipRole);
+      partnershipEntry.classList.toggle('teacher-only', teacherOnlyRole);
+      updateMakerVisibility();
+    });
+    const makerDemo = document.getElementById('maker-demo');
+    const makerOpen = document.querySelector('.maker');
+    const makerLocked = document.getElementById('maker-locked');
+    const makerMenu = document.querySelector('.menu-section');
+    function updateMakerVisibility() {
+      const channel = !!roleConfig[roleSwitch.value].channel;
+      const eligible = channel || ['teacher', 'parent'].includes(roleSwitch.value);
+      const name = channel ? '渠道商中心' : '创客中心';
+      const advisorMode = ['school', 'sales-consultant', 'course-advisor'].includes(roleSwitch.value);
+      makerOpen.classList.remove('school-mode');
+      makerOpen.classList.toggle('advisor-mode', advisorMode);
+      makerOpen.classList.toggle('consultant-sales', roleSwitch.value === 'sales-consultant');
+      makerOpen.classList.toggle('course-advisor-mode', roleSwitch.value === 'course-advisor');
+      makerOpen.classList.toggle('team-stat-unified', roleSwitch.value !== 'school');
+      makerOpen.querySelectorAll('.school-stat').forEach(function (item) { item.hidden = roleSwitch.value !== 'school'; });
+      makerOpen.querySelectorAll('.default-stat').forEach(function (item) { item.hidden = false; });
+      makerLocked.classList.toggle('channel-theme', channel);
+      makerOpen.querySelector('.more').textContent = roleSwitch.value === 'sales-consultant' ? '查看详情' : '进入' + name;
+      makerLocked.setAttribute('aria-label', name + '未开通');
+      const picture = makerLocked.querySelector('img');
+      picture.src = channel ? 'assets/channel-center-locked.png' : 'assets/maker-center-locked.png';
+      picture.alt = name + '：' + name + '未开通，加入团队，解锁更多收益。申请开通';
+      makerLocked.querySelectorAll('.channel-label').forEach(function (label) { label.hidden = !channel; });
+      const locked = makerDemo.getAttribute('aria-pressed') === 'true';
+      const demoEligible = eligible && roleSwitch.value !== 'sales-consultant';
+      if (channel && !locked) {
+        roleShortcuts.parentNode.insertBefore(makerOpen, roleShortcuts);
+      } else if (makerOpen.nextElementSibling !== makerMenu) {
+        makerMenu.parentNode.insertBefore(makerOpen, makerMenu);
+      }
+      makerDemo.hidden = !demoEligible;
+      makerOpen.hidden = !eligible || (demoEligible && locked);
+      makerLocked.hidden = !eligible || !demoEligible || !locked;
+      makerMenu.hidden = ['school', 'sales-consultant'].includes(roleSwitch.value);
+    }
+    makerDemo.addEventListener('click', function () {
+      const locked = makerDemo.getAttribute('aria-pressed') !== 'true';
+      makerDemo.setAttribute('aria-pressed', String(locked));
+      makerDemo.textContent = locked ? '恢复已开通' : '演示未开通';
+      updateMakerVisibility();
+    });
+    roleSwitch.dispatchEvent(new Event('change'));
   </script>
 </body>
 </html>
