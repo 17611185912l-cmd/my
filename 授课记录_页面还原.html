@@ -31,10 +31,6 @@
     .filter-row{display:flex;align-items:center;justify-content:space-between}
     .filter-bar label{color:#777a82;font-size:14px}
     .filter-bar select{min-width:132px;height:34px;padding:0 30px 0 10px;border:1px solid #d8e1eb;border-radius:5px;outline:none;color:#356da9;background:#f7faff;font-size:14px}
-    .mode-filter label{display:block;margin-bottom:6px}
-    .mode-options{height:36px;padding:3px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border:1px solid #d8e1eb;border-radius:5px;background:#f7faff}
-    .mode-option{min-width:0;border-radius:3px;color:#777a82;font-size:14px;line-height:28px}
-    .mode-option.active{color:#fff;font-weight:600;background:#4b7fb8;box-shadow:0 1px 3px rgba(53,109,169,.18)}
     .list{margin-top:8px}
     .bk-card{padding:14px}
     .bk-head{display:flex;align-items:flex-start;gap:6px}
@@ -118,7 +114,6 @@
       <section class="summary" aria-label="授课汇总"><span class="summary-label" id="summaryLabel">累计授课</span><strong class="summary-value" id="summaryValue">0课时</strong></section>
       <div class="filter-bar">
         <div class="filter-row"><label for="monthFilter">授课月份</label><select id="monthFilter"><option value="all">全部月份</option></select></div>
-        <div class="mode-filter"><label>授课方式</label><div class="mode-options" role="group" aria-label="授课方式"><button class="mode-option active" type="button" data-mode="all">全部</button><button class="mode-option" type="button" data-mode="online">线上</button><button class="mode-option" type="button" data-mode="offline">线下</button><button class="mode-option" type="button" data-mode="home">上门</button></div></div>
       </div>
       <section class="list" id="list" aria-live="polite"></section>
       <div class="card empty" id="emptyBox" hidden>暂无符合条件的授课记录</div>
@@ -146,7 +141,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-  <script src="约课数据.js?v=20260918-7"></script>
+<script src="约课数据.js?v=20261103-online"></script>
   <script>
     const TEACHER_ORDER = ['zhang', 'liming', 'wangjing', 'zhoumin'];
     /* 教师端授课记录 = 原「约课管理」+ 原「授课记录」：五个状态与家长端一一对应 */
@@ -213,7 +208,6 @@
     };
 
     function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
-    function modeKey(mode) { return mode === '线下' ? 'offline' : mode === '上门' ? 'home' : 'online'; }
     function stampOf(item) {
       if (item.isPlan) return (item.startDate || '') + ' ' + (((item.weeklySlots || [])[0] || {}).time || '');
       return (item.date || '') + ' ' + (item.time || '');
@@ -282,8 +276,8 @@
     function cardOf(item) {
       const learner = item.isPlan && item.status !== 'confirmed' ? item.grade + ' · 学员信息待家长确认' : item.student;
       const meta = item.isPlan
-        ? '<div class="bk-meta"><span>' + learner + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>'
-        : '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + YZB.timeRangeText(item.time, item.endTime) + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
+        ? '<div class="bk-meta"><span>' + learner + '</span><span>' + item.scheduleLabel + '</span><span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>'
+        : '<div class="bk-meta"><span>' + item.student + '</span><span>' + item.dateLabel + ' ' + YZB.timeRangeText(item.time, item.endTime) + '</span><span>' + item.grade + ' · ' + item.subject + '</span><span>' + (item.durationLabel || '60分钟') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>';
       /* 待反馈：填写反馈按钮移到卡片右侧、与信息区同高 */
       const side = item.status === 'attended' ? '<div class="bk-side">' + actionsOf(item) + '</div>' : '';
       const foot = tipOf(item) + (side ? '' : actionsOf(item));
@@ -292,7 +286,7 @@
       const cardLeave = item.leave && item.leave.status === 'pending' ? item.leave : null;
       const badgeText = cardLeave ? '请假待确认' : STATE_TEXT[item.status];
       const badgeClass = 'bk-state ' + item.status + (cardLeave ? ' leave' : '');
-      return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + month + '" data-mode="' + modeKey(item.mode) + '">' +
+      return '<article class="card bk-card" data-status="' + item.status + '" data-month="' + month + '">' +
         '<div class="bk-head"><strong>' + item.courseName + '</strong><span class="' + badgeClass + '">' + badgeText + '</span></div>' +
         (side ? '<div class="bk-row">' + meta + side + '</div>' : meta) +
         (foot ? '<div class="bk-foot">' + foot + '</div>' : '') +
@@ -327,16 +321,15 @@
 
     function applyFilters() {
       const month = monthSelect.value;
-      const mode = document.querySelector('.mode-option.active').dataset.mode;
       const tab = TABS.filter(item => item.key === activeTab)[0];
       let visibleCount = 0;
       document.querySelectorAll('.bk-card').forEach(card => {
-        const visible = (activeTab === 'all' || card.dataset.status === activeTab) && (month === 'all' || card.dataset.month === month) && (mode === 'all' || card.dataset.mode === mode);
+        const visible = (activeTab === 'all' || card.dataset.status === activeTab) && (month === 'all' || card.dataset.month === month);
         card.hidden = !visible;
         if (visible) visibleCount += 1;
       });
       tabs.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item.dataset.tab === activeTab));
-      const hasExtraFilter = month !== 'all' || mode !== 'all';
+      const hasExtraFilter = month !== 'all';
       const isAll = activeTab === 'all' && !hasExtraFilter;
       document.querySelector('#summaryLabel').textContent = isAll ? '累计授课' : (activeTab === 'all' ? '筛选结果' : tab.label);
       document.querySelector('#summaryValue').textContent = isAll ? taughtLessons() + '课时' : visibleCount + ' 节';
@@ -423,11 +416,6 @@
       try{const url=new URL(location.href);url.searchParams.set('filter',activeTab);history.replaceState(null,'',url)}catch{}
     });
     monthSelect.onchange = applyFilters;
-    document.querySelectorAll('.mode-option').forEach(option => option.onclick = () => {
-      document.querySelector('.mode-option.active').classList.remove('active');
-      option.classList.add('active');
-      applyFilters();
-    });
 
     listBox.addEventListener('click', event => {
       const acceptPlanButton = event.target.closest('[data-accept-plan]');
@@ -537,4 +525,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20261103-scope"></script></body></html>
+<script src="原型开发说明.js?v=20261103-online-2"></script></body></html>

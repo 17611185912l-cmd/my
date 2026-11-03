@@ -46,8 +46,8 @@
   </div>
 </main>
 <div class="toast" id="toast"></div>
-<script src="原型开发说明.js?v=20261103-scope"></script>
-  <script src="约课数据.js?v=20260918-7"></script>
+<script src="原型开发说明.js?v=20261103-online-2"></script>
+<script src="约课数据.js?v=20261103-online"></script>
 <script>
   const TEACHER_VIEWS = ['zhang', 'liming', 'wangjing'];   // 演示视角：同一批需求在不同教师可约时间下的满足度不同
   const requestedView = new URLSearchParams(location.search).get('teacher');
@@ -110,7 +110,7 @@
       : '<span class="taken">已被 ' + item.teacherName + ' 接单</span>';
     return '<article class="card market-card">' +
       '<div class="market-head"><strong>' + item.courseName + '</strong><span class="badge' + (open ? '' : ' taken') + '">' + (open ? '待接单' : '等待家长确认') + '</span></div>' +
-      '<div class="market-meta">' + fitTag + '<span>' + learnerOf(item) + '</span>' + slotRowOf(fit, item) + conflictRowOf(fit) + '<span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + item.mode + ' · ' + item.place + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>' +
+      '<div class="market-meta">' + fitTag + '<span>' + learnerOf(item) + '</span>' + slotRowOf(fit, item) + conflictRowOf(fit) + '<span>' + item.startDate + ' 至 ' + item.endDate + '</span><span>' + (item.durationLabel || '1.5 小时/次') + ' · ' + YZB.lessonsOf(item) + '课时</span></div>' +
       '<div class="market-foot">' + action + '</div>' +
     '</article>';
   }

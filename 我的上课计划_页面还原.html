@@ -13,7 +13,7 @@
     .content{display:flex;flex-direction:column}
     .student-card{grid-template-columns:48px minmax(0,1fr)}
 	    	.user-student-card{padding:0}.user-row{min-height:76px;padding:12px 14px;display:grid;grid-template-columns:48px minmax(0,1fr);align-items:center;gap:10px}.student-row{min-height:76px;padding:12px 14px;display:grid;grid-template-columns:48px minmax(0,1fr) auto 8px;align-items:center;gap:10px;color:inherit;text-decoration:none}.student-edit{color:#356da9;font-size:14px}.chevron{width:8px;height:8px;border:solid #9aa5b1;border-width:1px 1px 0 0;transform:rotate(45deg)}
-    .content>.user-student-card{order:1}.content>.course-balance{order:2}.content>.plan-card{order:3}.content>.record-card{order:4}.course-balance{padding:10px 14px}.balance-stats{display:grid;grid-template-columns:repeat(3,1fr)}.balance-stat{position:relative;text-align:center}.balance-stat+.balance-stat:before{content:"";position:absolute;left:0;top:4px;width:1px;height:42px;background:#e5ebf2}.balance-stat strong{display:block;color:#454951;font-size:19px;line-height:26px;font-weight:650}.balance-stat.primary strong{color:#356da9;font-size:24px}.balance-stat small{margin-left:2px;font-size:14px;font-weight:500}.balance-stat span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:20px}.record-row[data-detail],.plan-course[data-detail]{cursor:pointer}.record-row[data-detail]:focus-visible,.plan-course[data-detail]:focus-visible{outline:2px solid rgba(75,127,184,.38);outline-offset:2px}.record-row,.plan-course{display:block}.record-top{display:flex;align-items:flex-start}.record-top strong{min-width:0;flex:1;font-size:15px;line-height:22px}.record-state{margin-left:5px;padding:3px 7px;border-radius:4px;color:#9d5d13;background:#fff4df;font-size:14px;white-space:nowrap}.record-state.waiting{color:#356da9;background:#edf4ff}.record-top::before{order:2;margin-left:10px;padding:3px 7px;border-radius:4px;color:#5e6c7b;background:#f0f3f6;font-size:14px;line-height:20px;white-space:nowrap}.record-state{order:3}.record-row[data-mode="online"] .record-top::before,.plan-course[data-mode="online"] .record-top::before{content:"线上"}.record-row[data-mode="offline"] .record-top::before,.plan-course[data-mode="offline"] .record-top::before{content:"线下"}.record-row[data-mode="home"] .record-top::before,.plan-course[data-mode="home"] .record-top::before{content:"上门"}.record-meta{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#777a82;font-size:14px;line-height:20px}.plan-course{padding:12px;background:#f7faff}.record-row{padding:12px 0}.record-row+.record-row{border-top:1px solid #e5ebf2}
+    .content>.user-student-card{order:1}.content>.course-balance{order:2}.content>.plan-card{order:3}.content>.record-card{order:4}.course-balance{padding:10px 14px}.balance-stats{display:grid;grid-template-columns:repeat(3,1fr)}.balance-stat{position:relative;text-align:center}.balance-stat+.balance-stat:before{content:"";position:absolute;left:0;top:4px;width:1px;height:42px;background:#e5ebf2}.balance-stat strong{display:block;color:#454951;font-size:19px;line-height:26px;font-weight:650}.balance-stat.primary strong{color:#356da9;font-size:24px}.balance-stat small{margin-left:2px;font-size:14px;font-weight:500}.balance-stat span{display:block;margin-top:3px;color:#777a82;font-size:14px;line-height:20px}.record-row[data-detail],.plan-course[data-detail]{cursor:pointer}.record-row[data-detail]:focus-visible,.plan-course[data-detail]:focus-visible{outline:2px solid rgba(75,127,184,.38);outline-offset:2px}.record-row,.plan-course{display:block}.record-top{display:flex;align-items:flex-start}.record-top strong{min-width:0;flex:1;font-size:15px;line-height:22px}.record-state{margin-left:5px;padding:3px 7px;border-radius:4px;color:#9d5d13;background:#fff4df;font-size:14px;white-space:nowrap}.record-state.waiting{color:#356da9;background:#edf4ff}.record-state{order:3}.record-meta{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#777a82;font-size:14px;line-height:20px}.plan-course{padding:12px;background:#f7faff}.record-row{padding:12px 0}.record-row+.record-row{border-top:1px solid #e5ebf2}
     .month-center{display:flex;align-items:center}.calendar-toggle{min-width:88px;height:30px;margin:5px auto 0;display:block;color:#356da9;font-size:14px;line-height:30px}.day[hidden]{display:none}.record-row{padding:9px 0}.plan-course{padding:9px 10px}.record-meta{margin-top:5px;display:flex;flex-wrap:wrap;align-items:center;gap:3px 14px;line-height:19px}.record-meta span:nth-child(3){order:1;flex:0 0 100%;color:#596674}.record-meta span:nth-child(1){order:2}.record-meta span:nth-child(2){order:3}.record-meta span:nth-child(4){order:4}.record-meta span:nth-child(n+5){display:none}
   
     
@@ -133,7 +133,6 @@
     .pick-title{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:14px;line-height:18px;font-weight:600;color:#24262b}
     .pick-step{width:18px;height:18px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;color:#fff;background:#4b7fb8;font-size:11px;font-weight:600}
     .pick-note{margin-left:auto;color:#8a94a1;font-size:12px;font-weight:400}
-    .pick-course{width:100%;height:40px;padding:0 10px;border:1px solid #d8e1eb;border-radius:6px;background:#fff;color:#24262b;font-size:14px}
     .pick-block.time-block{margin-bottom:0;padding:11px;border:1px solid #e5ebf2;border-radius:8px;background:#f8fbfe}/* 1px 边框计入内缩，步骤 ①/② 序号与下方控件左边缘对齐 */
     /* 添加时段：悬浮在机型右下角，列表再长也不会被挤掉 */
     .plan-add{position:absolute;z-index:20;right:16px;bottom:26px;height:42px;padding:0 18px;border-radius:999px;color:#fff;background:#4b7fb8;font-size:14px;line-height:42px;box-shadow:0 8px 20px rgba(43,84,130,.32)}
@@ -172,12 +171,8 @@
         <button class="sheet-close" type="button" id="closeSheet" aria-label="关闭">×</button>
       </div>
       <div class="plan-editor">
-        <div class="pick-block">
-          <div class="pick-title"><span class="pick-step">1</span>选择课程</div>
-          <select class="pick-course" id="courseSelect" aria-label="选择课程"></select>
-        </div>
         <div class="pick-block time-block">
-          <div class="pick-title"><span class="pick-step">2</span>选择上课时间<span class="pick-note">星期可多选</span></div>
+          <div class="pick-title"><span class="pick-step">1</span>选择上课时间<span class="pick-note">星期可多选</span></div>
           <div class="day-chips" id="dayChips" role="group" aria-label="星期"></div>
           <div class="quick-ranges" role="group" aria-label="快捷时间段">
             <button type="button" class="quick-range" data-start="09:00" data-end="12:00"><b>上午</b><span>09:00-12:00</span></button>
@@ -199,7 +194,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-  <script src="约课数据.js?v=20260918-14"></script>
+<script src="约课数据.js?v=20261103-online"></script>
   <script>
     const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     const END_STEP_MINUTES = 30;
@@ -221,7 +216,6 @@
     const planSheetTitle = document.querySelector('#planSheetTitle');
     const planSheetNote = document.querySelector('#planSheetNote');
     const closeSheet = document.querySelector('#closeSheet');
-    const courseSelect = document.querySelector('#courseSelect');
     const planList = document.querySelector('#planList');
     const dayChips = document.querySelector('#dayChips');
     const startTime = document.querySelector('#startTime');
@@ -237,34 +231,11 @@
       clearTimeout(showToast.timer);
       showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
     }
-    function sortSlots(a, b) { return a.weekday - b.weekday || a.time.localeCompare(b.time) || courseList.findIndex(course => course.id === a.courseId) - courseList.findIndex(course => course.id === b.courseId); }
-    function keyOf(slot) { return slot.courseId + '|' + slot.time + '|' + slot.end; }
-    function daysText(days) {
-      const sorted = days.slice().sort((a, b) => a - b);
-      return sorted.length === 7 ? '每天' : '每' + sorted.map(day => WEEKDAYS[day]).join('、');
-    }
-    function groupedSlots() {
-      const groups = [];
-      slots.forEach((slot, index) => {
-        const key = keyOf(slot);
-        let group = groups.find(item => item.key === key);
-        if (!group) { group = { key, courseId: slot.courseId, time: slot.time, end: slot.end, days: [], index }; groups.push(group); }
-        if (group.days.indexOf(slot.weekday) < 0) group.days.push(slot.weekday);
-      });
-      return groups;
-    }
-    function loadSlots() {
-      const plans = YZB.plans();
-      return courseList.reduce((list, course) => list.concat((plans[course.id] || []).map(slot => ({ courseId: course.id, weekday: Number(slot.weekday), time: slot.time, end: slot.end }))), []).sort(sortSlots);
-    }
-    function persistPlans() {
-      courseList.forEach(course => {
-        YZB.savePlan(course.id, slots.filter(slot => slot.courseId === course.id).map(slot => ({ weekday: slot.weekday, time: slot.time, end: slot.end })));
-      });
-    }
-    function subjectOf(id) { const course = courseList.find(item => item.id === id); return course ? course.subject : ''; }
+    function keyOf(slot) { return slot.time + '|' + slot.end; }
+    function daysText(days) { return days.length === 7 ? '每天' : '每' + days.map(day => WEEKDAYS[day]).join('、'); }
+    function loadSlots() { return YZB.parentTimes(); }
+    function persistPlans() { slots = YZB.saveParentTimes(slots); }
     function minutesToText(minutes) { return String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0'); }
-    function lessonsText(value) { return Number.isInteger(value) ? value : (Math.round(value * 10) / 10); }
     function lengthText(minutes) {
       if (minutes % 60 === 0) return (minutes / 60) + ' 小时';
       if (minutes % 30 === 0) return (minutes / 60).toFixed(1) + ' 小时';
@@ -294,20 +265,13 @@
       document.querySelectorAll('.quick-range').forEach(button => button.classList.toggle('active', button.dataset.start === start && button.dataset.end === end));
       if (!start || !end) { durationTip.textContent = '该开始时间没有可用的结束时间，请换一个开始时间'; return; }
       const slot = { time: start, end: end };
-      durationTip.textContent = '每节 ' + lengthText(YZB.slotMinutes(slot)) + ' · ' + lessonsText(YZB.slotLessons(slot)) + ' 课时（45 分钟 = 1 课时，按整课时计）';
-    }
-    function renderCourses() {
-      const keep = courseSelect.value;
-      courseSelect.innerHTML = courseList.map(course => `<option value="${course.id}">${course.subject}</option>`).join('');
-      const preferred = courseList.some(course => course.id === keep) ? keep : bookingCourseId;
-      courseSelect.value = courseList.some(course => course.id === preferred) ? preferred : courseList[0].id;
+      durationTip.textContent = '时段长 ' + lengthText(YZB.slotMinutes(slot)) + '；起止时间相同的星期合并展示。';
     }
     function renderList() {
-      const groups = groupedSlots();
-      planList.innerHTML = groups.length ? groups.map(group => `
+      planList.innerHTML = slots.length ? YZB.parentTimeGroups(slots).map((slot, index) => `
         <div class="plan-row">
-          <span><strong>${daysText(group.days)} ${YZB.timeRangeText(group.time, group.end)} · ${subjectOf(group.courseId)}</strong><em>每节 ${lengthText(YZB.slotMinutes(group))} · ${lessonsText(YZB.slotLessons(group))} 课时</em></span>
-          <span class="row-actions"><button type="button" data-edit="${group.index}">编辑</button><button class="danger" type="button" data-remove="${group.index}">删除</button></span>
+          <span><strong>${daysText(slot.days)} ${YZB.timeRangeText(slot.time, slot.end)}</strong><em>时段长 ${lengthText(YZB.slotMinutes(slot))}</em></span>
+          <span class="row-actions"><button type="button" data-edit="${index}">编辑</button><button class="danger" type="button" data-remove="${index}">删除</button></span>
         </div>`).join('') : '<div class="plan-empty">还没有上课时间，请添加</div>';
     }
     function renderEditor() {
@@ -318,23 +282,21 @@
     }
     function sheetNoteText() {
       if (!editingKey) return '';
-      const group = groupedSlots().find(item => item.key === editingKey);
+      const group = YZB.parentTimeGroups(slots).find(item => item.key === editingKey);
       if (!group) return '';
-      return '正在编辑：' + daysText(group.days) + ' ' + YZB.timeRangeText(group.time, group.end) + ' · ' + subjectOf(group.courseId);
+      return '正在编辑：' + daysText(group.days) + ' ' + YZB.timeRangeText(group.time, group.end);
     }
     function openSheet(index) {
       if (index >= 0) {
-        const slot = slots[index];
+        const slot = YZB.parentTimeGroups(slots)[index];
         editingKey = keyOf(slot);
-        selectedDays = new Set(slots.filter(item => keyOf(item) === editingKey).map(item => item.weekday));
-        courseSelect.value = slot.courseId;
+        selectedDays = new Set(slot.days);
         startTime.value = slot.time;
         endTime.value = slot.end;
         planSheetTitle.textContent = '编辑时段';
       } else {
         editingKey = null;
         selectedDays = new Set();
-        courseSelect.value = bookingCourseId;
         startTime.value = '19:00';
         endTime.value = '20:30';
         planSheetTitle.textContent = '添加时段';
@@ -351,7 +313,7 @@
       selectedDays = new Set();
       renderEditor();
     }
-    function renderAll() { renderCourses(); renderList(); renderEditor(); }
+    function renderAll() { renderList(); renderEditor(); }
     function returnUrl() {
       const query = new URLSearchParams(backParams);
       query.set('course', bookingCourseId);
@@ -366,7 +328,7 @@
       }
       const remove = event.target.closest('[data-remove]');
       if (!remove) return;
-      const target = slots[Number(remove.dataset.remove)];
+      const target = YZB.parentTimeGroups(slots)[Number(remove.dataset.remove)];
       if (target) slots = slots.filter(slot => keyOf(slot) !== keyOf(target));
       selectedDays = new Set();
       editingKey = null;
@@ -394,22 +356,22 @@
     applySlot.addEventListener('click', () => {
       const days = Array.from(selectedDays).sort((a, b) => a - b);
       if (!days.length) { showToast('请先选择星期'); return; }
-      const time = startTime.value, end = endTime.value, courseId = courseSelect.value;
+      const time = startTime.value, end = endTime.value;
       if (!time || !end || end <= time) { showToast('请选择正确的起止时间'); return; }
       const wasEditing = !!editingKey;
       const base = wasEditing ? slots.filter(slot => keyOf(slot) !== editingKey) : slots.slice();
       const added = [];
       days.forEach(day => {
         if (base.some(slot => slot.weekday === day && slot.time === time && slot.end === end)) return;
-        base.push({ courseId, weekday: day, time, end });
+        base.push({ weekday: day, time, end });
         added.push(day);
       });
       if (!added.length) { showToast('这些时间已经在计划里了'); return; }
-      slots = base.sort(sortSlots);
+      slots = base;
       persistPlans();
       renderAll();
       closeSheetEditor();
-      showToast(wasEditing ? '修改已保存' : (fromBooking ? '已保存，返回约课继续' : '已添加到课程计划'));
+      showToast(wasEditing ? '修改已保存' : (fromBooking ? '已保存，返回约课继续' : '上课时间已保存'));
     });
     addSlot.addEventListener('click', () => openSheet(-1));
     cancelEdit.addEventListener('click', closeSheetEditor);
@@ -425,4 +387,4 @@
     fit(); addEventListener('resize', fit, { passive: true });
 
   </script>
-<script src="原型开发说明.js?v=20261103-scope"></script></body></html>
+<script src="原型开发说明.js?v=20261103-online-2"></script></body></html>
