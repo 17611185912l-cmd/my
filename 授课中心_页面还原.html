@@ -102,11 +102,7 @@
 
     .course { padding:9px 0; }
     .course-meta { margin-top:5px; display:flex; flex-wrap:wrap; align-items:center; gap:3px 14px; line-height:19px; }
-    .course-meta span:nth-child(3) { order:1; flex:0 0 100%; color:#596674; }
-    .course-meta span:nth-child(1) { order:2; }
-    .course-meta span:nth-child(2) { order:3; }
-    .course-meta span:nth-child(4) { order:4; }
-    .course-meta span:nth-child(5) { order:5; flex:0 0 100%; }
+    .course-meta .course-context { order:-1; flex:0 0 100%; color:#596674; }
     .empty { padding: 20px 0 12px; color: #99969a; font-size: 14px; text-align: center; }
     .review-simulator { position: fixed; z-index: 40; left: calc(50% - 366px); top: calc(50% - 455px); min-width: 96px; height: 38px; padding: 0 14px; border: 1px solid #d9e5f2; border-radius: 8px; color: #356da9; background: rgba(255,255,255,.96); box-shadow: 0 6px 18px rgba(47,75,106,.12); font-size: 14px; font-weight: 600; }
     .review-simulator:hover { border-color: #9dbadb; background: #f7faff; }
@@ -180,8 +176,8 @@
           <section class="section card">
             <div class="course-head"><h2 class="section-title">已排课程</h2><span class="course-date">8月10日</span></div>
             <div class="course-list">
-              <article class="course" role="link" tabindex="0" data-detail="function-0810"><div class="course-top"><strong>高一数学·函数基础</strong><span class="status">待上课</span></div><div class="course-meta"><span>王子涵</span><span>8月10日 10:00</span><span>陕西省·人教A版</span><span>60分钟</span></div></article>
-              <article class="course" role="link" tabindex="0" data-detail="sequence-0810"><div class="course-top"><strong>高二数学·数列专题</strong><span class="status">待上课</span></div><div class="course-meta"><span>李沐辰</span><span>8月10日 15:30</span><span>陕西省·人教A版</span><span>60分钟</span></div></article>
+              <article class="course" role="link" tabindex="0" data-detail="function-0810"><div class="course-top"><strong>高一数学·函数基础</strong><span class="status">待上课</span></div><div class="course-meta"><span>王子涵</span><span>8月10日 10:00</span><span>60分钟</span></div></article>
+              <article class="course" role="link" tabindex="0" data-detail="sequence-0810"><div class="course-top"><strong>高二数学·数列专题</strong><span class="status">待上课</span></div><div class="course-meta"><span>李沐辰</span><span>8月10日 15:30</span><span>60分钟</span></div></article>
             </div>
           </section>
         </div>
@@ -240,13 +236,13 @@
     }
     function bookingCourses(courseDate) {
       if (!window.YZB) return '';
-      return YZB.forTeacher('zhang', ['pending', 'confirmed']).filter(item => item.date === courseDate).map(item => `<article class="course" role="link" tabindex="0" data-booking="${item.id}" data-status="${item.status}"><div class="course-top"><strong>${item.courseName}</strong><span class="status">${item.status === 'confirmed' ? '待上课' : '待确认'}</span></div><div class="course-meta"><span>${item.student}</span><span>${item.dateLabel} ${item.time}</span><span>${item.grade} · ${item.subject}</span><span>${item.durationLabel || '60分钟'} · ${YZB.lessonsOf(item)}课时</span></div></article>`).join('');
+      return YZB.forTeacher('zhang', ['pending', 'confirmed']).filter(item => item.date === courseDate).map(item => `<article class="course" role="link" tabindex="0" data-booking="${item.id}" data-status="${item.status}"><div class="course-top"><strong>${item.courseName}</strong><span class="status">${item.status === 'confirmed' ? '待上课' : '待确认'}</span></div><div class="course-meta"><span>${item.student}</span><span>${item.dateLabel} ${item.time}</span><span class="course-context">${item.grade} · ${item.subject}</span><span>${item.durationLabel || '60分钟'} · ${YZB.lessonsOf(item)}课时</span></div></article>`).join('');
     }
     function renderCourseList(courseDate) {
       const bookingCourse = bookingCourses(courseDate);
       const staticCourses = STATIC_COURSES[courseDate] || [];
       document.querySelector('.course-date').textContent = dateLabelOf(courseDate);
-      document.querySelector('.course-list').innerHTML = bookingCourse || (staticCourses.length ? staticCourses.map(item => `<article class="course" role="link" tabindex="0" data-detail="${item.detail}"><div class="course-top"><strong>${item.title}</strong><span class="status">待上课</span></div><div class="course-meta"><span>${item.student}</span><span>${dateLabelOf(courseDate)} ${item.time}</span><span>陕西省·人教A版</span><span>60分钟</span></div></article>`).join('') : '<div class="empty">当日暂无排课</div>');
+      document.querySelector('.course-list').innerHTML = bookingCourse || (staticCourses.length ? staticCourses.map(item => `<article class="course" role="link" tabindex="0" data-detail="${item.detail}"><div class="course-top"><strong>${item.title}</strong><span class="status">待上课</span></div><div class="course-meta"><span>${item.student}</span><span>${dateLabelOf(courseDate)} ${item.time}</span><span>60分钟</span></div></article>`).join('') : '<div class="empty">当日暂无排课</div>');
     }
     /* 教学数据与授课记录同口径：累计授课 = 历史基数 + 已签到扣减课时 */
     function updateTeachingStats() {
