@@ -46,8 +46,8 @@
   </div>
 </main>
 <div class="toast" id="toast"></div>
-<script src="原型开发说明.js?v=20261103-online-2"></script>
-<script src="约课数据.js?v=20261103-online"></script>
+<script src="原型开发说明.js?v=20261112-booking-release"></script>
+<script src="约课数据.js?v=20261112-skip-dates"></script>
 <script>
   const TEACHER_VIEWS = ['zhang', 'liming', 'wangjing'];   // 演示视角：同一批需求在不同教师可约时间下的满足度不同
   const requestedView = new URLSearchParams(location.search).get('teacher');
@@ -103,7 +103,7 @@
 
   function cardOf(item) {
     const open = !item.teacherAccepted;
-    const fit = YZB.planDateFit(TEACHER_ID, item.startDate, item.endDate, item.weeklySlots);
+    const fit = YZB.planDateFit(TEACHER_ID, item.startDate, item.endDate, item.weeklySlots, item.skippedOccurrences);
     const fitTag = fit.label ? '<span class="fit ' + fit.level + '">' + fit.label + '</span>' : '';
     const action = open
       ? '<button class="btn primary" type="button" data-accept="' + item.id + '">接单</button>'

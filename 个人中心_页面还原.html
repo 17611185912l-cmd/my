@@ -131,7 +131,7 @@ button:focus-visible,a:focus-visible { outline:2px solid var(--blue); outline-of
 <div class="modal invite-modal" hidden><section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="inviteTitle"><button class="modal-close invite-close" aria-label="关闭邀请码弹窗">×</button><h2 id="inviteTitle">我的邀请二维码</h2><img class="invite-qr" src="assets/用户邀请小程序码-白底.png" alt="我的专属邀请小程序码"><p class="invite-note">好友扫码后将自动绑定邀请关系</p><a class="invite-save" href="assets/用户邀请小程序码-白底.png" download="优坐标-我的邀请码.png">保存图片</a></section></div>
 <div class="modal settings-modal" hidden><section class="modal-panel settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><button class="modal-close settings-close" aria-label="关闭设置">×</button><h2 id="settingsTitle">设置</h2><a class="service-row" href="个人资料_页面还原.html">个人资料<img class="row-arrow" src="assets/personal-center-20261103/arrow.svg" alt=""></a><button class="logout-action" data-action="退出登录">退出登录</button></section></div>
 </main></div>
-<script src="约课数据.js?v=20260918-2"></script>
+<script src="约课数据.js?v=20261112-skip-dates"></script>
 <script>
 
 try { const saved=JSON.parse(window.name||'{}'); if(saved.scope==='youzuobiao-profile') { if(saved.name)document.querySelector('.name-row strong').textContent=saved.name; if(saved.avatar)document.querySelector('.profile-avatar').src=saved.avatar; } } catch {}
@@ -178,5 +178,5 @@ fitReferenceCanvas();addEventListener('resize',fitReferenceCanvas,{passive:true}
 
 window.parent.postMessage({channel:'personal-center-restored',page:'profile'},'*');
 </script>
-<script src="原型开发说明.js?v=20261103-personal"></script>
+<script src="原型开发说明.js?v=20261112-booking-release"></script>
 </body></html>

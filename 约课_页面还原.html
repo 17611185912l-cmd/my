@@ -102,7 +102,8 @@
     .bk-weekday-chip{height:34px;border:1px solid #dbe3ec;border-radius:6px;background:#fff;color:#41506b;font-size:12.5px;line-height:1}
     .bk-weekday-chip.active{border-color:#4b7fb8;background:#4b7fb8;color:#fff;font-weight:600}
     .bk-plan-slots{margin-top:10px;display:grid;gap:6px}
-    .bk-plan-slot{min-height:46px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e5ebf2;border-radius:6px;background:#fbfdff}
+    .bk-plan-slot{min-height:46px;padding:8px 10px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid #e5ebf2;border-radius:6px;background:#fbfdff}
+    .bk-plan-slot>div{font-size:12px;line-height:18px;color:#777a82}
     .bk-plan-slot strong{font-size:14px;line-height:20px}.bk-plan-slot button{padding:4px 7px;border-radius:4px;color:#777a82;background:#f0f3f6;font-size:13px}
     .bk-plan-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
     .bk-plan-head strong{color:#2f4a68;font-size:14px}
@@ -110,6 +111,7 @@
   .time-editor{margin-top:10px;padding:12px;border:1px solid #d8e1eb;border-radius:6px;background:#f7faff;font-size:14px}.time-editor[hidden]{display:none}.time-editor .bk-weekday-chips{margin:12px 0}.availability-row{padding:10px 0;border-bottom:1px solid #eef1f4;font-size:14px;line-height:23px}.availability-row strong{display:block}.availability-row .booked{color:#858b94}.availability-row .free{color:#356da9}.conflict-note{font-size:13px;color:#a46720;line-height:21px;margin-top:8px}.conflict-note details{max-height:180px;overflow:auto}.bk-teacher:disabled{opacity:.55;cursor:not-allowed}.confirm-row b{white-space:normal;text-align:right}.bk-weekday-chip:disabled{opacity:.35;cursor:not-allowed}#bookingSelection{margin-top:10px}
 .time-editor{padding:0;border:0;background:none;margin-top:16px}.simple-label{color:#777a82;font-size:13px}.time-editor .bk-weekday-chips{margin:8px 0 14px}.bk-weekday-chip{height:38px}.cycle-settings{margin-top:14px;padding:12px 0;border-top:1px solid #eef1f4;font-size:14px}.cycle-settings summary{cursor:pointer;color:#454951}.cycle-settings summary span{float:right;color:#777a82;font-size:13px}.bk-plan-head{margin-top:0;color:#8a94a1;font-size:12px}.bk-plan-head button{background:none;padding:4px 0;font-size:12px}.bk-hours{background:none;padding:0;color:#777a82;font-size:13px}.bk-demand{background:#fff;border:1px solid #e5ebf2}.bk-demand-copy strong{color:#454951}.bk-demand-copy span{color:#777a82}.bk-demand.active{border-color:#4b7fb8;background:#f7faff;box-shadow:none}.bk-demand-radio{border-color:#b7c6d6}.bk-demand.active .bk-demand-radio{border-color:#4b7fb8;background:#4b7fb8}
 .time-category{margin:12px 0 6px;color:#8a94a1;font-size:12px}.time-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.time-choice{min-height:38px;border:1px solid #d8e1eb;border-radius:6px;font-size:13px;background:#fff}.time-choice.active{color:#356da9;border-color:#4b7fb8;background:#edf4ff;font-weight:600}#pickedLabel{color:#356da9;margin-top:12px}
+.time-scope{margin:14px 0 12px;padding:10px;border-radius:6px;background:#f7faff;font-size:13px;line-height:21px}.time-scope[hidden]{display:none}.time-scope-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.time-scope-head strong{color:#2f4a68;font-weight:500}.time-scope button{flex-shrink:0;color:#356da9;font-size:13px}.time-scope p{margin:4px 0 0;color:#777a82}
 </style>
 </head>
 <body><main class="phone-shell" aria-label="约课页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header>
@@ -124,6 +126,7 @@
 
       <section class="card step-card" data-step="2">
         <div class="step-head"><span class="step-index">2</span><div><strong id="step2Title">设置固定上课计划</strong><span class="step-note" id="step2Note">直接选择星期和时间，自动避开已约课程</span></div></div>
+        <div class="time-scope" id="timeScope" hidden><div class="time-scope-head"><strong id="timeScopeLabel"></strong><button type="button" id="timeScopeToggle">查看全部时间</button></div><p id="timeScopeSummary"></p></div>
         <div class="bk-plan-head" id="rangeHead"><strong>每周哪几天上课</strong><span class="bk-plan-hint">可多选</span></div><div id="rangeSummary" class="bk-weekday-chips" style="margin-top:10px"></div>
         <div class="bk-field" id="trialTimeField" hidden><label for="trialTime">开始时间</label><select id="trialTime"></select></div>
         <div id="bookingConflicts" class="conflict-note"></div>
@@ -132,6 +135,7 @@
           <div class="bk-field"><label for="startDate" id="startDateLabel">开始日期</label><input id="startDate" type="date"></div>
           <div class="bk-field" id="endDateField"><label for="endDate">结束日期</label><input id="endDate" type="date"></div>
         </div></details>
+        <div id="balanceAdjustment" class="bk-plan-hint" role="status" hidden></div>
         <div id="planSlots" hidden></div><div id="bookingSelection" hidden></div>
         <div id="exactTimeField" class="bk-field" style="margin-top:12px"><label>上课时间 · 每次90分钟</label><div id="timeCards"></div><div id="pickedLabel" class="bk-plan-hint"></div></div>
         <div class="bk-hours" id="planNote"></div>
@@ -156,7 +160,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-<script src="约课数据.js?v=20261103-online"></script>
+<script src="约课数据.js?v=20261112-skip-dates"></script>
   <script>
     const STUDENT = '王子涵';
     const CLASS_MINUTES = YZB.DEFAULT_CLASS_MINUTES;
@@ -181,9 +185,12 @@
       startDate: requestedStart || '2026-09-01',
       endDate: requestedEnd || '2027-01-15',
       weeklySlots: [],
-      trialTime: '19:00',
+      skippedOccurrences: [],
+      trialTime: '',
       submitMode: initialDemand ? 'demand' : 'designated'
     };
+    let requestedEndDate = state.endDate;
+    let balanceBlocked = false;
 
     const courseList = document.querySelector('#courseList');
     const startDate = document.querySelector('#startDate');
@@ -240,7 +247,7 @@
     }
     function stats() {
       if (isTrial(state.courseId)) return { sessions: 1, lessons: 1 };
-      return YZB.planStats(state.startDate, state.endDate, state.weeklySlots);
+      return YZB.planStats(state.startDate, state.endDate, state.weeklySlots, state.skippedOccurrences);
     }
     function validPlan() {
       if (isTrial(state.courseId)) return !!state.startDate && !!state.trialTime;
@@ -355,6 +362,7 @@
         `<div class="confirm-row"><span>固定时间</span><b>${planLabel()}</b></div>`,
         `<div class="confirm-row"><span>每节时长</span><b>${planDurationLabel()}</b></div>`
       ]).concat([
+        ...(!trial && activeSkippedOccurrences().length ? [`<div class="confirm-row"><span>已跳过</span><b>${activeSkippedOccurrences().length} 次已约冲突，仅安排其余日期</b></div>`] : []),
         `<div class="confirm-row"><span>提交方式</span><b>${mode === 'demand' ? '发布到抢单大厅' : '提交给当前老师'}</b></div>`
       ]).join('');
       confirmMask.hidden = false;
@@ -370,13 +378,12 @@
       state.weeklySlots = [];
       pickedTime = '';
       renderCourses();
-      renderSchedule();
-      renderMatchedTeachers();
+      refreshBooking();
     });
 
     startDate.addEventListener('change', () => { state.startDate = startDate.value; refreshBooking(); });
     trialTime.addEventListener('change', () => { state.trialTime = trialTime.value; refreshBooking(); });
-    endDate.addEventListener('change', () => { state.endDate = endDate.value; refreshBooking(); });
+    endDate.addEventListener('change', () => { requestedEndDate = endDate.value; refreshBooking(); });
     matchedTeacherList.addEventListener('click', event => {
       const demand = event.target.closest('[data-demand]');
       if (demand) {
@@ -416,8 +423,9 @@
         courseId: course.id, courseName: course.name, subject: course.subject, grade: course.grade,
         teacherId: isDemand ? '' : teacher.id, teacherName: isDemand ? '待匹配' : teacher.name, teacherAccepted: false,
         startDate: state.startDate, endDate: trial ? state.startDate : state.endDate, weeklySlots: slots,
+        skippedOccurrences: trial ? [] : activeSkippedOccurrences().map(row => ({date:row.date,time:row.time,endTime:row.endTime})),
         trial: trial,
-        scheduleLabel: trial ? `${state.startDate} ${YZB.timeRangeText(state.trialTime, trialEnd(state.trialTime))}` : YZB.scheduleLabel(state.weeklySlots),
+        scheduleLabel: trial ? `${state.startDate} ${YZB.timeRangeText(state.trialTime, trialEnd(state.trialTime))}` : YZB.scheduleLabel(state.weeklySlots)+(activeSkippedOccurrences().length?'（跳过 '+activeSkippedOccurrences().length+' 次已约冲突）':''),
         sessionCount: current.sessions, lessons: current.lessons,
         lessonMinutes: trial ? TRIAL_MINUTES : (state.weeklySlots.length ? Math.min.apply(null, state.weeklySlots.map(slot => YZB.slotMinutes(slot))) : CLASS_MINUTES),
         durationLabel: trial ? `单次 ${TRIAL_MINUTES} 分钟 · 1 课时` : planDurationLabel(), mode: '线上', place: '', remark: '',
@@ -431,12 +439,25 @@
     const esc = value => String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const selection = document.querySelector('#bookingSelection');
     let pickedDays = [], pickedTime = "";
+    let showAllTimes = false;
     const minute = YZB.timeToMinutes;
+    function usingPreferredTimes() { return !showAllTimes && YZB.parentTimes().length > 0; }
+    function withinPreferredTimes(day, time, end) {
+      return windows(day).some(slot => minute(slot.time) <= minute(time) && minute(end) <= minute(slot.end));
+    }
+    function renderTimeScope() {
+      const preferred = usingPreferredTimes();
+      document.querySelector('#timeScope').hidden = !YZB.parentTimes().length;
+      document.querySelector('#timeScopeLabel').textContent = preferred ? '已带入我的上课时间' : '全部无冲突时间';
+      document.querySelector('#timeScopeToggle').textContent = preferred ? '修改本次时间' : '使用我的上课时间';
+      document.querySelector('#timeScopeSummary').textContent = preferred
+        ? YZB.parentTimeGroups().map(slot => daysText(slot.days) + ' ' + slot.time + '–' + slot.end).join('；')
+        : '本次可选择其他时间，不会修改我的上课时间';
+    }
     function cycleEnd() { return isTrial(state.courseId) ? state.startDate : state.endDate; }
-    function datesFor(day) { return YZB.buildOccurrences(state.startDate, cycleEnd(), [{weekday:day,time:'00:00',end:'00:30'}], 'dates').map(x=>x.date); }
     function occupied() {
       return YZB.list().filter(row => !row.split && ['pending','confirmed'].includes(row.status)).flatMap(row => {
-        const instances = row.isPlan ? YZB.buildOccurrences(row.startDate > state.startDate ? row.startDate : state.startDate, row.endDate < cycleEnd() ? row.endDate : cycleEnd(), row.weeklySlots, row.id) : [row];
+        const instances = row.isPlan ? YZB.buildOccurrences(row.startDate > state.startDate ? row.startDate : state.startDate, row.endDate < cycleEnd() ? row.endDate : cycleEnd(), row.weeklySlots, row.id, row.skippedOccurrences) : [row];
         return instances.map(x => ({...row,...x, end: x.endTime || x.end || minutesText(minute(x.time) + (x.minutes || row.lessonMinutes || CLASS_MINUTES))}));
       });
     }
@@ -450,26 +471,43 @@
       });
       return result;
     }
-    function availability(day, busy) {
-      const dates=datesFor(day), rows=[];
-      windows(day).forEach(w=>{
-        const bounds=[minute(w.time),minute(w.end)];
-        busy.filter(b=>dates.includes(b.date)&&overlaps(w,b)).forEach(b=>bounds.push(Math.max(minute(w.time),minute(b.time)),Math.min(minute(w.end),minute(b.end))));
-        const points=[...new Set(bounds)].sort((a,b)=>a-b);
-        for(let i=0;i<points.length-1;i++) {
-          const time=minutesText(points[i]), end=minutesText(points[i+1]);
-          const hits=dates.filter(date=>busy.some(b=>b.date===date&&overlaps({time,end},b)));
-          const full=dates.length>0 && hits.length===dates.length;
-          const names=[...new Set(busy.filter(b=>dates.includes(b.date)&&overlaps({time,end},b)).map(b=>b.subject||b.courseName))].join('、');
-          const kind=full?'booked':'free', label=full?'已约 '+names:'可选';
-          const last=rows[rows.length-1];
-          if(last&&last.kind===kind&&last.label===label&&last.end===time) last.end=end;
-          else rows.push({time,end,kind,label});
-        }
-      });
-      return rows;
+    function preferredPlanSlots() {
+      const busy=occupied().filter(row=>row.student===STUDENT), slots=[];
+      const unavailable=[];
+      WEEKDAYS.forEach((label,weekday)=>windows(weekday).forEach(window=>{
+        const candidates=YZB.times().map(time=>({weekday,time,end:minutesText(minute(time)+CLASS_MINUTES)}))
+          .filter(slot=>minute(slot.time)>=minute(window.time)&&minute(slot.end)<=minute(window.end));
+        const choice=candidates.find(slot=>{
+            const instances=YZB.buildOccurrences(state.startDate,state.endDate,[slot],'preferred');
+            return instances.some(instance=>!busy.some(row=>row.date===instance.date&&overlaps(instance,row)));
+          }) || candidates[0];
+        if(choice)slots.push(choice);else unavailable.push(label+' '+window.time+'–'+window.end+'：不足90分钟');
+      }));
+      return {slots,unavailable};
     }
-    function selectedOccurrences() { return validPlan()?YZB.buildOccurrences(state.startDate,cycleEnd(),isTrial(state.courseId)?[trialSlot()]:state.weeklySlots,'new'):[]; }
+    function renderImportedTimes() {
+      const imported=preferredPlanSlots();
+      state.weeklySlots=imported.slots;
+      const busy=occupied().filter(row=>row.student===STUDENT);
+      state.skippedOccurrences=YZB.buildOccurrences(state.startDate,state.endDate,state.weeklySlots,'skip').filter(o=>busy.some(row=>row.date===o.date&&overlaps(o,row)));
+      importedTimeWarnings=imported.unavailable;
+    }
+    let importedTimeWarnings=[];
+    function activeSkippedOccurrences() { return state.skippedOccurrences.filter(row=>row.date>=state.startDate&&row.date<=state.endDate); }
+    function renderImportedSummary() {
+      const skipped=activeSkippedOccurrences(), actual=selectedOccurrences();
+      document.querySelector('#planSlots').hidden=false;
+      document.querySelector('#planSlots').innerHTML=state.weeklySlots.length?state.weeklySlots.map(slot=>{
+        const rows=actual.filter(o=>o.weekday===slot.weekday&&o.time===slot.time&&o.endTime===slot.end);
+        const count=skipped.filter(o=>o.weekday===slot.weekday&&o.time===slot.time&&o.endTime===slot.end).length;
+        const note=rows.length?'可安排 '+rows.length+' 次'+(count?'，已避开已约课程':''):count?'本周期均已约满':'本周期暂无可安排课次';
+        return `<div class="bk-plan-slot"><strong>${daysText([slot.weekday])} ${slot.time}–${slot.end}</strong><div>${note}</div></div>`;
+      }).join(''):'<div class="bk-empty">参考时段不足90分钟，请修改本次时间</div>';
+      document.querySelector('#timeScopeSummary').textContent='每次90分钟，仅跳过冲突日期，保留其余可上课日期';
+      planFromHint.textContent=actual.length?'时间已带入，可直接选择老师':'本周期暂无可上课次，可调整日期或本次时间';
+      document.querySelector('#bookingConflicts').innerHTML=importedTimeWarnings.map(text=>`<div>${esc(text)}</div>`).join('');
+    }
+    function selectedOccurrences() { return validPlan()?YZB.buildOccurrences(state.startDate,cycleEnd(),isTrial(state.courseId)?[trialSlot()]:state.weeklySlots,'new',state.skippedOccurrences):[]; }
     function studentConflicts() {
       const busy=occupied().filter(b=>b.student===STUDENT);
       return selectedOccurrences().flatMap(o=>{
@@ -487,37 +525,79 @@
       return {ok,total:rows.length,full:rows.length>0&&ok===rows.length};
     }
     function bookingIssue() {
+      if(balanceBlocked) return '剩余课时不足以安排一次完整上课';
       if(!validPlan()) return '请先选择本次上课时间';
       if(!stats().sessions) return '所选周期内没有对应课次，请调整日期';
 
       const conflicts=studentConflicts();
       if(conflicts.length) return '有 '+conflicts.length+' 次上课冲突，请修改时间或周期';
-      if(!isTrial(state.courseId)&&stats().lessons>YZB.hours().available) return '共用课时不足，请缩短周期或减少上课次数';
+      if(!isTrial(state.courseId)&&stats().lessons>YZB.hours().available) return '剩余课时已变化，请重新核对自动调整后的约课周期';
       if(!state.demand&&state.teacherId&&!teacherFit(state.teacherId).full) return '老师无法满足全部时间，请更换老师或发布需求';
       return '';
     }
+    function adjustPeriodToBalance() {
+      balanceBlocked=false;
+      const note=document.querySelector('#balanceAdjustment');
+      note.hidden=true;
+      note.textContent='';
+      if(isTrial(state.courseId)||!state.weeklySlots.length)return;
+      const rows=YZB.buildOccurrences(state.startDate,state.endDate,state.weeklySlots,'balance',state.skippedOccurrences).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+      const available=Math.max(0,Number(YZB.hours().available)||0);
+      if(rows.reduce((sum,row)=>sum+row.lessons,0)<=available)return;
+      // 结束日期会包含当天所有课次，按整天累计，避免同一天部分课次超出余额。
+      const dates=[];
+      rows.forEach(row=>{
+        let day=dates[dates.length-1];
+        if(!day||day.date!==row.date){day={date:row.date,lessons:0};dates.push(day);}
+        day.lessons+=row.lessons;
+      });
+      let used=0,lastDate='';
+      for(const day of dates){
+        if(used+day.lessons>available)break;
+        used+=day.lessons;lastDate=day.date;
+      }
+      state.endDate=lastDate;
+      balanceBlocked=!lastDate;
+      note.hidden=false;
+      note.textContent=lastDate
+        ? '已按剩余 '+lessonsText(available)+' 课时自动调整至 '+lastDate+'，共 '+stats().sessions+' 次课 · 使用 '+lessonsText(used)+' 课时'
+        : '剩余 '+lessonsText(available)+' 课时，无法覆盖首日完整课次，暂不能约课';
+    }
     function renderSchedule() {
+      if(!isTrial(state.courseId))state.endDate=requestedEndDate;
+      state.skippedOccurrences=[];
       startDate.value=state.startDate;endDate.value=state.endDate;
+      renderTimeScope();
       const trial=isTrial(state.courseId);
       planDates.classList.toggle('single',trial);endDateField.hidden=trial;
       startDateLabel.textContent=trial?'上课日期':'开始日期';
       step2Title.textContent='选上课时间';
-      step2Note.textContent=trial?'每次 45 分钟，自动避开已约课程':'直接选择星期和时间，自动避开已约课程';
+      step2Note.textContent=trial?'每次 45 分钟，自动避开已约课程':usingPreferredTimes()?'已带入星期和时间，可直接选择老师':'直接选择星期和时间，自动避开已约课程';
       trialTimeField.hidden=!trial;
-      document.querySelector('#rangeHead').hidden=trial;document.querySelector('#rangeSummary').hidden=trial;document.querySelector('#exactTimeField').hidden=trial;
+      const imported=!trial&&usingPreferredTimes();
+      document.querySelector('#rangeHead').hidden=trial||imported;document.querySelector('#rangeSummary').hidden=trial||imported;document.querySelector('#exactTimeField').hidden=trial||imported;
+      document.querySelector('#planSlots').hidden=!imported;
       document.querySelector('#cycleLabel').textContent=trial?state.startDate:state.startDate+' — '+state.endDate;
       if(trial) {
         document.querySelector('#cycleSettings').open=true;
         const busy=occupied().filter(b=>b.student===STUDENT&&b.date===state.startDate);
-        const options=YZB.times().filter(t=>minute(t)+TRIAL_MINUTES<=1440&&!busy.some(b=>overlaps({time:t,end:trialEnd(t)},b)));
-        trialTime.innerHTML='<option value="">请选择开始时间</option>'+options.map(t=>`<option value="${t}">${t}–${trialEnd(t)}</option>`).join('');
-        trialTime.value=options.includes(state.trialTime)?state.trialTime:'';state.trialTime=trialTime.value;
-        planFromHint.textContent='仅显示当天没有课程冲突的时间';
+        const day=(new Date(state.startDate+'T00:00:00').getDay()+6)%7;
+        const options=YZB.times().filter(t=>minute(t)+TRIAL_MINUTES<=1440&&(!usingPreferredTimes()||withinPreferredTimes(day,t,trialEnd(t)))&&!busy.some(b=>overlaps({time:t,end:trialEnd(t)},b)));
+        trialTime.innerHTML='<option value="">'+(options.length?'请选择开始时间':'暂无可选时间')+'</option>'+options.map(t=>`<option value="${t}">${t}–${trialEnd(t)}</option>`).join('');
+        trialTime.value=options.includes(state.trialTime)?state.trialTime:(usingPreferredTimes()&&options.length?options[0]:'');state.trialTime=trialTime.value;
+        planFromHint.textContent=usingPreferredTimes()?(options.length?'已带入当天无冲突时间，可直接选择老师':'当天暂无可带入时间，可修改本次时间或更换日期'):'仅显示当天没有课程冲突的时间';
         document.querySelector('#bookingConflicts').innerHTML='';
+      } else if(imported) {
+        renderImportedTimes();
       } else {
         renderRanges();
 
       }
+      adjustPeriodToBalance();
+      if(imported)renderImportedSummary();
+      endDate.value=state.endDate;
+      document.querySelector('#cycleLabel').textContent=trial?state.startDate:state.endDate?state.startDate+' — '+state.endDate:'暂无可约课次';
+      if(!trial&&!usingPreferredTimes())document.querySelector('#pickedLabel').textContent=pickedTime?'已选：'+daysText(pickedDays)+' '+pickedTime+'–'+minutesText(minute(pickedTime)+CLASS_MINUTES)+' · 共 '+stats().sessions+' 次':'';
       renderHours();renderSummary();
     }
     function renderMatchedTeachers() {
@@ -530,7 +610,7 @@
     function timeChoices() {
       if(!pickedDays.length)return [];
       const busy=occupied().filter(b=>b.student===STUDENT);
-      return YZB.times().filter(time=>minute(time)+CLASS_MINUTES<=24*60).map(time=>{
+      return YZB.times().filter(time=>minute(time)+CLASS_MINUTES<=24*60&&(!usingPreferredTimes()||pickedDays.every(day=>withinPreferredTimes(day,time,minutesText(minute(time)+CLASS_MINUTES))))).map(time=>{
         const end=minutesText(minute(time)+CLASS_MINUTES);
         const instances=YZB.buildOccurrences(state.startDate,state.endDate,pickedDays.map(weekday=>({weekday,time,end})),'choice');
         const conflicts=instances.filter(o=>busy.some(b=>b.date===o.date&&overlaps(o,b)));
@@ -538,17 +618,19 @@
       });
     }
     function renderRanges(){
-      document.querySelector('#rangeSummary').innerHTML=WEEKDAYS.map((label,day)=>`<button type="button" class="bk-weekday-chip ${pickedDays.includes(day)?'active':''}" data-weekday="${day}" aria-pressed="${pickedDays.includes(day)}">${label}</button>`).join('');
+      const days=WEEKDAYS.map((label,day)=>({label,day})).filter(({day})=>!usingPreferredTimes()||windows(day).length);
+      pickedDays=pickedDays.filter(day=>days.some(item=>item.day===day));
+      document.querySelector('#rangeSummary').innerHTML=days.map(({label,day})=>`<button type="button" class="bk-weekday-chip ${pickedDays.includes(day)?'active':''}" data-weekday="${day}" aria-pressed="${pickedDays.includes(day)}">${label}</button>`).join('');
       const choices=timeChoices(), available=choices.filter(c=>c.total&&!c.conflicts.length);
       if(!available.some(c=>c.time===pickedTime))pickedTime='';
       state.weeklySlots=pickedTime?pickedDays.map(weekday=>({weekday,time:pickedTime,end:minutesText(minute(pickedTime)+CLASS_MINUTES)})):[];
       const cards=document.querySelector('#timeCards');
-      cards.innerHTML=!pickedDays.length?'<div class="bk-empty">先选择每周上课的星期</div>':!available.length?'<div class="bk-empty">本周期暂无共同可用时间，请调整星期或周期</div>':['上午','下午','晚上'].map((label,i)=>{
+      cards.innerHTML=!pickedDays.length?'<div class="bk-empty">先选择每周上课的星期</div>':!available.length?'<div class="bk-empty">'+(usingPreferredTimes()?'暂无共同的推荐时间，可查看全部时间或调整星期、周期':'本周期暂无共同可用时间，请调整星期或周期')+'</div>':['上午','下午','晚上'].map((label,i)=>{
         const rows=available.filter(c=>i===0?minute(c.time)<720:i===1?minute(c.time)>=720&&minute(c.time)<1080:minute(c.time)>=1080);
         return rows.length?`<div class="time-category">${label}</div><div class="time-card-grid">${rows.map(c=>`<button type="button" class="time-choice ${pickedTime===c.time?'active':''}" data-time="${c.time}" aria-pressed="${pickedTime===c.time}">${c.time}–${c.end}</button>`).join('')}</div>`:'';
       }).join('');
       document.querySelector('#pickedLabel').textContent=pickedTime?'已选：'+daysText(pickedDays)+' '+pickedTime+'–'+minutesText(minute(pickedTime)+CLASS_MINUTES)+' · 共 '+stats().sessions+' 次':'';
-      planFromHint.textContent=pickedDays.length?'仅展示本周期无冲突的时间，无需提前维护可约时间':'';
+      planFromHint.textContent=pickedDays.length?(usingPreferredTimes()?'已避开已约课程，请选择本次时间':'仅展示本周期无冲突的时间'):'';
       const partial=choices.filter(c=>c.conflicts.length&&c.conflicts.length<c.total);
       document.querySelector('#bookingConflicts').innerHTML=partial.length?`<details><summary>查看有部分日期冲突的时间</summary>${partial.map(c=>`<div>${c.time}–${c.end} · ${c.conflicts.length} 次冲突：${[...new Set(c.conflicts.map(o=>o.date))].join('、')}</div>`).join('')}<div>这些时间暂不可选，请调整星期或约课周期。</div></details>`:'';
     }
@@ -561,6 +643,7 @@
       const button=e.target.closest('[data-time]');if(!button)return;
       pickedTime=button.dataset.time;refreshBooking();
     };
+    document.querySelector('#timeScopeToggle').onclick=()=>{showAllTimes=!showAllTimes;refreshBooking();};
     window.addEventListener('storage',refreshBooking);
 
     renderCourses();
@@ -570,4 +653,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20261103-online-2"></script></body></html>
+<script src="原型开发说明.js?v=20261112-booking-release"></script></body></html>

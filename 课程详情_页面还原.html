@@ -14,7 +14,7 @@
   <section class="card"><h2 class="section-title">课后反馈</h2><div id="feedbackContent"></div></section>
   <section class="card"><h2 class="section-title">课后作业</h2><div id="homeworkContent"></div></section>
 </div></div><a class="feedback-entry" id="feedbackEntry" hidden>去填写反馈</a><a class="review-entry" id="reviewEntry" hidden>去评价</a><button class="share-entry" id="shareEntry" type="button" hidden>分享至家长群</button><div class="share-toast" id="shareToast">课程反馈已复制，请选择群聊后粘贴</div></div></main>
-<script src="约课数据.js?v=20261103-online"></script>
+<script src="约课数据.js?v=20261112-skip-dates"></script>
 <script>
   const courses={
     'function-0810':{name:'高一数学·函数基础',student:'王子涵',teacher:'张三老师',time:'8月10日 10:00',status:'待上课',content:''},
@@ -69,4 +69,4 @@
   if(role==='teacher'&&course.status==='已完成'&&course.feedback){shareEntry.hidden=false;shareEntry.onclick=copyShareText;document.querySelector('.content').classList.add('with-action')}
   document.querySelector('.back').onclick=()=>{if(history.length>1)history.back();else location.href=role==='parent'?'上课记录_页面还原.html':'授课记录_页面还原.html'};
   function fit(){const scale=Math.min((innerWidth-32)/464,(innerHeight-32)/980,1);document.documentElement.style.setProperty('--device-scale',Math.max(scale,.2))}fit();addEventListener('resize',fit,{passive:true});
-</script><script src="原型开发说明.js?v=20261103-online-2"></script></body></html>
+</script><script src="原型开发说明.js?v=20261112-booking-release"></script></body></html>

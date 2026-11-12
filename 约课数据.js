@@ -1,11 +1,13 @@
 /* 优坐标 · 约课演示数据层（家长端 / 教师端共用）
-   说明口径（2026-11-03）：
+   说明口径（2026-11-12）：
    1) 本期不做老师和家长的请假功能，包括发起、撤回、改期、取消已排课次及对方确认。
       下方请假代码与入口只保留后续方案演示，不纳入本期开发与验收；待确认约课的取消与拒绝仍保留。
    2) 1课时 = 45分钟，正式课默认90分钟（2课时），体验课单次45分钟（独立1课时）。
       待确认不冻结课时，最终确认生效后按实际课时冻结；签到回调成功后才扣减，取消/拒绝不扣课时。
-   3) 家长先选课程、日期范围、星期与时间，再选老师或发布需求，不再自动带入我的上课时间。
-      我的上课时间仅维护无科目的参考时间，相同起止时间聚合星期，不限制约课范围、不改写已约课程。
+   3) 家长选课程后自动带入我的上课时间内无冲突的课次，可修改本次时间，再选老师或发布需求。
+      我的上课时间维护无科目的参考时间，相同起止时间聚合星期，不限制约课范围、不改写已约课程。
+      正式课逐次跳过冲突日期，保留其余日期；余额不足时自动缩短结束日期并重算次数、课时与老师匹配。
+      跳过日期随待确认计划保存，最终生成课次时仍排除；体验课使用独立课包。
    4) 指定老师：老师确认即生效；发布需求：老师接单后还须家长确认。最终确认后生成逐次课次。
    5) pending为待确认，confirmed为待上课；签到后attended在老师端为待反馈、家长端原型为待评价。
       老师提交反馈后done在老师端为已完成，家长端未评价仍为待评价，reviewedAt存在才展示已完成。
@@ -56,7 +58,7 @@
   ];
   function trialCourses() { return clone(TRIAL_COURSES).map(function (course) { course.mode = '线上'; course.place = ''; return course; }); }
 
-  // 历史按课程维护的计划数据：用于兼容和首次迁移；当前参考时间不分科目，约课页不自动带入。
+  // 历史按课程维护的计划数据：用于兼容和首次迁移；当前参考时间不分科目，约课页自动带入合并后的参考时段。
   var DEFAULT_PLANS = {
     'function': [{ weekday: 0, time: '19:00', end: '20:30' }],
     'sequence': [{ weekday: 2, time: '19:00', end: '20:30' }],
@@ -573,13 +575,14 @@
     return (slots || []).map(slotText).filter(Boolean).join(' · ');
   }
 
-  function planStats(startDate, endDate, slots) {
+  function planStats(startDate, endDate, slots, skippedOccurrences) {
     var start = parseKey(startDate), end = parseKey(endDate), sessions = 0, lessons = 0;
     if (!startDate || !endDate || start > end) return { sessions: 0, lessons: 0 };
     for (var current = new Date(start.getTime()); current <= end; current.setDate(current.getDate() + 1)) {
       var weekday = (current.getDay() + 6) % 7;
       (slots || []).forEach(function (slot) {
         if (Number(slot.weekday) !== weekday) return;
+        if (isSkippedOccurrence(skippedOccurrences, keyOf(current), slot)) return;
         sessions += 1;
         lessons += slotLessons(slot);
       });
@@ -587,13 +590,20 @@
     return { sessions: sessions, lessons: lessons };
   }
 
-  function buildOccurrences(startDate, endDate, slots, planId) {
+  function isSkippedOccurrence(skippedOccurrences, date, slot) {
+    return (skippedOccurrences || []).some(function (row) {
+      return row.date === date && row.time === slot.time && (!row.endTime || row.endTime === slot.end);
+    });
+  }
+
+  function buildOccurrences(startDate, endDate, slots, planId, skippedOccurrences) {
     var start = parseKey(startDate), end = parseKey(endDate), list = [];
     if (!startDate || !endDate || start > end) return list;
     for (var current = new Date(start.getTime()); current <= end; current.setDate(current.getDate() + 1)) {
       var weekday = (current.getDay() + 6) % 7;
       (slots || []).forEach(function (slot) {
         if (Number(slot.weekday) !== weekday) return;
+        if (isSkippedOccurrence(skippedOccurrences, keyOf(current), slot)) return;
         list.push({
           id: planId + '-S' + String(list.length + 1).padStart(3, '0'),
           date: keyOf(current),
@@ -629,8 +639,8 @@
   function activatePlan(id) {
     var item = byId(id);
     if (!item || !item.isPlan || !item.teacherAccepted || item.status !== 'pending') return null;
-    var stats = planStats(item.startDate, item.endDate, item.weeklySlots);
-    var occurrences = buildOccurrences(item.startDate, item.endDate, item.weeklySlots, item.id);
+    var stats = planStats(item.startDate, item.endDate, item.weeklySlots, item.skippedOccurrences);
+    var occurrences = buildOccurrences(item.startDate, item.endDate, item.weeklySlots, item.id, item.skippedOccurrences);
     var bookings = list();
     bookings.forEach(function (booking) {
       if (booking.id !== id) return;
@@ -995,13 +1005,13 @@
   }
 
   // 需求单逐次课满足度：按「具体日期 + 时刻」把整段周期拆开核对，区分「整个周期某时段都冲突」与「仅某几天冲突」
-  function planDateFit(teacherId, startDate, endDate, slots) {
+  function planDateFit(teacherId, startDate, endDate, slots, skippedOccurrences) {
     var rows = (slots || []).filter(function (slot) { return slot && typeof slot.weekday === 'number' && slot.time; });
     if (!rows.length || !startDate || !endDate) {
       return { level: 'unknown', ok: 0, total: 0, label: '', groups: [], wholeConflicts: [], dateConflicts: [] };
     }
     var groups = rows.map(function (slot) {
-      var occurrences = buildOccurrences(startDate, endDate, [slot], 'FIT');
+      var occurrences = buildOccurrences(startDate, endDate, [slot], 'FIT', skippedOccurrences);
       var conflicts = [];
       occurrences.forEach(function (occ) {
         var open = dayTimes(teacherId, occ.date).indexOf(occ.time) > -1;
@@ -1044,7 +1054,7 @@
   // 推送口径：科目 + 年级同时匹配，且按具体日期至少有一次课能上（完全冲突的需求不推送给该老师）
   function demandPushable(teacherId, item) {
     return !!item && teacherTeaches(teacherId, item.subject, item.grade)
-      && planDateFit(teacherId, item.startDate, item.endDate, item.weeklySlots).ok > 0;
+      && planDateFit(teacherId, item.startDate, item.endDate, item.weeklySlots, item.skippedOccurrences).ok > 0;
   }
 
   // 批量预约：单次 / 每周（连约 4 次）/ 每天（连约 7 天）；逐节校验老师是否开放且未被约
