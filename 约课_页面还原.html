@@ -112,6 +112,7 @@
 .time-editor{padding:0;border:0;background:none;margin-top:16px}.simple-label{color:#777a82;font-size:13px}.time-editor .bk-weekday-chips{margin:8px 0 14px}.bk-weekday-chip{height:38px}.cycle-settings{margin-top:14px;padding:12px 0;border-top:1px solid #eef1f4;font-size:14px}.cycle-settings summary{cursor:pointer;color:#454951}.cycle-settings summary span{float:right;color:#777a82;font-size:13px}.bk-plan-head{margin-top:0;color:#8a94a1;font-size:12px}.bk-plan-head button{background:none;padding:4px 0;font-size:12px}.bk-hours{background:none;padding:0;color:#777a82;font-size:13px}.bk-demand{background:#fff;border:1px solid #e5ebf2}.bk-demand-copy strong{color:#454951}.bk-demand-copy span{color:#777a82}.bk-demand.active{border-color:#4b7fb8;background:#f7faff;box-shadow:none}.bk-demand-radio{border-color:#b7c6d6}.bk-demand.active .bk-demand-radio{border-color:#4b7fb8;background:#4b7fb8}
 .time-category{margin:12px 0 6px;color:#8a94a1;font-size:12px}.time-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.time-choice{min-height:38px;border:1px solid #d8e1eb;border-radius:6px;font-size:13px;background:#fff}.time-choice.active{color:#356da9;border-color:#4b7fb8;background:#edf4ff;font-weight:600}#pickedLabel{color:#356da9;margin-top:12px}
 .time-scope{margin:14px 0 12px;padding:10px;border-radius:6px;background:#f7faff;font-size:13px;line-height:21px}.time-scope[hidden]{display:none}.time-scope-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.time-scope-head strong{color:#2f4a68;font-weight:500}.time-scope button{flex-shrink:0;color:#356da9;font-size:13px}.time-scope p{margin:4px 0 0;color:#777a82}
+.cycle-settings.trial{margin-top:0;padding-top:0;border-top:0}.cycle-settings.trial #trialTimeField{margin-top:0}
 </style>
 </head>
 <body><main class="phone-shell" aria-label="约课页面"><div class="dynamic-island" aria-hidden="true"></div><div class="app"><div class="page"><header>
@@ -128,12 +129,12 @@
         <div class="step-head"><span class="step-index">2</span><div><strong id="step2Title">设置固定上课计划</strong><span class="step-note" id="step2Note">直接选择星期和时间，自动避开已约课程</span></div></div>
         <div class="time-scope" id="timeScope" hidden><div class="time-scope-head"><strong id="timeScopeLabel"></strong><button type="button" id="timeScopeToggle">查看全部时间</button></div><p id="timeScopeSummary"></p></div>
         <div class="bk-plan-head" id="rangeHead"><strong>每周哪几天上课</strong><span class="bk-plan-hint">可多选</span></div><div id="rangeSummary" class="bk-weekday-chips" style="margin-top:10px"></div>
-        <div class="bk-field" id="trialTimeField" hidden><label for="trialTime">开始时间</label><select id="trialTime"></select></div>
         <div id="bookingConflicts" class="conflict-note"></div>
         <div id="planFromHint" class="bk-plan-hint"></div>
         <details class="cycle-settings" id="cycleSettings"><summary>约课周期 <span id="cycleLabel"></span></summary><div class="bk-plan-dates" id="planDates">
           <div class="bk-field"><label for="startDate" id="startDateLabel">开始日期</label><input id="startDate" type="date"></div>
           <div class="bk-field" id="endDateField"><label for="endDate">结束日期</label><input id="endDate" type="date"></div>
+          <div class="bk-field" id="trialTimeField" hidden><label for="trialTime">开始时间</label><select id="trialTime"></select></div>
         </div></details>
         <div id="balanceAdjustment" class="bk-plan-hint" role="status" hidden></div>
         <div id="planSlots" hidden></div><div id="bookingSelection" hidden></div>
@@ -160,7 +161,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-<script src="约课数据.js?v=20261112-skip-dates"></script>
+<script src="约课数据.js?v=20261113-trial-teachers"></script>
   <script>
     const STUDENT = '王子涵';
     const CLASS_MINUTES = YZB.DEFAULT_CLASS_MINUTES;
@@ -175,7 +176,7 @@
     const requestedMode = bookingParams.get('mode') || '';
     const requestedStart = bookingParams.get('start') || '';
     const requestedEnd = bookingParams.get('end') || '';
-    const initialCourseId = YZB.courses().some(course => course.id === requestedCourse) ? requestedCourse : 'function';
+    const initialCourseId = YZB.courses().concat(YZB.trialCourses()).some(course => course.id === requestedCourse) ? requestedCourse : 'function';
     const initialDemand = requestedMode === 'demand';
     const initialTeacherId = !initialDemand && YZB.teachersFor(initialCourseId).some(teacher => teacher.id === requestedTeacher) ? requestedTeacher : '';
     const state = {
@@ -441,11 +442,12 @@
     let pickedDays = [], pickedTime = "";
     let showAllTimes = false;
     const minute = YZB.timeToMinutes;
-    function usingPreferredTimes() { return !showAllTimes && YZB.parentTimes().length > 0; }
+    function usingPreferredTimes() { return !isTrial(state.courseId) && !showAllTimes && YZB.parentTimes().length > 0; }
     function withinPreferredTimes(day, time, end) {
       return windows(day).some(slot => minute(slot.time) <= minute(time) && minute(end) <= minute(slot.end));
     }
     function renderTimeScope() {
+      if(isTrial(state.courseId)){document.querySelector('#timeScope').hidden=true;return;}
       const preferred = usingPreferredTimes();
       document.querySelector('#timeScope').hidden = !YZB.parentTimes().length;
       document.querySelector('#timeScopeLabel').textContent = preferred ? '已带入我的上课时间' : '全部无冲突时间';
@@ -572,7 +574,9 @@
       planDates.classList.toggle('single',trial);endDateField.hidden=trial;
       startDateLabel.textContent=trial?'上课日期':'开始日期';
       step2Title.textContent='选上课时间';
-      step2Note.textContent=trial?'每次 45 分钟，自动避开已约课程':usingPreferredTimes()?'已带入星期和时间，可直接选择老师':'直接选择星期和时间，自动避开已约课程';
+      step2Note.textContent=trial?'选择日期和开始时间 · 单次45分钟':usingPreferredTimes()?'已带入星期和时间，可直接选择老师':'直接选择星期和时间，自动避开已约课程';
+      document.querySelector('#cycleSettings summary').hidden=trial;
+      document.querySelector('#cycleSettings').classList.toggle('trial',trial);
       trialTimeField.hidden=!trial;
       const imported=!trial&&usingPreferredTimes();
       document.querySelector('#rangeHead').hidden=trial||imported;document.querySelector('#rangeSummary').hidden=trial||imported;document.querySelector('#exactTimeField').hidden=trial||imported;
@@ -581,11 +585,10 @@
       if(trial) {
         document.querySelector('#cycleSettings').open=true;
         const busy=occupied().filter(b=>b.student===STUDENT&&b.date===state.startDate);
-        const day=(new Date(state.startDate+'T00:00:00').getDay()+6)%7;
-        const options=YZB.times().filter(t=>minute(t)+TRIAL_MINUTES<=1440&&(!usingPreferredTimes()||withinPreferredTimes(day,t,trialEnd(t)))&&!busy.some(b=>overlaps({time:t,end:trialEnd(t)},b)));
-        trialTime.innerHTML='<option value="">'+(options.length?'请选择开始时间':'暂无可选时间')+'</option>'+options.map(t=>`<option value="${t}">${t}–${trialEnd(t)}</option>`).join('');
-        trialTime.value=options.includes(state.trialTime)?state.trialTime:(usingPreferredTimes()&&options.length?options[0]:'');state.trialTime=trialTime.value;
-        planFromHint.textContent=usingPreferredTimes()?(options.length?'已带入当天无冲突时间，可直接选择老师':'当天暂无可带入时间，可修改本次时间或更换日期'):'仅显示当天没有课程冲突的时间';
+        const options=state.startDate?YZB.times().filter(t=>minute(t)+TRIAL_MINUTES<=1440&&!busy.some(b=>overlaps({time:t,end:trialEnd(t)},b))):[];
+        trialTime.innerHTML='<option value="">'+(!state.startDate?'请先选择上课日期':options.length?'请选择开始时间':'当天暂无可选时间，请更换日期')+'</option>'+options.map(t=>`<option value="${t}">${t}</option>`).join('');
+        trialTime.value=options.includes(state.trialTime)?state.trialTime:'';state.trialTime=trialTime.value;
+        planFromHint.textContent='';
         document.querySelector('#bookingConflicts').innerHTML='';
       } else if(imported) {
         renderImportedTimes();
@@ -653,4 +656,4 @@
     function fit() { const scale = Math.min((innerWidth - 32) / 464, (innerHeight - 32) / 980, 1); document.documentElement.style.setProperty('--device-scale', Math.max(scale, .2)); }
     fit(); addEventListener('resize', fit, { passive: true });
   </script>
-<script src="原型开发说明.js?v=20261112-booking-release"></script></body></html>
+<script src="原型开发说明.js?v=20261113-trial-direct-time"></script></body></html>

@@ -1,13 +1,14 @@
 /* 优坐标 · 约课演示数据层（家长端 / 教师端共用）
-   说明口径（2026-11-12）：
+   说明口径（2026-11-13）：
    1) 本期不做老师和家长的请假功能，包括发起、撤回、改期、取消已排课次及对方确认。
       下方请假代码与入口只保留后续方案演示，不纳入本期开发与验收；待确认约课的取消与拒绝仍保留。
    2) 1课时 = 45分钟，正式课默认90分钟（2课时），体验课单次45分钟（独立1课时）。
       待确认不冻结课时，最终确认生效后按实际课时冻结；签到回调成功后才扣减，取消/拒绝不扣课时。
-   3) 家长选课程后自动带入我的上课时间内无冲突的课次，可修改本次时间，再选老师或发布需求。
+   3) 正式课选课程后自动带入我的上课时间内无冲突的课次，可修改本次时间，再选老师或发布需求。
       我的上课时间维护无科目的参考时间，相同起止时间聚合星期，不限制约课范围、不改写已约课程。
       正式课逐次跳过冲突日期，保留其余日期；余额不足时自动缩短结束日期并重算次数、课时与老师匹配。
-      跳过日期随待确认计划保存，最终生成课次时仍排除；体验课使用独立课包。
+      跳过日期随待确认计划保存，最终生成课次时仍排除。
+      体验课使用独立课包，不读取或带入我的上课时间，直接选择日期和开始时间，再指定老师或发布需求。
    4) 指定老师：老师确认即生效；发布需求：老师接单后还须家长确认。最终确认后生成逐次课次。
    5) pending为待确认，confirmed为待上课；签到后attended在老师端为待反馈、家长端原型为待评价。
       老师提交反馈后done在老师端为已完成，家长端未评价仍为待评价，reviewedAt存在才展示已完成。
@@ -58,7 +59,7 @@
   ];
   function trialCourses() { return clone(TRIAL_COURSES).map(function (course) { course.mode = '线上'; course.place = ''; return course; }); }
 
-  // 历史按课程维护的计划数据：用于兼容和首次迁移；当前参考时间不分科目，约课页自动带入合并后的参考时段。
+  // 历史按课程维护的计划数据：用于兼容和首次迁移；当前参考时间不分科目，正式课约课页自动带入合并后的参考时段。
   var DEFAULT_PLANS = {
     'function': [{ weekday: 0, time: '19:00', end: '20:30' }],
     'sequence': [{ weekday: 2, time: '19:00', end: '20:30' }],
@@ -391,7 +392,7 @@
 
   // 按“科目 + 年级”匹配可以上这门课的老师
   function teachersFor(courseId) {
-    var course = courses().filter(function (item) { return item.id === courseId; })[0];
+    var course = courses().concat(trialCourses()).filter(function (item) { return item.id === courseId; })[0];
     if (!course) return [];
     return TEACHERS.filter(function (teacher) {
       return teacher.subjects.indexOf(course.subject) > -1 && teacher.grades.indexOf(course.grade) > -1 && teacher.modes.indexOf('线上') > -1;
