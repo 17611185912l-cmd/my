@@ -1,11 +1,11 @@
 /* 优坐标 · 约课演示数据层（家长端 / 教师端共用）
-   说明口径（2026-11-13）：
+   说明口径（2026-11-16）：
    1) 本期不做老师和家长的请假功能，包括发起、撤回、改期、取消已排课次及对方确认。
       下方请假代码与入口只保留后续方案演示，不纳入本期开发与验收；待确认约课的取消与拒绝仍保留。
    2) 1课时 = 45分钟，正式课默认90分钟（2课时），体验课单次45分钟（独立1课时）。
-      待确认不冻结课时，最终确认生效后按实际课时冻结；签到回调成功后才扣减，取消/拒绝不扣课时。
+      待确认不冻结课时，最终确认生效后按实际课时冻结；签到回调成功即代表完成授课并扣减，同时计入该课程已上及老师累计授课；取消/拒绝不扣课时。
    3) 正式课选课程后自动带入我的上课时间内无冲突的课次，可修改本次时间，再选老师或发布需求。
-      我的上课时间维护无科目的参考时间，相同起止时间聚合星期，不限制约课范围、不改写已约课程。
+      我的上课时间维护无科目的参考时间，每次添加独立保存星期组合和起止时间，不限制约课范围、不改写已约课程。
       正式课逐次跳过冲突日期，保留其余日期；余额不足时自动缩短结束日期并重算次数、课时与老师匹配。
       跳过日期随待确认计划保存，最终生成课次时仍排除。
       体验课使用独立课包，不读取或带入我的上课时间，直接选择日期和开始时间，再指定老师或发布需求。
@@ -17,7 +17,12 @@
       仅展示满足全部课次的老师；抢单大厅则按科目、年级与至少一次可上课匹配。
       大厅允许部分冲突需求被接单，后续冲突处理仍待明确，不能把接单成功等同排课成功。
    7) 下方保留旧的按课程计划、先选老师与批量约课工具，供历史数据兼容，不代表当前页面主流程。
-      请假限制和改期处理仅为后续演示规则，本期不启用为开发要求。 */
+      请假限制和改期处理仅为后续演示规则，本期不启用为开发要求。
+   8) 2026-11-16已确认：课时暂不可跨课程通用，按当前学员、所选课程分别统计已购/已上/已约/剩余。
+      体验课独立课包不与正式课混用，剩余=该课程已购-已上-已约；签到代表已完成授课，不等待反馈或评价。
+      老师累计授课汇总所有课程（课时），待我确认仅计待老师处理的预约（条），待上课/待反馈计具体课次（次）。
+      本轮仅同步说明：当前 hours() 仍为共享演示汇总，页面仍使用待确认并包含等待家长记录；
+      分课程台账、课程切换、待我确认过滤及对应明细联动待实现，勿将上述规则视为现有计算能力。 */
 (function () {
   'use strict';
 
@@ -306,7 +311,7 @@
         var state = JSON.parse(raw);
         if (state && state.bookings && state.bookings.length !== undefined) {
           var bookings = mergeSeedPlans(state.bookings).map(function (item) { item.mode = '线上'; item.place = ''; return item; });
-          return { bookings: bookings, availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {}, plans: state.plans || {}, plansReady: !!state.plansReady, parentTimes: state.parentTimes || null };
+          return { bookings: bookings, availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {}, plans: state.plans || {}, plansReady: !!state.plansReady, parentTimes: state.parentTimes || null, parentTimeEntries: Array.isArray(state.parentTimeEntries) ? state.parentTimeEntries : null };
         }
       }
     } catch (error) { /* 忽略读取异常，使用种子数据 */ }
@@ -315,7 +320,7 @@
 
   function writeState(state) {
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ bookings: state.bookings || [], availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {}, plans: state.plans || {}, plansReady: !!state.plansReady, parentTimes: state.parentTimes || null }));
+      localStorage.setItem(STORE_KEY, JSON.stringify({ bookings: state.bookings || [], availability: state.availability || {}, special: state.special || {}, specialEnabled: state.specialEnabled || {}, plans: state.plans || {}, plansReady: !!state.plansReady, parentTimes: state.parentTimes || null, parentTimeEntries: Array.isArray(state.parentTimeEntries) ? state.parentTimeEntries : null }));
     } catch (error) { /* 演示环境忽略写入异常 */ }
   }
 
@@ -424,7 +429,7 @@
 
   function removePlan(courseId) { return savePlan(courseId, []); }
 
-  // 我的上课时间：仅去除同一天完全重复的时段，展示时按相同起止时间聚合星期。
+  // 约课读取的实际参考时间按天去重，独立维护记录可包含相同星期和时间。
   function mergeParentTimes(slots) {
     var merged = [];
     (slots || []).map(function (slot) { return { weekday: Number(slot.weekday), time: slot.time, end: slot.end }; })
@@ -437,12 +442,23 @@
   }
   function parentTimes() {
     var state = read();
+    if (Array.isArray(state.parentTimeEntries)) {
+      var flattened = [];
+      normalizeParentTimeEntries(state.parentTimeEntries).forEach(function (entry) {
+        entry.days.forEach(function (day) { flattened.push({ weekday: day, time: entry.time, end: entry.end }); });
+      });
+      return mergeParentTimes(flattened);
+    }
     if (state.parentTimes !== null && state.parentTimes !== undefined) return mergeParentTimes(state.parentTimes);
     var legacy = plans(), slots = [];
     Object.keys(legacy).forEach(function (id) { slots = slots.concat(legacy[id]); });
     return mergeParentTimes(slots);
   }
   function parentTimeGroups(slots) {
+    if (slots === undefined) {
+      var state = read();
+      if (Array.isArray(state.parentTimeEntries)) return normalizeParentTimeEntries(state.parentTimeEntries);
+    }
     var groups = [];
     mergeParentTimes(slots === undefined ? parentTimes() : slots).forEach(function (slot) {
       var key = slot.time + '|' + slot.end;
@@ -453,7 +469,30 @@
     return groups;
   }
   function saveParentTimes(slots) {
-    var state = read(); state.parentTimes = mergeParentTimes(slots); writeState(state); return parentTimes();
+    var state = read(); state.parentTimes = mergeParentTimes(slots); state.parentTimeEntries = null; writeState(state); return parentTimes();
+  }
+  function normalizeParentTimeEntries(entries) {
+    var result = [], ids = [];
+    (entries || []).forEach(function (entry, index) {
+      if (!entry || !Array.isArray(entry.days) || !entry.time || !entry.end || entry.time >= entry.end) return;
+      var days = entry.days.map(Number).filter(function (day, i, all) { return day >= 0 && day <= 6 && day % 1 === 0 && all.indexOf(day) === i; }).sort(function (a, b) { return a - b; });
+      if (!days.length) return;
+      var id = String(entry.id || entry.key || ('parent-time-' + (index + 1))), suffix = 1;
+      while (ids.indexOf(id) >= 0) id = 'parent-time-' + (index + 1) + '-' + suffix++;
+      ids.push(id);
+      result.push({ id: id, key: id, days: days, time: entry.time, end: entry.end });
+    });
+    return result;
+  }
+  function saveParentTimeGroups(entries) {
+    var state = read(), flattened = [];
+    state.parentTimeEntries = normalizeParentTimeEntries(entries);
+    state.parentTimeEntries.forEach(function (entry) {
+      entry.days.forEach(function (day) { flattened.push({ weekday: day, time: entry.time, end: entry.end }); });
+    });
+    state.parentTimes = mergeParentTimes(flattened);
+    writeState(state);
+    return parentTimeGroups();
   }
 
   function days() { return clone(DAYS); }
@@ -1173,6 +1212,7 @@
     courses: courses,
     trialCourses: trialCourses,
     parentTimeGroups: parentTimeGroups,
+    saveParentTimeGroups: saveParentTimeGroups,
     parentTimes: parentTimes,
     saveParentTimes: saveParentTimes,
     mergeParentTimes: mergeParentTimes,

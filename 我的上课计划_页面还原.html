@@ -194,7 +194,7 @@
     <div class="toast" id="toast"></div>
   </div></div></main>
 
-<script src="约课数据.js?v=20261113-trial-teachers"></script>
+<script src="约课数据.js?v=20261113-independent-times"></script>
   <script>
     const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     const END_STEP_MINUTES = 30;
@@ -231,10 +231,10 @@
       clearTimeout(showToast.timer);
       showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
     }
-    function keyOf(slot) { return slot.time + '|' + slot.end; }
+    function keyOf(slot) { return slot.id || slot.key; }
     function daysText(days) { return days.length === 7 ? '每天' : '每' + days.map(day => WEEKDAYS[day]).join('、'); }
-    function loadSlots() { return YZB.parentTimes(); }
-    function persistPlans() { slots = YZB.saveParentTimes(slots); }
+    function loadSlots() { return YZB.parentTimeGroups(); }
+    function persistPlans() { slots = YZB.saveParentTimeGroups(slots); }
     function minutesToText(minutes) { return String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0'); }
     function lengthText(minutes) {
       if (minutes % 60 === 0) return (minutes / 60) + ' 小时';
@@ -265,10 +265,10 @@
       document.querySelectorAll('.quick-range').forEach(button => button.classList.toggle('active', button.dataset.start === start && button.dataset.end === end));
       if (!start || !end) { durationTip.textContent = '该开始时间没有可用的结束时间，请换一个开始时间'; return; }
       const slot = { time: start, end: end };
-      durationTip.textContent = '时段长 ' + lengthText(YZB.slotMinutes(slot)) + '；起止时间相同的星期合并展示。';
+      durationTip.textContent = '时段长 ' + lengthText(YZB.slotMinutes(slot)) + '；每次添加的时段独立保存。';
     }
     function renderList() {
-      planList.innerHTML = slots.length ? YZB.parentTimeGroups(slots).map((slot, index) => `
+      planList.innerHTML = slots.length ? slots.map((slot, index) => `
         <div class="plan-row">
           <span><strong>${daysText(slot.days)} ${YZB.timeRangeText(slot.time, slot.end)}</strong><em>时段长 ${lengthText(YZB.slotMinutes(slot))}</em></span>
           <span class="row-actions"><button type="button" data-edit="${index}">编辑</button><button class="danger" type="button" data-remove="${index}">删除</button></span>
@@ -282,13 +282,13 @@
     }
     function sheetNoteText() {
       if (!editingKey) return '';
-      const group = YZB.parentTimeGroups(slots).find(item => item.key === editingKey);
+      const group = slots.find(item => keyOf(item) === editingKey);
       if (!group) return '';
       return '正在编辑：' + daysText(group.days) + ' ' + YZB.timeRangeText(group.time, group.end);
     }
     function openSheet(index) {
       if (index >= 0) {
-        const slot = YZB.parentTimeGroups(slots)[index];
+        const slot = slots[index];
         editingKey = keyOf(slot);
         selectedDays = new Set(slot.days);
         startTime.value = slot.time;
@@ -328,7 +328,7 @@
       }
       const remove = event.target.closest('[data-remove]');
       if (!remove) return;
-      const target = YZB.parentTimeGroups(slots)[Number(remove.dataset.remove)];
+      const target = slots[Number(remove.dataset.remove)];
       if (target) slots = slots.filter(slot => keyOf(slot) !== keyOf(target));
       selectedDays = new Set();
       editingKey = null;
@@ -359,15 +359,11 @@
       const time = startTime.value, end = endTime.value;
       if (!time || !end || end <= time) { showToast('请选择正确的起止时间'); return; }
       const wasEditing = !!editingKey;
-      const base = wasEditing ? slots.filter(slot => keyOf(slot) !== editingKey) : slots.slice();
-      const added = [];
-      days.forEach(day => {
-        if (base.some(slot => slot.weekday === day && slot.time === time && slot.end === end)) return;
-        base.push({ weekday: day, time, end });
-        added.push(day);
-      });
-      if (!added.length) { showToast('这些时间已经在计划里了'); return; }
-      slots = base;
+      const duplicate = slots.some(slot => keyOf(slot) !== editingKey && slot.time === time && slot.end === end && slot.days.length === days.length && slot.days.every((day, index) => day === days[index]));
+      if (duplicate) { showToast('相同星期和起止时间的时段已存在'); return; }
+      slots = wasEditing
+        ? slots.map(slot => keyOf(slot) === editingKey ? { ...slot, days, time, end } : slot)
+        : slots.concat([{ days, time, end }]);
       persistPlans();
       renderAll();
       closeSheetEditor();
@@ -387,4 +383,4 @@
     fit(); addEventListener('resize', fit, { passive: true });
 
   </script>
-<script src="原型开发说明.js?v=20261113-trial-direct-time"></script></body></html>
+<script src="原型开发说明.js?v=20261116-stat-rules"></script></body></html>
